@@ -11,6 +11,7 @@ DROP PROCEDURE IF EXISTS R_DELETE_DICTIONARY $$
 DROP PROCEDURE IF EXISTS R_DELETE_INSURANCE $$
 DROP PROCEDURE IF EXISTS R_FETCH_ALL_INSURANCES $$
 DROP PROCEDURE IF EXISTS R_FETCH_INSURANCE_BY_ID $$
+DROP PROCEDURE IF EXISTS R_CREATE_AUDIT_LOG $$
 
 -- ---------------------------------------------------------------------
 -- CREATE ROUTINES
@@ -138,5 +139,38 @@ BEGIN
 				AND dd IS NULL;
 	END IF;
 END $$
+
+CREATE PROCEDURE R_CREATE_AUDIT_LOG(IN p_table_name VARCHAR(255), IN p_id BIGINT)
+BEGIN
+	DECLARE v_cols VARCHAR(1024);
+	DECLARE v_log_table VARCHAR(1024);
+
+	-- check if an audit log table exists
+	SELECT 	table_name INTO v_log_table
+	FROM 	information_schema.TABLES 
+	WHERE 	table_schema = schema() 
+			AND table_name=upper(concat(p_table_name, '_AUDIT_LOG'))
+	LIMIT 	0,1;
+
+	IF v_log_table IS NOT NULL THEN
+		-- concat all the columns
+		SELECT 		GROUP_CONCAT(concat('`', column_name, '`') SEPARATOR ', ')
+		INTO 		v_cols
+		FROM 		information_schema.COLUMNS 
+		WHERE 		table_schema = schema()
+					AND table_name = p_table_name
+		GROUP BY 	table_name;
+
+		SET @id = p_id;
+		SET @log_table = CONCAT('`', v_log_table, '`');
+		SET @cols = v_cols;
+		SET @tbl = p_table_name;
+		SET @sql = concat("INSERT INTO ", @log_table, "(", @cols, ") SELECT ", @cols, " FROM ", @tbl, " WHERE id = ?");
+
+		PREPARE STMT FROM @sql;
+		EXECUTE STMT USING @id;
+	END IF;
+END $$
+
 
 DELIMITER ;
