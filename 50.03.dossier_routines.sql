@@ -44,11 +44,22 @@ END $$
 
 CREATE FUNCTION F_RESOLVE_TIMEFRAME_CATEGORY() RETURNS VARCHAR(15)
 BEGIN
-	CASE dayofweek(now())
-		WHEN 0 THEN return 'SUNDAY';
-		WHEN 7 THEN return 'SATURDAY';
-		ELSE RETURN 'WORKDAY';
-	END CASE;
+	DECLARE v_id INT;
+
+	SELECT 	id INTO v_id
+	FROM 	`P_HOLIDAYS`	
+	WHERE 	`holiday` = CURRENT_DATE
+	LIMIT 	0,1;
+
+	IF v_id IS NULL THEN 
+		CASE dayofweek(now())
+			WHEN 0 THEN return 'SUNDAY';
+			WHEN 7 THEN return 'SATURDAY';
+			ELSE RETURN 'WORKDAY';
+		END CASE;
+	ELSE
+		RETURN 'HOLIDAY';
+	END IF; 
 END $$
 
 -- ---------------------------------------------------------------------

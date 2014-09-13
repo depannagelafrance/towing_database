@@ -2,8 +2,8 @@
 INSERT INTO `P_ROLES` (`id`, `code`, `name`) VALUES 
 	(1, 'ADMIN', 'Algemeen beheerder'),
 	(2, 'COMPANY_ADMIN', 'Beheerder'),
-	(3, 'DISPATCH', 'Dispatch'),
-	(4, 'MANAGER', 'Dossier beheerder');
+	(3, 'FAST_DISPATCH', 'FAST Dispatch'),
+	(4, 'FAST_MANAGER', 'FAST Dossier beheerder');
 
 
 INSERT INTO `P_INCIDENT_TYPES` (`name`, `code`) VALUES 
@@ -14,6 +14,12 @@ INSERT INTO `P_INCIDENT_TYPES` (`name`, `code`) VALUES
 	('Verloren voorwerp', 		'VERLOREN_VOORWERP'),
 	('Botsabsorbeerder', 		'BOTSABSORBEERDER');
 
+
+INSERT INTO `P_HOLIDAYS` (`id`, `year`, `holiday`, `cd`, `cd_by`)  VALUES 
+	(1, 2014, '2014-11-01', now(), 'SYSTEM'),
+	(2, 2014, '2014-11-11', now(), 'SYSTEM'),
+	(3, 2014, '2014-12-25', now(), 'SYSTEM'),
+	(4, 2014, '2014-12-31', now(), 'SYSTEM');
 
 INSERT INTO `P_TIMEFRAMES` (`id`, `name`) VALUES 
 	(1, 'Basistarief'),

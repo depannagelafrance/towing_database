@@ -13,7 +13,7 @@ VALUES (1, 'ACUZIO BVBA', 'ACUZIO', 'Voorspoedstraat', '8', '', 'Essen', '+32472
 INSERT INTO T_USERS(id, company_id, login, first_name, last_name, email, is_active, is_locked, locked_ts, cd, cd_by)
 values(1, 1, 'admin', 'Master', 'Chief', 'kvandermast@gmail.com', 1, 0, null, now(), 'SYSTEM');
 INSERT INTO `T_USER_PASSWORDS` (`id`, `user_id`, `pwd`) VALUES (1, 1, PASSWORD('T0w1nG'));
-INSERT INTO `T_USER_TOKENS` (`user_id`, `token`) VALUES (1, SHA1(CONCAT(UUID(), '1', 'admin', now())));
+INSERT INTO `T_USER_TOKENS` (`user_id`, `token`) VALUES (1, 'TOKEN1');
 
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
