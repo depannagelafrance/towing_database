@@ -4,10 +4,15 @@ DELIMITER $$
 -- DROP ROUTINES
 -- ---------------------------------------------------------------------
 DROP PROCEDURE IF EXISTS R_CREATE_USER $$
+DROP PROCEDURE IF EXISTS R_UPDATE_USER $$
 DROP PROCEDURE IF EXISTS R_FETCH_USER_BY_ID $$
 DROP PROCEDURE IF EXISTS R_FETCH_ALL_USERS $$
 DROP PROCEDURE IF EXISTS R_UNLOCK_USER $$
 DROP PROCEDURE IF EXISTS R_DELETE_USER $$
+DROP PROCEDURE IF EXISTS R_PURGE_USER_ROLES $$
+DROP PROCEDURE IF EXISTS R_ASSIGN_USER_ROLE $$
+DROP PROCEDURE IF EXISTS R_FETCH_ALL_USER_ROLES $$
+
 
 -- ---------------------------------------------------------------------
 -- CREATE ROUTINES
@@ -37,6 +42,24 @@ BEGIN
 		ELSE
 			SELECT 'LOGIN_ALREADY_EXISTS' as error, 409 as statusCode;
 		END IF;
+	END IF;
+END $$
+
+CREATE PROCEDURE R_UPDATE_USER(IN p_id VARCHAR(36), IN p_firstname VARCHAR(255), IN p_lastname VARCHAR(255), IN p_email VARCHAR(255), IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id BIGINT;
+	DECLARE v_user_id, v_guid VARCHAR(36);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+	
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		UPDATE `T_USERS`
+		SET `first_name` = p_firstname, `last_name` = p_lastname, `email` = p_email, `ud` = now(), `ud_by` = F_RESOLVE_LOGIN(v_user_id, p_token)
+		WHERE `id` = p_id;
+
+		CALL R_FETCH_USER_BY_ID(p_id, p_token);
 	END IF;
 END $$
 
@@ -128,7 +151,61 @@ BEGIN
 				AND company_id = v_company_id
 				AND dd IS NULL
 		LIMIT 	1;
+
+		CALL R_PURGE_USER_ROLES(p_id, p_token);
+
+		SELECT "ok" as result;
 	END IF;
 END $$
+
+
+CREATE PROCEDURE R_PURGE_USER_ROLES(IN p_id VARCHAR(36), IN p_token VARCHAR(255)) 
+BEGIN
+	DECLARE v_company_id BIGINT;
+	DECLARE v_user_id, v_guid VARCHAR(36);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+	
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		DELETE FROM T_USER_ROLES
+		WHERE user_id = p_user_id
+		LIMIT 100;
+	END IF;
+END $$
+
+CREATE PROCEDURE R_ASSIGN_USER_ROLE(IN p_user_id VARCHAR(36), IN p_role_id INT, IN p_token VARCHAR(255)) 
+BEGIN
+	DECLARE v_company_id BIGINT;
+	DECLARE v_user_id, v_guid VARCHAR(36);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+	
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		INSERT INTO T_USER_ROLES(user_id, role_id)
+		VALUES(p_user_id, p_role_id);
+	END IF;
+END $$
+
+CREATE PROCEDURE R_FETCH_ALL_USER_ROLES(IN p_id VARCHAR(36), IN p_token VARCHAR(255)) 
+BEGIN
+	DECLARE v_company_id BIGINT;
+	DECLARE v_user_id, v_guid VARCHAR(36);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+	
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		SELECT 	r.`id`, `code`, `name`
+		FROM 	`P_ROLES` r, `T_USER_ROLES` ur
+		WHERE 	r.`dd` IS NULL
+				AND r.id = ur.role_id AND ur.user_id = p_id;
+	END IF;
+END $$
+
 
 DELIMITER ;
