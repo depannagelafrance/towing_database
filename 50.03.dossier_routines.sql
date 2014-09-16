@@ -8,12 +8,18 @@ DROP PROCEDURE IF EXISTS R_UPDATE_DOSSIER $$
 DROP PROCEDURE IF EXISTS R_CREATE_TOWING_VOUCHER $$
 DROP PROCEDURE IF EXISTS R_FETCH_DOSSIER_BY_ID $$
 DROP PROCEDURE IF EXISTS R_FETCH_TOWING_VOUCHERS_BY_DOSSIER $$
+DROP PROCEDURE IF EXISTS R_FETCH_TOWING_ACTIVITIES_BY_VOUCHER $$
+DROP PROCEDURE IF EXISTS R_FETCH_TOWING_PAYMENTS_BY_VOUCHER $$
+DROP PROCEDURE IF EXISTS R_FETCH_ALL_DOSSIERS_BY_FILTER $$
 
 DROP FUNCTION IF EXISTS F_NEXT_DOSSIER_NUMBER $$
 DROP FUNCTION IF EXISTS F_NEXT_TOWING_VOUCHER_NUMBER $$
 DROP FUNCTION IF EXISTS F_RESOLVE_TIMEFRAME_CATEGORY $$
 
+DROP TRIGGER IF EXISTS TRG_AI_DOSSIER $$
 DROP TRIGGER IF EXISTS TRG_AU_DOSSIER $$
+DROP TRIGGER IF EXISTS TRG_AI_TOWING_VOUCHER $$
+DROP TRIGGER IF EXISTS TRG_AI_TOWING_ACTIVITY $$
 
 
 
@@ -67,7 +73,7 @@ END $$
 -- ---------------------------------------------------------------------
 CREATE PROCEDURE R_CREATE_DOSSIER(IN p_token VARCHAR(255))
 BEGIN
-	DECLARE v_company_id, v_dossier_id BIGINT;
+	DECLARE v_company_id, v_dossier_id, v_towing_voucher_id BIGINT;
 	DECLARE v_user_id VARCHAR(36);
 	DECLARE v_timeframe_id INT;
 
@@ -89,9 +95,6 @@ BEGIN
 		VALUES (F_NEXT_DOSSIER_NUMBER(), 'NEW', curdate(), v_timeframe_id, now(), F_RESOLVE_LOGIN(v_user_id, p_token));
 
 		SET v_dossier_id = LAST_INSERT_ID();
-
-		INSERT INTO `T_TOWING_VOUCHERS` (`dossier_id`, `voucher_number`, `cd`, `cd_by`) 
-		VALUES (v_dossier_id, F_NEXT_TOWING_VOUCHER_NUMBER(), now(), F_RESOLVE_LOGIN(v_user_id, p_token));
 
 		SELECT v_dossier_id as `id`;
 	END IF;
@@ -206,6 +209,92 @@ BEGIN
 END $$
 
 
+CREATE PROCEDURE R_FETCH_TOWING_ACTIVITIES_BY_VOUCHER(IN p_dossier_id BIGINT, IN p_voucher_id BIGINT, IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id, v_dossier_id BIGINT;
+	DECLARE v_user_id VARCHAR(36);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		-- TODO: check link with company
+		SELECT 	DISTINCT d.id INTO v_dossier_id
+		FROM 	T_DOSSIERS d, T_TOWING_VOUCHERS tv
+		WHERE	d.id = p_dossier_id
+				AND d.id = tv.dossier_id;
+
+		IF v_dossier_id IS NULL THEN
+			CALL R_NOT_FOUND;
+		ELSE
+			SELECT ta.towing_voucher_id, ta.activity_id, tia.code, tia.name, taf.fee_incl_vat, taf.fee_excl_vat, ta.amount, ta.cal_fee_excl_vat, ta.cal_fee_incl_vat 
+			FROM T_TOWING_ACTIVITIES ta, P_TIMEFRAME_ACTIVITY_FEE taf, P_TIMEFRAME_ACTIVITIES tia
+			WHERE ta.towing_voucher_id = p_voucher_id
+				AND ta.activity_id = taf.id
+				AND taf.timeframe_activity_id = tia.id; 
+		END IF;
+	END IF;
+END $$
+
+CREATE PROCEDURE R_FETCH_TOWING_PAYMENTS_BY_VOUCHER(IN p_dossier_id BIGINT, IN p_voucher_id BIGINT, IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id, v_dossier_id BIGINT;
+	DECLARE v_user_id VARCHAR(36);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		-- TODO: check link with company
+		SELECT 	DISTINCT d.id INTO v_dossier_id
+		FROM 	T_DOSSIERS d, T_TOWING_VOUCHERS tv
+		WHERE	d.id = p_dossier_id
+				AND d.id = tv.dossier_id
+				AND tv.id = p_voucher_id;
+
+		IF v_dossier_id IS NULL THEN
+			CALL R_NOT_FOUND;
+		ELSE
+			SELECT	*
+			FROM 	T_TOWING_VOUCHER_PAYMENTS
+			WHERE	`towing_voucher_id` = p_voucher_id;
+		END IF;
+	END IF;
+END $$
+
+
+CREATE PROCEDURE R_FETCH_ALL_DOSSIERS_BY_FILTER(IN p_filter VARCHAR(25), IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id, v_dossier_id BIGINT;
+	DECLARE v_user_id VARCHAR(36);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		SELECT 	`id`, `dossier_number`, `status`, `call_date`, `call_number`, `police_traffic_post_id` 
+		FROM 	`T_DOSSIERS` d
+		WHERE	company_id = v_company_id
+				AND d.status = p_filter
+		ORDER BY call_date DESC; 	
+	END IF;
+END $$
+
+-- ----------------------------------------------------------------
+-- TRIGGERS
+-- ----------------------------------------------------------------
+
+CREATE TRIGGER `TRG_AI_DOSSIER` AFTER INSERT ON `T_DOSSIERS`
+FOR EACH ROW
+BEGIN
+	-- automatically insert a new towing voucher for each new dossier
+	INSERT INTO `T_TOWING_VOUCHERS` (`dossier_id`, `voucher_number`, `cd`, `cd_by`) 
+	VALUES (NEW.id, F_NEXT_TOWING_VOUCHER_NUMBER(), now(), NEW.cd_by);
+END $$
+
 CREATE TRIGGER `TRG_AU_DOSSIER` AFTER UPDATE ON `T_DOSSIERS` 
 FOR EACH ROW
 BEGIN
@@ -220,20 +309,20 @@ BEGIN
 
 		CASE v_incident_type_code
 			WHEN 'PANNE' OR 'ONGEVAL' OR 'ACHTERGELATEN_VOERTUIG' THEN
-				INSERT INTO T_TOWING_ACTIVITIES(towing_voucher_id, activity_id, amount)
-				SELECT 	id, t.activity_id, 1.00
+				INSERT INTO T_TOWING_ACTIVITIES(towing_voucher_id, activity_id, amount, cal_fee_excl_vat, cal_fee_incl_vat)
+				SELECT 	id, t.activity_id, 1.00, t.fee_excl_vat, t.fee_incl_vat 
 				FROM 	T_TOWING_VOUCHERS tv,
-						(SELECT taf.id as activity_id
+						(SELECT taf.id as activity_id, taf.fee_excl_vat, taf.fee_incl_vat
 						 FROM 	`P_TIMEFRAME_ACTIVITY_FEE` taf, `P_TIMEFRAME_ACTIVITIES` ta
 						 WHERE 	taf.timeframe_activity_id = ta.id AND taf.timeframe_id = NEW.timeframe_id
 								AND `code` IN (v_incident_type_code, 'SIGNALISATIE')
 								AND current_date BETWEEN taf.valid_from AND taf.valid_until) t
 				WHERE tv.dossier_id = OLD.id;
 			ELSE
-				INSERT INTO T_TOWING_ACTIVITIES(towing_voucher_id, activity_id, amount)
-				SELECT 	id, t.activity_id, 1.00
+				INSERT INTO T_TOWING_ACTIVITIES(towing_voucher_id, activity_id, amount, cal_fee_excl_vat, cal_fee_incl_vat)
+				SELECT 	id, t.activity_id, 1.00, t.fee_excl_vat, t.fee_incl_vat 
 				FROM 	T_TOWING_VOUCHERS tv,
-						(SELECT taf.id as activity_id
+						(SELECT taf.id as activity_id, taf.fee_excl_vat, taf.fee_incl_vat
 						 FROM 	`P_TIMEFRAME_ACTIVITY_FEE` taf, `P_TIMEFRAME_ACTIVITIES` ta
 						 WHERE 	taf.timeframe_activity_id = ta.id AND taf.timeframe_id = NEW.timeframe_id
 								AND `code` IN (v_incident_type_code)
@@ -241,6 +330,34 @@ BEGIN
 				WHERE tv.dossier_id = OLD.id;		
 		END CASE;
 	END IF;
+END $$
+
+CREATE TRIGGER `TRG_AI_TOWING_VOUCHER` AFTER INSERT ON `T_TOWING_VOUCHERS`
+FOR EACH ROW
+BEGIN
+	-- automatically create a voucher payment record when creating a new towing voucher
+	INSERT INTO `T_TOWING_VOUCHER_PAYMENTS` (`towing_voucher_id`, `cd`, `cd_by`) VALUES 
+				(NEW.id, now(), NEW.cd_by);
+ 
+END $$
+
+CREATE TRIGGER `TRG_AI_TOWING_ACTIVITY` AFTER INSERT ON `T_TOWING_ACTIVITIES`
+FOR EACH ROW
+BEGIN
+	DECLARE v_incl_vat, v_excl_vat DOUBLE;
+	
+	SELECT 	sum(amount * fee_excl_vat), sum(amount * fee_incl_vat) INTO v_excl_vat, v_incl_vat
+	FROM 	T_TOWING_ACTIVITIES ta, P_TIMEFRAME_ACTIVITY_FEE taf
+	WHERE 	ta.activity_id = taf.id AND ta.towing_voucher_id = NEW.towing_voucher_id;
+
+
+	UPDATE `T_TOWING_VOUCHER_PAYMENTS` 
+	SET 	`amount_customer` = v_incl_vat, 
+			`cal_amount_paid` = 0, 
+			`cal_amount_unpaid` = v_incl_vat, 
+			`ud` = now(), `ud_by` = 'TODO'
+	WHERE 	towing_voucher_id = NEW.towing_voucher_id
+	LIMIT	1;
 END $$
 
 DELIMITER ;
