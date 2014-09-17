@@ -6,6 +6,8 @@ DELIMITER $$
 DROP PROCEDURE IF EXISTS R_CREATE_DOSSIER $$
 DROP PROCEDURE IF EXISTS R_UPDATE_DOSSIER $$
 DROP PROCEDURE IF EXISTS R_CREATE_TOWING_VOUCHER $$
+DROP PROCEDURE IF EXISTS R_UPDATE_TOWING_VOUCHER $$
+
 DROP PROCEDURE IF EXISTS R_FETCH_DOSSIER_BY_ID $$
 DROP PROCEDURE IF EXISTS R_FETCH_TOWING_VOUCHERS_BY_DOSSIER $$
 DROP PROCEDURE IF EXISTS R_FETCH_TOWING_ACTIVITIES_BY_VOUCHER $$
@@ -122,7 +124,9 @@ BEGIN
 			allotment_direction_indicator_id = p_direction_indicator_id,
 			traffic_lane_id 		= p_traffic_lane_id,
 			police_traffic_post_id  = p_police_traffic_post_id,
-			company_id 				= p_company_id
+			company_id 				= p_company_id,
+			ud						= now(),
+			ud_by					= F_RESOLVE_LOGIN(v_user_id, p_token)
 		WHERE id = p_dossier_id
 		LIMIT 1;
 
@@ -154,6 +158,61 @@ BEGIN
 			VALUES (v_dossier_id, F_NEXT_TOWING_VOUCHER_NUMBER(), now(), F_RESOLVE_LOGIN(v_user_id, p_token));
 		END IF;
 	END IF;
+END $$
+
+CREATE PROCEDURE  R_UPDATE_TOWING_VOUCHER(IN p_dossier_id BIGINT, IN p_voucher_id BIGINT,
+										  IN p_insurance_id BIGINT, IN p_insurance_dossier_nr VARCHAR(45), IN p_warranty_holder VARCHAR(255),
+										  IN p_collector_id BIGINT,
+										  IN p_vehicule_type VARCHAR(255), IN p_vehicule_licence_plate VARCHAR(15), IN p_vehicule_country VARCHAR(5),
+										  IN p_signa_by VARCHAR(255), IN p_signa_by_vehicule VARCHAR(15), IN p_signa_arrival DATETIME, 
+										  IN p_towed_by VARCHAR(255), IN p_towed_by_vehicule VARCHAR(15), IN p_towing_depot VARCHAR(512), 
+										  IN p_towing_called DATETIME, IN p_towing_arrival DATETIME, IN p_towing_start DATETIME, IN p_towing_end DATETIME,
+										  IN p_police_signature DATE, IN p_recipient_signature DATE, IN p_vehicule_collected DATE,
+										  IN p_cic DATETIME,
+										  IN p_additional_info TEXT, 
+										  IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id, v_dossier_id BIGINT;
+	DECLARE v_user_id VARCHAR(36);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		UPDATE 	`T_TOWING_VOUCHERS`
+		SET
+			insurance_id 			= p_insurance_id, 
+			insurance_dossiernr 	= p_insurance_dossier_nr, 
+			insurance_warranty_held_by = p_warranty_holder,
+			collector_id 			= p_collector_id, 
+			police_signature_dt 	= p_police_signature,
+			recipient_signature_dt 	= p_recipient_signature, 
+			vehicule_type 			= p_vehicule_type, 
+			vehicule_licenceplate 	= p_vehicule_licence_plate, 
+			vehicule_country 		= p_vehicule_country,
+			vehicule_collected 		= p_vehicule_collected, 
+			towed_by 				= p_towed_by, 
+			towed_by_vehicle 		= p_towed_by_vehicule, 	
+			towing_called 			= p_towing_called, 
+			towing_arrival 			= p_towing_arrival, 
+			towing_start 			= p_towing_start, 
+			towing_completed 		= p_towing_end, 
+			towing_depot 			= p_towing_depot, 
+			signa_by 				= p_signa_by, 
+			signa_by_vehicle 		= p_signa_by_vehicule, 
+			signa_arrival 			= p_signa_arrival, 
+			cic 					= p_cic, 
+			additional_info 		= p_additional_info, 
+			ud						= now(), 
+			ud_by					= F_RESOLVE_LOGIN(v_user_id, p_token)
+		WHERE 	id = p_voucher_id
+				AND dossier_id = p_dossier_id
+		LIMIT 	1;
+
+		SELECT p_voucher_id AS id;
+	END IF;
+
 END $$
 
 CREATE PROCEDURE R_FETCH_DOSSIER_BY_ID(IN p_dossier_id BIGINT, IN p_token VARCHAR(255)) 

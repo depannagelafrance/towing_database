@@ -180,11 +180,25 @@ INSERT INTO `P_DICTIONARY` ( `category`, `name`, `cd`, `cd_by`) VALUES ('COUNTRY
 INSERT INTO `P_DICTIONARY` ( `category`, `name`, `cd`, `cd_by`) VALUES ('COUNTRY_LICENCE_PLATE', 'ZRE',  now(), 'ADMIN');
 INSERT INTO `P_DICTIONARY` ( `category`, `name`, `cd`, `cd_by`) VALUES ('COUNTRY_LICENCE_PLATE', 'ZW',  now(), 'ADMIN');
 
+
+INSERT INTO `P_ALLOTMENT` (`id`, `name`) VALUES (1, 'Perceel 1: Ring');
+
+INSERT INTO `P_ALLOTMENT_DIRECTIONS` (`id`, `name`) VALUES (1, 'R1 > E17');
+
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`, `allotment_directions_id`, `name`) VALUES (1, 1, 'Afrit');
+
 INSERT INTO `P_ROLES` (`id`, `code`, `name`) VALUES 
 	(1, 'ADMIN', 'Algemeen beheerder'),
 	(2, 'COMPANY_ADMIN', 'Beheerder'),
 	(3, 'FAST_DISPATCH', 'FAST Dispatch'),
 	(4, 'FAST_MANAGER', 'FAST Dossier beheerder');
+
+
+INSERT INTO `P_POLICE_TRAFFIC_POSTS` (`id`, `allotment_id`, `name`, `code`) VALUES
+	(1,1,'Antwerpen','A'),
+	(2,1,'Brecht','B'),
+	(3,1,'Grobbendonk','G'),
+	(4,1,'Turnhout','T');
 
 
 INSERT INTO `P_INCIDENT_TYPES` (`name`, `code`) VALUES 
@@ -196,11 +210,11 @@ INSERT INTO `P_INCIDENT_TYPES` (`name`, `code`) VALUES
 	('Botsabsorbeerder', 		'BOTSABSORBEERDER');
 
 
-INSERT INTO `P_HOLIDAYS` (`id`, `year`, `holiday`, `cd`, `cd_by`)  VALUES 
-	(1, 2014, '2014-11-01', now(), 'SYSTEM'),
-	(2, 2014, '2014-11-11', now(), 'SYSTEM'),
-	(3, 2014, '2014-12-25', now(), 'SYSTEM'),
-	(4, 2014, '2014-12-31', now(), 'SYSTEM');
+INSERT INTO `P_HOLIDAYS` (`id`, `name`, `year`, `holiday`, `cd`, `cd_by`)  VALUES 
+	(1, 'Feestdag', 2014, '2014-11-01', now(), 'SYSTEM'),
+	(2, 'Feestdag', 2014, '2014-11-11', now(), 'SYSTEM'),
+	(3, 'Feestdag', 2014, '2014-12-25', now(), 'SYSTEM'),
+	(4, 'Feestdag', 2014, '2014-12-31', now(), 'SYSTEM');
 
 INSERT INTO `P_TIMEFRAMES` (`id`, `name`) VALUES 
 	(1, 'Basistarief'),
