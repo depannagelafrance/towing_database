@@ -22,6 +22,7 @@ DROP PROCEDURE IF EXISTS R_FETCH_ALL_TRAFFIC_LANES $$
 DROP PROCEDURE IF EXISTS R_FETCH_ALL_LICENCE_PLATE_COUNTRIES $$
 DROP PROCEDURE IF EXISTS R_FETCH_ALL_DIRECTIONS $$
 DROP PROCEDURE IF EXISTS R_FETCH_INDICATORS_BY_DIRECTION $$
+DROP PROCEDURE IF EXISTS R_FETCH_COMPANIES_BY_DIRECTION_AND_INDICATOR $$
 
 DROP PROCEDURE IF EXISTS R_FETCH_INSURANCE_BY_ID $$
 DROP PROCEDURE IF EXISTS R_FETCH_COLLECTOR_BY_ID $$
@@ -278,6 +279,40 @@ BEGIN
 		ORDER BY `name`;
 	END IF;
 END $$
+
+CREATE PROCEDURE R_FETCH_COMPANIES_BY_DIRECTION_AND_INDICATOR(IN p_direction_id INT, IN p_indicator_id INT, IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id BIGINT;
+	DECLARE v_user_id, v_guid VARCHAR(36);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+	
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		IF p_indicator_id IS NULL THEN
+			SELECT  c.id, c.code, c.name, c.phone
+			FROM 	`P_ALLOTMENT_MAP` ap, `P_ALLOTMENT` a, `T_COMPANY_ALLOTMENTS` ca, `T_COMPANIES` c
+			WHERE 	a.id = ap.allotment_id
+					AND a.id = ca.allotment_id
+					AND c.id = ca.company_id
+					AND direction_id = p_direction_id
+			ORDER BY c.name;
+		ELSE
+			SELECT  c.id, c.code, c.name, c.phone
+			FROM 	`P_ALLOTMENT_MAP` ap, `P_ALLOTMENT` a, `T_COMPANY_ALLOTMENTS` ca, `T_COMPANIES` c
+			WHERE 	a.id = ap.allotment_id
+					AND a.id = ca.allotment_id
+					AND c.id = ca.company_id
+					AND direction_id = p_direction_id
+					AND indicator_id = p_indicator_id
+			ORDER BY c.name;
+		END IF;
+	END IF;
+END $$
+
+
+
 
 
 CREATE PROCEDURE R_FETCH_INSURANCE_BY_ID(IN p_id BIGINT, IN p_token VARCHAR(255))

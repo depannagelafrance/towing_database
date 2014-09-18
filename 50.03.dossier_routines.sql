@@ -13,6 +13,8 @@ DROP PROCEDURE IF EXISTS R_FETCH_TOWING_VOUCHERS_BY_DOSSIER $$
 DROP PROCEDURE IF EXISTS R_FETCH_TOWING_ACTIVITIES_BY_VOUCHER $$
 DROP PROCEDURE IF EXISTS R_FETCH_TOWING_PAYMENTS_BY_VOUCHER $$
 DROP PROCEDURE IF EXISTS R_FETCH_ALL_DOSSIERS_BY_FILTER $$
+DROP PROCEDURE IF EXISTS R_FETCH_ALL_VOUCHERS_BY_FILTER $$
+DROP PROCEDURE IF EXISTS R_FETCH_ALL_AVAILABLE_ACTIVITIES $$
 
 DROP FUNCTION IF EXISTS F_NEXT_DOSSIER_NUMBER $$
 DROP FUNCTION IF EXISTS F_NEXT_TOWING_VOUCHER_NUMBER $$
@@ -342,6 +344,54 @@ BEGIN
 	END IF;
 END $$
 
+
+CREATE PROCEDURE R_FETCH_ALL_VOUCHERS_BY_FILTER(IN p_filter VARCHAR(25), IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id, v_dossier_id BIGINT;
+	DECLARE v_user_id VARCHAR(36);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		SELECT 	d.id, d.id as 'dossier_id', t.id as 'voucher_id', d.call_number, d.call_date, t.voucher_number, ad.name 'direction_name', adi.name 'indicator_name', c.code as `towing_service`, ip.name as `incident_type`
+		FROM 	`T_TOWING_VOUCHERS`t, 
+				`T_DOSSIERS` d, 
+				`P_ALLOTMENT_DIRECTIONS` ad, 
+				`P_ALLOTMENT_DIRECTION_INDICATORS` adi,
+				`T_COMPANIES` c,
+				`P_INCIDENT_TYPES` ip
+		WHERE 	d.id = t.dossier_id
+				AND d.company_id = v_company_id
+				AND d.company_id = c.id
+				AND d.incident_type_id = ip.id
+				AND d.allotment_direction_id = ad.id
+				AND d.allotment_direction_indicator_id = adi.id
+				AND d.status = p_filter
+		ORDER BY d.call_date DESC;
+	END IF;
+END $$
+
+
+CREATE PROCEDURE R_FETCH_ALL_AVAILABLE_ACTIVITIES(IN p_dossier_id BIGINT, IN p_voucher_id BIGINT, IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id, v_dossier_id BIGINT;
+	DECLARE v_user_id VARCHAR(36);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		SELECT 	taf.id, ta.name, ta.code 
+		FROM 	`P_TIMEFRAME_ACTIVITIES` ta, `P_TIMEFRAME_ACTIVITY_FEE` taf
+		WHERE 	ta.id = taf.timeframe_activity_id
+				AND taf.timeframe_id = (SELECT timeframe_id FROM T_DOSSIERS WHERE id = p_dossier_id)
+				AND taf.id NOT IN (SELECT activity_id FROM T_TOWING_ACTIVITIES WHERE towing_voucher_id = p_voucher_id)
+				AND CURRENT_DATE BETWEEN taf.valid_from AND taf.valid_until;	
+	END IF;
+END $$
 -- ----------------------------------------------------------------
 -- TRIGGERS
 -- ----------------------------------------------------------------

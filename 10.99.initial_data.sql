@@ -190,9 +190,21 @@ INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`, `allotment_directions_id`,
 INSERT INTO `P_ROLES` (`id`, `code`, `name`) VALUES 
 	(1, 'ADMIN', 'Algemeen beheerder'),
 	(2, 'COMPANY_ADMIN', 'Beheerder'),
-	(3, 'FAST_DISPATCH', 'FAST Dispatch'),
-	(4, 'FAST_MANAGER', 'FAST Dossier beheerder');
+	(3, 'FAST_DISPATCH', 'F.A.S.T. Dispatch'),
+	(4, 'FAST_MANAGER', 'F.A.S.T. Dossier beheerder');
 
+
+INSERT INTO `P_MODULES` (`id`, `code`, `name`) VALUES
+	(1, 'FAST_DISPATCH', 'F.A.S.T. Dispatch'),
+	(2, 'FAST_DOSSIER', 'F.A.S.T. Dossierbeheer'),
+	(3, 'ADMIN', 'Algemeen beheer'),
+	(4, 'COMPANY_ADMIN', 'Beheer');
+
+INSERT INTO `T_COMPANIES`(id, name, code, street, street_number, street_pobox, city, phone, fax, email, website, depot) VALUES 
+	(1, 'Depannage La France NV', 'LAFRANCE', 'Voorspoedstraat', '8', '', 'Essen', '+32472702460', '', 'kvandermast@gmail.com', '', 'Depot Depannage La France');
+
+INSERT INTO `P_COMPANY_MODULES` (`module_id`, `company_id`, `cd`, `cd_by`, `dd`, `dd_by`) 
+SELECT id, 1, now(), 'SYSTEM', null, null FROM P_MODULES;
 
 INSERT INTO `P_POLICE_TRAFFIC_POSTS` (`id`, `allotment_id`, `name`, `code`) VALUES
 	(1,1,'Antwerpen','A'),
