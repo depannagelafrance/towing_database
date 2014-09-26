@@ -236,7 +236,7 @@ BEGIN
 		IF v_dossier_id IS NULL THEN
 			CALL R_NOT_FOUND;
 		ELSE
-			SELECT	`id`, `dossier_number`, `status`, `call_date`, `call_number`, `police_traffic_post_id`, `incident_type_id` 
+			SELECT	`id`, `dossier_number`, `status`, `call_date`, `call_number`, `police_traffic_post_id`, `incident_type_id`, `traffic_lane_id` 
 			FROM 	T_DOSSIERS 
 			WHERE	`id` = v_dossier_id
 			LIMIT	0, 1;
