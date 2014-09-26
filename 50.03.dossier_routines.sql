@@ -9,6 +9,7 @@ DROP PROCEDURE IF EXISTS R_CREATE_TOWING_VOUCHER $$
 DROP PROCEDURE IF EXISTS R_UPDATE_TOWING_VOUCHER $$
 
 DROP PROCEDURE IF EXISTS R_FETCH_DOSSIER_BY_ID $$
+DROP PROCEDURE IF EXISTS R_FETCH_DOSSIER_BY_NUMBER $$
 DROP PROCEDURE IF EXISTS R_FETCH_TOWING_VOUCHERS_BY_DOSSIER $$
 DROP PROCEDURE IF EXISTS R_FETCH_TOWING_ACTIVITIES_BY_VOUCHER $$
 DROP PROCEDURE IF EXISTS R_FETCH_TOWING_PAYMENTS_BY_VOUCHER $$
@@ -96,7 +97,7 @@ BEGIN
 
 		-- create a new dossier
 		INSERT INTO `T_DOSSIERS` (`dossier_number`, `status`, `call_date`, `timeframe_id`, `cd`, `cd_by`) 
-		VALUES (F_NEXT_DOSSIER_NUMBER(), 'NEW', curdate(), v_timeframe_id, now(), F_RESOLVE_LOGIN(v_user_id, p_token));
+		VALUES (F_NEXT_DOSSIER_NUMBER(), 'NEW', CURRENT_TIMESTAMP, v_timeframe_id, CURRENT_TIMESTAMP, F_RESOLVE_LOGIN(v_user_id, p_token));
 
 		SET v_dossier_id = LAST_INSERT_ID();
 
@@ -235,10 +236,33 @@ BEGIN
 		IF v_dossier_id IS NULL THEN
 			CALL R_NOT_FOUND;
 		ELSE
-			SELECT	`id`, `dossier_number`, `status`, `call_date`, `call_number`, `police_traffic_post_id` 
+			SELECT	`id`, `dossier_number`, `status`, `call_date`, `call_number`, `police_traffic_post_id`, `incident_type_id` 
 			FROM 	T_DOSSIERS 
 			WHERE	`id` = v_dossier_id
 			LIMIT	0, 1;
+		END IF;
+	END IF;
+END $$
+
+CREATE PROCEDURE R_FETCH_DOSSIER_BY_NUMBER(IN p_dossier_nr INT, IN p_token VARCHAR(255)) 
+BEGIN
+	DECLARE v_company_id, v_dossier_id BIGINT;
+	DECLARE v_user_id VARCHAR(36);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		-- TODO: check link with company
+		SELECT 	`id` INTO v_dossier_id
+		FROM 	T_DOSSIERS
+		WHERE	`dossier_number` = p_dossier_nr;
+
+		IF v_dossier_id IS NULL THEN
+			CALL R_NOT_FOUND;
+		ELSE
+			CALL R_FETCH_DOSSIER_BY_ID(v_dossier_id, p_token) ;
 		END IF;
 	END IF;
 END $$
