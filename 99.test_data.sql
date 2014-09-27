@@ -13,7 +13,7 @@ values(1, 1, 'admin', 'Master', 'Chief', 'kvandermast@gmail.com', 1, 0, null, no
 INSERT INTO `T_USER_PASSWORDS` (`id`, `user_id`, `pwd`) VALUES (1, 1, PASSWORD('T0w1nG'));
 INSERT INTO `T_USER_TOKENS` (`user_id`, `token`) VALUES (1, 'TOKEN1');
 
-INSERT INTO `P_MODULE_ROLES` (`P_ROLES_id`, `P_MODULES_id`) 
+INSERT INTO `P_MODULE_ROLES` (`role_id`, `module_id`) 
 	VALUES (1, 3), (2, 4), (3, 1), (4, 2);
 
 
