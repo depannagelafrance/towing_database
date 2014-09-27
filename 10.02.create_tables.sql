@@ -779,19 +779,19 @@ CREATE INDEX `fk_P_COMPANY_MODULES_T_COMPANIES1_idx` ON `P_COMPANY_MODULES` (`co
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `P_MODULE_ROLES` ;
 
-CREATE TABLE IF NOT EXISTS `towing`.`P_MODULE_ROLES` (
+CREATE TABLE IF NOT EXISTS `P_MODULE_ROLES` (
   `role_id` INT NOT NULL,
   `module_id` INT NOT NULL,
   PRIMARY KEY (`role_id`, `module_id`),
   INDEX `fk_P_MODULE_ROLES_P_MODULES1_idx` (`module_id` ASC),
   CONSTRAINT `fk_P_MODULE_ROLES_P_ROLES1`
     FOREIGN KEY (`role_id`)
-    REFERENCES `towing`.`P_ROLES` (`id`)
+    REFERENCES `P_ROLES` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_P_MODULE_ROLES_P_MODULES1`
     FOREIGN KEY (`module_id`)
-    REFERENCES `towing`.`P_MODULES` (`id`)
+    REFERENCES `P_MODULES` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
