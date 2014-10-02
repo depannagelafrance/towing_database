@@ -275,7 +275,7 @@ BEGIN
 	ELSE
 		SELECT 	`id`, `name`
 		FROM 	P_ALLOTMENT_DIRECTION_INDICATORS
-		WHERE	allotment_direction_id = p_direction_id
+		WHERE	allotment_directions_id = p_direction_id
 		ORDER BY `name`;
 	END IF;
 END $$

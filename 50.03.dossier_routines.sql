@@ -361,10 +361,21 @@ BEGIN
 	IF v_user_id IS NULL OR v_company_id IS NULL THEN
 		CALL R_NOT_AUTHORIZED;
 	ELSE
-		SELECT 	`id`, `dossier_number`, `status`, `call_date`, `call_number`, `police_traffic_post_id` 
-		FROM 	`T_DOSSIERS` d
-		WHERE	company_id = v_company_id
+		SELECT 	d.id, d.id as 'dossier_id', t.id as 'voucher_id', d.call_number, d.call_date, d.dossier_number, t.voucher_number, ad.name 'direction_name', adi.name 'indicator_name', c.code as `towing_service`, ip.name as `incident_type`
+		FROM 	`T_TOWING_VOUCHERS`t, 
+				`T_DOSSIERS` d, 
+				`P_ALLOTMENT_DIRECTIONS` ad, 
+				`P_ALLOTMENT_DIRECTION_INDICATORS` adi,
+				`T_COMPANIES` c,
+				`P_INCIDENT_TYPES` ip
+		WHERE 	d.id = t.dossier_id
+				AND d.company_id = v_company_id
+				AND d.company_id = c.id
+				AND d.incident_type_id = ip.id
+				AND d.allotment_direction_id = ad.id
+				AND d.allotment_direction_indicator_id = adi.id
 				AND d.status = p_filter
+
 		ORDER BY call_date DESC; 	
 	END IF;
 END $$
@@ -380,7 +391,7 @@ BEGIN
 	IF v_user_id IS NULL OR v_company_id IS NULL THEN
 		CALL R_NOT_AUTHORIZED;
 	ELSE
-		SELECT 	d.id, d.id as 'dossier_id', t.id as 'voucher_id', d.call_number, d.call_date, t.voucher_number, ad.name 'direction_name', adi.name 'indicator_name', c.code as `towing_service`, ip.name as `incident_type`
+		SELECT 	d.id, d.id as 'dossier_id', t.id as 'voucher_id', d.call_number, d.call_date, d.dossier_number, t.voucher_number, ad.name 'direction_name', adi.name 'indicator_name', c.code as `towing_service`, ip.name as `incident_type`
 		FROM 	`T_TOWING_VOUCHERS`t, 
 				`T_DOSSIERS` d, 
 				`P_ALLOTMENT_DIRECTIONS` ad, 
