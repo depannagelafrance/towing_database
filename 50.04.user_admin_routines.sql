@@ -12,6 +12,13 @@ DROP PROCEDURE IF EXISTS R_DELETE_USER $$
 DROP PROCEDURE IF EXISTS R_PURGE_USER_ROLES $$
 DROP PROCEDURE IF EXISTS R_ASSIGN_USER_ROLE $$
 DROP PROCEDURE IF EXISTS R_FETCH_ALL_USER_ROLES $$
+DROP PROCEDURE IF EXISTS R_FETCH_AVAILABLE_ROLES $$
+DROP PROCEDURE IF EXISTS R_ASSIGN_ROLE $$
+DROP PROCEDURE IF EXISTS R_REVOKE_ROLE $$
+DROP PROCEDURE IF EXISTS R_FETCH_ROLES_FOR_USER $$
+DROP PROCEDURE IF EXISTS R_FETCH_USER_ROLES $$
+DROP PROCEDURE IF EXISTS R_FETCH_ALL_ROLES $$
+DROP PROCEDURE IF EXISTS R_FETCH_USER_MODULES $$
 
 
 -- ---------------------------------------------------------------------
@@ -204,6 +211,131 @@ BEGIN
 		FROM 	`P_ROLES` r, `T_USER_ROLES` ur
 		WHERE 	r.`dd` IS NULL
 				AND r.id = ur.role_id AND ur.user_id = p_id;
+	END IF;
+END $$
+
+CREATE PROCEDURE R_FETCH_AVAILABLE_ROLES(IN p_token VARCHAR(255)) 
+BEGIN
+	DECLARE v_company_id BIGINT;
+	DECLARE v_user_id, v_guid VARCHAR(36);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+	
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		SELECT 	r.id, r.code, r.name, m.name as module_name
+		FROM 	P_COMPANY_MODULES cm, P_MODULES m, P_MODULE_ROLES mr, P_ROLES r
+		WHERE 	cm.dd IS NULL AND r.dd IS NULL
+				AND cm.module_id = m.id
+				AND m.id = mr.module_id
+				and mr.role_id = r.id
+				AND cm.company_id = v_company_id;
+	END IF;
+END $$
+
+
+CREATE PROCEDURE R_ASSIGN_ROLE(IN p_user_id VARCHAR(36), IN p_role_id INT, IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id BIGINT;
+	DECLARE v_user_id VARCHAR(36);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		-- TODO: check if user is comapny admin or admin
+		-- TODO: check for company admin if user is added for correct company
+		INSERT INTO `T_USER_ROLES` (`role_id`, `user_id`) VALUES (p_role_id, p_user_id);
+	END IF;
+END $$
+
+CREATE PROCEDURE R_REVOKE_ROLE(IN p_user_id VARCHAR(36), IN p_role_id INT, IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id BIGINT;
+	DECLARE v_user_id VARCHAR(36);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		-- TODO: check if user is comapny admin or admin
+		-- TODO: check for company admin if user is added for correct company
+		DELETE FROM `T_USER_ROLES` WHERE (`role_id` = p_role_id AND `user_id` = p_user_id);
+	END IF;
+END $$
+
+
+CREATE PROCEDURE R_FETCH_ROLES_FOR_USER(IN p_user_id VARCHAR(36), IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id BIGINT;
+	DECLARE v_user_id VARCHAR(36);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		SELECT 	r.`id`, r.`code`, r.`name`
+		FROM 	`P_ROLES` r, `T_USER_ROLES` ur
+		WHERE 	dd IS NULL
+				AND r.id = ur.role_id
+				AND ur.user_id = p_user_id;
+	END IF;
+END $$
+
+CREATE PROCEDURE R_FETCH_USER_ROLES(IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id BIGINT;
+	DECLARE v_user_id VARCHAR(36);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		CALL R_FETCH_ROLES_FOR_USER(v_user_id, p_token);
+	END IF;
+END $$
+
+CREATE PROCEDURE R_FETCH_ALL_ROLES(IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id BIGINT;
+	DECLARE v_user_id VARCHAR(36);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		SELECT 	r.`id`, r.`code`, r.`name`
+		FROM 	`P_ROLES` r
+		WHERE 	dd IS NULL;
+	END IF;
+END $$
+
+CREATE PROCEDURE R_FETCH_USER_MODULES(IN p_token VARCHAR(255)) 
+BEGIN
+	DECLARE v_company_id BIGINT;
+	DECLARE v_user_id VARCHAR(36);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		SELECT 	m.code, m.name 
+		FROM 	P_COMPANY_MODULES cm, P_MODULES m, P_MODULE_ROLES mr
+		WHERE 	dd IS NULL
+				AND cm.module_id = m.id
+				AND m.id = mr.module_id
+				AND (cm.company_id, mr.role_id) IN (SELECT 	company_id, ur.role_id 
+													FROM 	`T_USERS` u, `T_USER_ROLES` ur 
+													WHERE 	u.id =v_user_id 
+															AND u.id = ur.user_id);
 	END IF;
 END $$
 

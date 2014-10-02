@@ -236,10 +236,16 @@ BEGIN
 		IF v_dossier_id IS NULL THEN
 			CALL R_NOT_FOUND;
 		ELSE
-			SELECT	`id`, `dossier_number`, `status`, `call_date`, `call_number`, `police_traffic_post_id`, `incident_type_id`, `traffic_lane_id`,
-					allotment_id, allotment_direction_indicator_id, allotment_direction_id
-			FROM 	T_DOSSIERS 
-			WHERE	`id` = v_dossier_id
+			SELECT	`id`, `dossier_number`, `status`, `call_date`, `call_number`, 
+					`police_traffic_post_id`, 
+					`incident_type_id`, (SELECT `name` FROM P_INCIDENT_TYPES WHERE id = d.`incident_type_id`) as `incident_type_name`,
+					`traffic_lane_id`, (SELECT `name` FROM P_DICTIONARY WHERE id = d.`traffic_lane_id`) as `traffic_lane_name`,
+					`allotment_id`, (SELECT `name` FROM P_ALLOTMENT WHERE id = d.`allotment_id`) as `allotment_name`,
+					`allotment_direction_indicator_id`, (SELECT `name` FROM P_ALLOTMENT_DIRECTION_INDICATORS WHERE id = d.`allotment_direction_indicator_id`) as `indicator_name`,
+					`allotment_direction_id`, (SELECT `name` FROM P_ALLOTMENT_DIRECTIONS WHERE id = d.`allotment_direction_id`) as `direction_name`,
+					`company_id`, (SELECT `name` FROM T_COMPANIES WHERE id = d.`company_id`) as `company_name`
+			FROM 	T_DOSSIERS d
+			WHERE	d.`id` = v_dossier_id
 			LIMIT	0, 1;
 		END IF;
 	END IF;
