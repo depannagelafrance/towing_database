@@ -16,6 +16,8 @@ DROP PROCEDURE IF EXISTS R_FETCH_TOWING_PAYMENTS_BY_VOUCHER $$
 DROP PROCEDURE IF EXISTS R_FETCH_ALL_DOSSIERS_BY_FILTER $$
 DROP PROCEDURE IF EXISTS R_FETCH_ALL_VOUCHERS_BY_FILTER $$
 DROP PROCEDURE IF EXISTS R_FETCH_ALL_AVAILABLE_ACTIVITIES $$
+DROP PROCEDURE IF EXISTS R_FETCH_ALL_ALLOTMENTS_BY_DIRECTION $$
+DROP PROCEDURE IF EXISTS R_FETCH_ALL_COMPANIES_BY_ALLOTMENT $$
 
 DROP FUNCTION IF EXISTS F_NEXT_DOSSIER_NUMBER $$
 DROP FUNCTION IF EXISTS F_NEXT_TOWING_VOUCHER_NUMBER $$
@@ -434,6 +436,51 @@ BEGIN
 				AND CURRENT_DATE BETWEEN taf.valid_from AND taf.valid_until;	
 	END IF;
 END $$
+
+CREATE PROCEDURE R_FETCH_ALL_ALLOTMENTS_BY_DIRECTION(IN p_direction_id BIGINT, IN p_indicator_id BIGINT, IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id, v_dossier_id BIGINT;
+	DECLARE v_user_id VARCHAR(36);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		IF p_indicator_id IS NULL THEN
+			SELECT DISTINCT a.id, a.name
+			FROM 			P_ALLOTMENT_MAP am, P_ALLOTMENT a 
+			WHERE 			am.allotment_id = a.id
+							AND am.direction_id = p_direction_id
+			ORDER BY		name;
+		ELSE
+			SELECT DISTINCT a.id, a.name
+			FROM 			P_ALLOTMENT_MAP am, P_ALLOTMENT a 
+			WHERE 			am.allotment_id = a.id
+							AND am.direction_id = p_direction_id
+							AND am.indicator_id = p_indicator_id
+			ORDER BY		name;
+		END IF;
+	END IF;
+END $$
+
+CREATE PROCEDURE R_FETCH_ALL_COMPANIES_BY_ALLOTMENT(IN p_allotment_id BIGINT, IN p_token VARCHAR(255))
+BEGIN 
+	DECLARE v_company_id, v_dossier_id BIGINT;
+	DECLARE v_user_id VARCHAR(36);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		SELECT c.*
+		FROM T_COMPANY_ALLOTMENTS ca, T_COMPANIES c
+		WHERE ca.allotment_id = 1
+			AND c.id = ca.company_id;
+	END IF;
+END $$
+
 -- ----------------------------------------------------------------
 -- TRIGGERS
 -- ----------------------------------------------------------------
