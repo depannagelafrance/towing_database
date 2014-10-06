@@ -8,6 +8,14 @@ DROP PROCEDURE IF EXISTS R_UPDATE_DOSSIER $$
 DROP PROCEDURE IF EXISTS R_CREATE_TOWING_VOUCHER $$
 DROP PROCEDURE IF EXISTS R_UPDATE_TOWING_VOUCHER $$
 
+DROP PROCEDURE IF EXISTS R_FETCH_TOWING_DEPOT  		$$
+DROP PROCEDURE IF EXISTS R_FETCH_TOWING_CUSTOMER 	$$
+DROP PROCEDURE IF EXISTS R_FETCH_TOWING_CAUSER 		$$
+
+DROP PROCEDURE IF EXISTS R_UPDATE_TOWING_DEPOT 		$$
+DROP PROCEDURE IF EXISTS R_UPDATE_TOWING_CUSTOMER 	$$
+DROP PROCEDURE IF EXISTS R_UPDATE_TOWING_CAUSER		$$
+
 DROP PROCEDURE IF EXISTS R_FETCH_DOSSIER_BY_ID $$
 DROP PROCEDURE IF EXISTS R_FETCH_DOSSIER_BY_NUMBER $$
 DROP PROCEDURE IF EXISTS R_FETCH_TOWING_VOUCHERS_BY_DOSSIER $$
@@ -170,7 +178,7 @@ CREATE PROCEDURE  R_UPDATE_TOWING_VOUCHER(IN p_dossier_id BIGINT, IN p_voucher_i
 										  IN p_collector_id BIGINT,
 										  IN p_vehicule_type VARCHAR(255), IN p_vehicule_licence_plate VARCHAR(15), IN p_vehicule_country VARCHAR(5),
 										  IN p_signa_by VARCHAR(255), IN p_signa_by_vehicule VARCHAR(15), IN p_signa_arrival DATETIME, 
-										  IN p_towed_by VARCHAR(255), IN p_towed_by_vehicule VARCHAR(15), IN p_towing_depot VARCHAR(512), 
+										  IN p_towed_by VARCHAR(255), IN p_towed_by_vehicule VARCHAR(15), 
 										  IN p_towing_called DATETIME, IN p_towing_arrival DATETIME, IN p_towing_start DATETIME, IN p_towing_end DATETIME,
 										  IN p_police_signature DATE, IN p_recipient_signature DATE, IN p_vehicule_collected DATE,
 										  IN p_cic DATETIME,
@@ -203,7 +211,6 @@ BEGIN
 			towing_arrival 			= p_towing_arrival, 
 			towing_start 			= p_towing_start, 
 			towing_completed 		= p_towing_end, 
-			towing_depot 			= p_towing_depot, 
 			signa_by 				= p_signa_by, 
 			signa_by_vehicle 		= p_signa_by_vehicule, 
 			signa_arrival 			= p_signa_arrival, 
@@ -358,6 +365,148 @@ BEGIN
 	END IF;
 END $$
 
+CREATE PROCEDURE R_FETCH_TOWING_DEPOT(IN p_voucher_id BIGINT, IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id, v_dossier_id BIGINT;
+	DECLARE v_user_id VARCHAR(36);
+	DECLARE v_name, v_street, v_street_number, v_street_pobox, v_zip, v_city VARCHAR(255);
+	DECLARE v_display_name VARCHAR(500);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		SELECT 	`name`, street, street_number, street_pobox, zip, city
+		INTO 	v_name, v_street, v_street_number, v_street_pobox, v_zip, v_city
+		FROM 	T_TOWING_DEPOTS
+		WHERE 	voucher_id = p_voucher_id
+		LIMIT 	0,1;
+
+		IF v_name IS NOT NULL THEN
+			SET v_display_name = v_name;
+
+			SET v_display_name = trim(concat(v_display_name, ', ', IFNULL(v_street, '')));
+			SET v_display_name = trim(concat(v_display_name, ' ', IFNULL(v_street_number, '')));
+		
+			IF v_street_pobox IS NOT NULL THEN
+				SET v_display_name = trim(concat(v_display_name, '/', IFNULL(v_street_pobox, '')));
+			END IF;
+
+			SET v_display_name = trim(concat(v_display_name, ', ', IFNULL(v_zip, '')));
+			SET v_display_name = trim(concat(v_display_name, ' ', IFNULL(v_city, '')));
+		END IF;
+
+		SELECT 	id, name, street, street_number, street_pobox, zip, city, v_display_name as display_name 
+		FROM 	T_TOWING_DEPOTS
+		WHERE 	voucher_id = p_voucher_id
+		LIMIT 	0,1;
+	END IF;
+END $$
+
+
+CREATE PROCEDURE R_UPDATE_TOWING_DEPOT(IN p_depot_id BIGINT, IN p_voucher_id BIGINT, 
+                                       IN p_name VARCHAR(255), IN p_street VARCHAR(255), 
+									   IN p_number VARCHAR(45), IN p_pobox VARCHAR(45), IN p_zip VARCHAR(45),
+									   IN p_city VARCHAR(255),
+									   IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id, v_dossier_id BIGINT;
+	DECLARE v_user_id VARCHAR(36);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		UPDATE `T_TOWING_DEPOTS`
+		SET
+			`name` = p_name,
+			`street` = p_street,
+			`street_number` = p_number,
+			`street_pobox` = p_pobox,
+			`zip` = p_zip,
+			`city` = p_city,
+			`ud` = now(),
+			`ud_by` = F_RESOLVE_LOGIN(v_user_id, p_token)
+		WHERE `id` = p_depot_id AND `voucher_id` = p_voucher_id;
+
+		SELECT p_depot_id as id;
+	END IF; 
+END $$
+
+
+CREATE PROCEDURE R_UPDATE_TOWING_CUSTOMER(IN p_id BIGINT, IN p_voucher_id BIGINT,
+										  IN p_firstname VARCHAR(255), IN p_lastname VARCHAR(255),
+										  IN p_company_name VARCHAR(255), IN p_company_vat VARCHAR(255),
+										  IN p_street VARCHAR(255), IN p_street_number VARCHAR(45), IN p_street_pobox VARCHAR(45),
+										  IN p_zip VARCHAR(45), IN p_city VARCHAR(255), IN p_country VARCHAR(255),
+										  IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id, v_dossier_id BIGINT;
+	DECLARE v_user_id VARCHAR(36);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		UPDATE `T_TOWING_CUSTOMERS`
+		SET
+			`first_name` = p_firstname,
+			`last_name` = p_lastname,
+			`company_name` = p_company_name,
+			`company_vat` = p_company_vat,
+			`street` = p_street,
+			`street_number` = p_street_number,
+			`street_pobox` = p_street_pobox,
+			`zip` = p_zip,
+			`city` = p_city,
+			`country` = p_country,
+			`ud` = now(),
+			`ud_by` = F_RESOLVE_LOGIN(v_user_id, p_token)
+		WHERE `id` = p_id AND `voucher_id`= p_voucher_id
+		LIMIT 1;
+
+		SELECT p_id as id;
+	END IF;
+END $$
+
+CREATE PROCEDURE R_UPDATE_TOWING_CAUSER(  IN p_id BIGINT, IN p_voucher_id BIGINT,
+										  IN p_firstname VARCHAR(255), IN p_lastname VARCHAR(255),
+										  IN p_company_name VARCHAR(255), IN p_company_vat VARCHAR(255),
+										  IN p_street VARCHAR(255), IN p_street_number VARCHAR(45), IN p_street_pobox VARCHAR(45),
+										  IN p_zip VARCHAR(45), IN p_city VARCHAR(255), IN p_country VARCHAR(255),
+										  IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id, v_dossier_id BIGINT;
+	DECLARE v_user_id VARCHAR(36);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		UPDATE `T_TOWING_INCIDENT_CAUSERS`
+		SET
+			`first_name` = p_firstname,
+			`last_name` = p_lastname,
+			`company_name` = p_company_name,
+			`company_vat` = p_company_vat,
+			`street` = p_street,
+			`street_number` = p_street_number,
+			`street_pobox` = p_street_pobox,
+			`zip` = p_zip,
+			`city` = p_city,
+			`country` = p_country,
+			`ud` = now(),
+			`ud_by` = F_RESOLVE_LOGIN(v_user_id, p_token)
+		WHERE `id` = p_id AND `voucher_id`= p_voucher_id;
+
+		SELECT p_id AS id;
+	END IF;
+END $$
+
 
 CREATE PROCEDURE R_FETCH_ALL_DOSSIERS_BY_FILTER(IN p_filter VARCHAR(25), IN p_token VARCHAR(255))
 BEGIN
@@ -481,6 +630,41 @@ BEGIN
 	END IF;
 END $$
 
+CREATE PROCEDURE R_FETCH_TOWING_CUSTOMER(IN p_voucher_id BIGINT, IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id, v_dossier_id BIGINT;
+	DECLARE v_user_id VARCHAR(36);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		SELECT	id, voucher_id, first_name, last_name, company_name, company_vat, street, street_number, street_pobox, zip, city, country
+		FROM 	T_TOWING_CUSTOMERS
+		WHERE 	voucher_id = p_voucher_id
+		LIMIT 	0,1;
+	END IF;
+END $$
+
+CREATE PROCEDURE R_FETCH_TOWING_CAUSER(IN p_voucher_id BIGINT, IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id, v_dossier_id BIGINT;
+	DECLARE v_user_id VARCHAR(36);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		SELECT	id, voucher_id, first_name, last_name, company_name, company_vat, street, street_number, street_pobox, zip, city, country
+		FROM 	T_TOWING_INCIDENT_CAUSERS
+		WHERE 	voucher_id = p_voucher_id
+		LIMIT 	0,1;
+	END IF;
+END $$
+
+
 -- ----------------------------------------------------------------
 -- TRIGGERS
 -- ----------------------------------------------------------------
@@ -536,7 +720,16 @@ BEGIN
 	-- automatically create a voucher payment record when creating a new towing voucher
 	INSERT INTO `T_TOWING_VOUCHER_PAYMENTS` (`towing_voucher_id`, `cd`, `cd_by`) VALUES 
 				(NEW.id, now(), NEW.cd_by);
- 
+
+	-- automatically insert a towing depot
+	INSERT INTO `T_TOWING_DEPOTS`(`voucher_id`, `name`, `street`, `street_number`, `street_pobox`, `zip`, `city`, `cd`, `cd_by`)	
+	VALUES(NEW.id, null, null, null, null, null, null, now(), NEW.cd_by); 
+
+	-- prefill the customer 
+	INSERT INTO `T_TOWING_CUSTOMERS` (`voucher_id`, `cd`, `cd_by`) VALUES (NEW.id, now(), NEW.cd_by);
+
+	-- prefill the causer
+	INSERT INTO `T_TOWING_INCIDENT_CAUSERS` (`voucher_id`, `cd`, `cd_by`) VALUES (NEW.id, now(), NEW.cd_by);
 END $$
 
 CREATE TRIGGER `TRG_AI_TOWING_ACTIVITY` AFTER INSERT ON `T_TOWING_ACTIVITIES`

@@ -304,7 +304,7 @@ INSERT INTO `P_ALLOTMENT_DIRECTIONS` (`id`, `name`) VALUES
 (10,'E313 > Hasselt'),
 (11,'E34 > Antwerpen'),
 (12,'E34 > Turnhout/Eindhoven'),
-(13,'N49 > Ant.'),
+(13,'N49 > Antwerpen'),
 (14,'N49 > Zelzate'),
 (15,'R2 > Beveren'),
 (16,'R2 > Stabroek'),
@@ -315,13 +315,11 @@ INSERT INTO `P_ALLOTMENT_DIRECTIONS` (`id`, `name`) VALUES
 (21,'R1 > Gent'),
 (22,'R1 > NL'),
 (23,'R > Breda'),
-(24,'R1 > Breda'),
 (25,'E313 - E34 > R1'),
 (26,'R1 > Hasselt'),
 (27,'R1 > Knokke'),
 (28,'E34 - N49 - Expressweg > Zelzate'),
 (29,'A112 > Brussel'),
-(30,'A112 > Antwerpen'),
 (31,'A112 > Gent'),
 (32,'E313 - E34 > Antwerpen'),
 (33,'E313 - E34 > Hasselt'),
@@ -1209,14 +1207,6 @@ INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`allotment_directions_id`, `name
 (18, '16,4', 4.35162223, 51.2229515),
 (18, '16,5', null, null),
 (18, '16,6', 4.351655731, 51.22471737),
-#N/A
-#N/A
-#N/A
-#N/A
-#N/A
-#N/A
-#N/A
-#N/A
 (16, '77,6', null, null),
 (16, '77,7', null, null),
 (16, '77,8', null, null),
@@ -1239,10 +1229,6 @@ INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`allotment_directions_id`, `name
 (16, '79,5', 4.26094794542, 51.2517352545),
 (16, '79,7', 4.26276866161, 51.2531144424),
 (16, '79,8', 4.26360712391, 51.2538442428),
-#N/A
-#N/A
-#N/A
-#N/A
 (15, '77,6', null, null),
 (15, '77,7', null, null),
 (15, '77,8', null, null),
@@ -1259,8 +1245,6 @@ INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`allotment_directions_id`, `name
 (15, '79', 4.25575074164, 51.248723007),
 (15, '79,1', 4.25669736718, 51.2493184241),
 (15, '79,2', 4.25770516538, 51.2499595144),
-#N/A
-#N/A
 (14, '0', null, null),
 (14, '0,1', null, null),
 (14, '0,2', null, null),
@@ -1343,8 +1327,6 @@ INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`allotment_directions_id`, `name
 (14, '7,9', null, null),
 (14, '8', null, null),
 (14, '8,1', null, null),
-#N/A
-#N/A
 (13, '0', null, null),
 (13, '0,1', null, null),
 (13, '0,2', null, null),
@@ -1427,8 +1409,6 @@ INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`allotment_directions_id`, `name
 (13, '7,9', null, null),
 (13, '8', null, null),
 (13, '8,1', null, null),
-#N/A
-#N/A
 (3, '29,3', null, null),
 (3, '29,4', null, null),
 (3, '29,5', null, null),
@@ -1494,8 +1474,6 @@ INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`allotment_directions_id`, `name
 (3, '35,5', null, null),
 (3, '35,6', null, null),
 (3, '35,7', null, null),
-#N/A
-#N/A
 (4, '29,3', null, null),
 (4, '29,4', null, null),
 (4, '29,5', null, null),
@@ -1614,7 +1592,7 @@ INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`allotment_directions_id`, `name
 (19, 'Aansluiting E34 - N49 - Expressweg > Ring'),
 (19, 'Aansluiting E34 - N49 - Expressweg > E17'),
 (27, 'Aansluiting E17 >  E34 - N49 - Expressweg'),
-(24, 'Pechhaven PP 9128'),
+(19, 'Pechhaven PP 9128'),
 (20, 'Oprit 7 (Linkeroever - Charles de Coster)'),
 (28, 'Afrit 7 (Linkeroever - Charles de Coster)'),
 (28, 'Oprit 7 (Linkeroever - Charles de Coster)'),
@@ -1665,11 +1643,11 @@ INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`allotment_directions_id`, `name
 (3, 'Oprit Dikke Mee - Vogelzang'),
 (4, 'Afrit Wilrijk - Vogelzang'),
 (29, 'Oprit 13 (Antwerpen-Zuid - Hoboken)'),
-(30, 'Afrit 13 (Antwerpen-Zuid - Hoboken)'),
-(30, 'Jan de Vostunnel'),
+(2, 'Afrit 13 (Antwerpen-Zuid - Hoboken)'),
+(2, 'Jan de Vostunnel'),
 (29, 'Jan de Vostunnel'),
 (29, 'Afrit Antwerpen Wilrijk'),
-(30, 'Oprit Antwerpen Wilrijk'),
+(2, 'Oprit Antwerpen Wilrijk'),
 (29, 'Afrit Hoboken '),
 (31, 'Oprit Kolonel Silvertop'),
 (7, 'Oprit 7 (Kontich - Boom - Aartselaar)'),

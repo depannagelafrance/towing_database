@@ -20,5 +20,10 @@ INSERT INTO `P_MODULE_ROLES` (`role_id`, `module_id`)
 INSERT INTO `T_USER_ROLES` (`role_id`, `user_id`)
 SELECT id, '1' FROM P_ROLES;
 
+INSERT INTO `T_COMPANY_DEPOTS`(`id`,`company_id`,`name`,`street`,`street_number`,`street_pobox`,`zip`,`city`)
+VALUES (1,1,'DEPOT LA FRANCE','Street','123',null,'2000','Antwerpen');
+
+
+
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
