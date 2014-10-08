@@ -199,8 +199,8 @@ INSERT INTO `P_MODULES` (`id`, `code`, `name`) VALUES
 	(3, 'ADMIN', 'Algemeen beheer'),
 	(4, 'COMPANY_ADMIN', 'Beheer');
 
-INSERT INTO `T_COMPANIES`(id, name, code, street, street_number, street_pobox, city, phone, fax, email, website, depot) VALUES 
-	(1, 'Depannage La France NV', 'LAFRANCE', 'Voorspoedstraat', '8', '', 'Essen', '+32472702460', '', 'kvandermast@gmail.com', '', 'Depot Depannage La France');
+INSERT INTO `T_COMPANIES`(id, name, code, street, street_number, street_pobox, city, phone, fax, email, website) VALUES 
+	(1, 'Depannage La France NV', 'LAFRANCE', 'Voorspoedstraat', '8', '', 'Essen', '+32472702460', '', 'kvandermast@gmail.com', '');
 
 INSERT INTO `P_COMPANY_MODULES` (`module_id`, `company_id`, `cd`, `cd_by`, `dd`, `dd_by`) 
 SELECT id, 1, now(), 'SYSTEM', null, null FROM P_MODULES;

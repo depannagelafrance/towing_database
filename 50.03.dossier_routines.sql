@@ -21,6 +21,8 @@ DROP PROCEDURE IF EXISTS R_FETCH_DOSSIER_BY_NUMBER $$
 DROP PROCEDURE IF EXISTS R_FETCH_TOWING_VOUCHERS_BY_DOSSIER $$
 DROP PROCEDURE IF EXISTS R_FETCH_TOWING_ACTIVITIES_BY_VOUCHER $$
 DROP PROCEDURE IF EXISTS R_FETCH_TOWING_PAYMENTS_BY_VOUCHER $$
+DROP PROCEDURE IF EXISTS R_FETCH_TOWING_COMPANY_BY_DOSSIER $$
+
 DROP PROCEDURE IF EXISTS R_FETCH_ALL_DOSSIERS_BY_FILTER $$
 DROP PROCEDURE IF EXISTS R_FETCH_ALL_VOUCHERS_BY_FILTER $$
 DROP PROCEDURE IF EXISTS R_FETCH_ALL_AVAILABLE_ACTIVITIES $$
@@ -441,6 +443,7 @@ CREATE PROCEDURE R_UPDATE_TOWING_CUSTOMER(IN p_id BIGINT, IN p_voucher_id BIGINT
 										  IN p_company_name VARCHAR(255), IN p_company_vat VARCHAR(255),
 										  IN p_street VARCHAR(255), IN p_street_number VARCHAR(45), IN p_street_pobox VARCHAR(45),
 										  IN p_zip VARCHAR(45), IN p_city VARCHAR(255), IN p_country VARCHAR(255),
+										  IN p_phone VARCHAR(45),
 										  IN p_token VARCHAR(255))
 BEGIN
 	DECLARE v_company_id, v_dossier_id BIGINT;
@@ -463,6 +466,7 @@ BEGIN
 			`zip` = p_zip,
 			`city` = p_city,
 			`country` = p_country,
+			`phone` = p_phone,
 			`ud` = now(),
 			`ud_by` = F_RESOLVE_LOGIN(v_user_id, p_token)
 		WHERE `id` = p_id AND `voucher_id`= p_voucher_id
@@ -477,6 +481,7 @@ CREATE PROCEDURE R_UPDATE_TOWING_CAUSER(  IN p_id BIGINT, IN p_voucher_id BIGINT
 										  IN p_company_name VARCHAR(255), IN p_company_vat VARCHAR(255),
 										  IN p_street VARCHAR(255), IN p_street_number VARCHAR(45), IN p_street_pobox VARCHAR(45),
 										  IN p_zip VARCHAR(45), IN p_city VARCHAR(255), IN p_country VARCHAR(255),
+										  IN p_phone VARCHAR(45),
 										  IN p_token VARCHAR(255))
 BEGIN
 	DECLARE v_company_id, v_dossier_id BIGINT;
@@ -499,11 +504,35 @@ BEGIN
 			`zip` = p_zip,
 			`city` = p_city,
 			`country` = p_country,
+            `phone` = p_phone,
 			`ud` = now(),
 			`ud_by` = F_RESOLVE_LOGIN(v_user_id, p_token)
 		WHERE `id` = p_id AND `voucher_id`= p_voucher_id;
 
 		SELECT p_id AS id;
+	END IF;
+END $$
+
+CREATE PROCEDURE R_FETCH_TOWING_COMPANY_BY_DOSSIER(IN p_dossier_id BIGINT, IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id, v_dossier_id BIGINT;
+	DECLARE v_user_id VARCHAR(36);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		SELECT c.`id`,
+			`name`,
+			`code`,
+			`street`, `street_number`, `street_pobox`, `zip`, `city`,
+			`phone`, `fax`, `email`,
+			`website`, `vat`
+		FROM `T_COMPANIES` c, `T_DOSSIERS` d
+		WHERE c.id = d.company_id AND d.id = p_dossier_id
+		LIMIT 0,1;
+
 	END IF;
 END $$
 
@@ -640,7 +669,7 @@ BEGIN
 	IF v_user_id IS NULL OR v_company_id IS NULL THEN
 		CALL R_NOT_AUTHORIZED;
 	ELSE
-		SELECT	id, voucher_id, first_name, last_name, company_name, company_vat, street, street_number, street_pobox, zip, city, country
+		SELECT	id, voucher_id, first_name, last_name, company_name, company_vat, street, street_number, street_pobox, zip, city, country, phone
 		FROM 	T_TOWING_CUSTOMERS
 		WHERE 	voucher_id = p_voucher_id
 		LIMIT 	0,1;
@@ -657,7 +686,7 @@ BEGIN
 	IF v_user_id IS NULL OR v_company_id IS NULL THEN
 		CALL R_NOT_AUTHORIZED;
 	ELSE
-		SELECT	id, voucher_id, first_name, last_name, company_name, company_vat, street, street_number, street_pobox, zip, city, country
+		SELECT	id, voucher_id, first_name, last_name, company_name, company_vat, street, street_number, street_pobox, zip, city, country, phone
 		FROM 	T_TOWING_INCIDENT_CAUSERS
 		WHERE 	voucher_id = p_voucher_id
 		LIMIT 	0,1;
