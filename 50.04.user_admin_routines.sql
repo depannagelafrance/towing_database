@@ -177,7 +177,7 @@ BEGIN
 		CALL R_NOT_AUTHORIZED;
 	ELSE
 		DELETE FROM T_USER_ROLES
-		WHERE user_id = p_user_id
+		WHERE user_id = p_id
 		LIMIT 100;
 	END IF;
 END $$
