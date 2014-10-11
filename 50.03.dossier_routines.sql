@@ -93,6 +93,7 @@ BEGIN
 	DECLARE v_company_id, v_dossier_id, v_towing_voucher_id BIGINT;
 	DECLARE v_user_id VARCHAR(36);
 	DECLARE v_timeframe_id INT;
+	DECLARE v_timeframe_category VARCHAR(15);
 
 	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
 
@@ -100,16 +101,18 @@ BEGIN
 	IF v_user_id IS NULL OR v_company_id IS NULL THEN
 		CALL R_NOT_AUTHORIZED;
 	ELSE
+		SET v_timeframe_category = F_RESOLVE_TIMEFRAME_CATEGORY();
+
 		-- determine the timeframe of the incident
 		SELECT 	t.id INTO v_timeframe_id
 		FROM 	P_TIMEFRAMES t, P_TIMEFRAME_VALIDITY tv
 		WHERE	t.id = tv.timeframe_id
 				AND current_time() BETWEEN `from` AND `till`
-				AND tv.category = F_RESOLVE_TIMEFRAME_CATEGORY();
+				AND tv.category = v_timeframe_category;
 
 		-- create a new dossier
-		INSERT INTO `T_DOSSIERS` (`dossier_number`, `status`, `call_date`, `timeframe_id`, `cd`, `cd_by`) 
-		VALUES (F_NEXT_DOSSIER_NUMBER(), 'NEW', CURRENT_TIMESTAMP, v_timeframe_id, CURRENT_TIMESTAMP, F_RESOLVE_LOGIN(v_user_id, p_token));
+		INSERT INTO `T_DOSSIERS` (`dossier_number`, `status`, `call_date`, `call_date_is_holiday`, `timeframe_id`, `cd`, `cd_by`) 
+		VALUES (F_NEXT_DOSSIER_NUMBER(), 'NEW', CURRENT_TIMESTAMP, (v_timeframe_category = 'HOLIDAY'), v_timeframe_id, CURRENT_TIMESTAMP, F_RESOLVE_LOGIN(v_user_id, p_token));
 
 		SET v_dossier_id = LAST_INSERT_ID();
 
@@ -247,15 +250,15 @@ BEGIN
 		IF v_dossier_id IS NULL THEN
 			CALL R_NOT_FOUND;
 		ELSE
-			SELECT	`id`, `dossier_number`, `status`, `call_date`, `call_number`, 
+			SELECT	d.`id`, `dossier_number`, `status`, `call_date`, `call_date_is_holiday`, `call_number`, 
 					`police_traffic_post_id`, 
-					`incident_type_id`, (SELECT `name` FROM P_INCIDENT_TYPES WHERE id = d.`incident_type_id`) as `incident_type_name`,
+					`incident_type_id`, it.code as `incident_type_code`, it.name `incident_type_name`,
 					`traffic_lane_id`, (SELECT `name` FROM P_DICTIONARY WHERE id = d.`traffic_lane_id`) as `traffic_lane_name`,
 					`allotment_id`, (SELECT `name` FROM P_ALLOTMENT WHERE id = d.`allotment_id`) as `allotment_name`,
 					`allotment_direction_indicator_id`, (SELECT `name` FROM P_ALLOTMENT_DIRECTION_INDICATORS WHERE id = d.`allotment_direction_indicator_id`) as `indicator_name`,
 					`allotment_direction_id`, (SELECT `name` FROM P_ALLOTMENT_DIRECTIONS WHERE id = d.`allotment_direction_id`) as `direction_name`,
 					`company_id`, (SELECT `name` FROM T_COMPANIES WHERE id = d.`company_id`) as `company_name`
-			FROM 	T_DOSSIERS d
+			FROM 	T_DOSSIERS d LEFT JOIN P_INCIDENT_TYPES it ON d.incident_type_id = it.id
 			WHERE	d.`id` = v_dossier_id
 			LIMIT	0, 1;
 		END IF;

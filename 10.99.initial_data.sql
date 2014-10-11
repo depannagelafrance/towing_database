@@ -202,14 +202,19 @@ INSERT INTO `P_MODULES` (`id`, `code`, `name`) VALUES
 INSERT INTO `T_COMPANIES`(id, name, code, street, street_number, street_pobox, city, phone, fax, email, website) VALUES 
 	(1, 'Depannage La France NV', 'LAFRANCE', 'Voorspoedstraat', '8', '', 'Essen', '+32472702460', '', 'kvandermast@gmail.com', '');
 
+INSERT INTO `T_COMPANY_BANK_ACCOUNT_NUMBERS` (`company_id`, `name`, `bic`, `iban`)
+VALUES (1, 'BNP Parisbas Fortis', 'GEBABEBB', 'BE60 2200 3624 2670'),
+	   (1, 'ING', 'BBRUBEBB', 'BE72 3200 5535 2516');
+
+
 INSERT INTO `P_COMPANY_MODULES` (`module_id`, `company_id`, `cd`, `cd_by`, `dd`, `dd_by`) 
 SELECT id, 1, now(), 'SYSTEM', null, null FROM P_MODULES;
 
-INSERT INTO `P_POLICE_TRAFFIC_POSTS` (`id`, `allotment_id`, `name`, `code`) VALUES
-	(1,1,'Antwerpen','A'),
-	(2,1,'Brecht','B'),
-	(3,1,'Grobbendonk','G'),
-	(4,1,'Turnhout','T');
+INSERT INTO `P_POLICE_TRAFFIC_POSTS` (`id`, `allotment_id`, `name`, `code`, `address`, `phone`) VALUES
+	(1,1,'Antwerpen','A', 'd\'Herbouvillekaai 9, 2020 Antwerpen', '+32 (0)3 829 70 89'),
+	(2,1,'Brecht','B', 'Bethovenstraat 65, 2960 Brecht', '+32 (0)3 829 70 89'),
+	(3,1,'Grobbendonk','G', 'Herentalsesteenweg 42, 2280 Grobbendonk', '+32 (0)3 829 70 89'),
+	(4,1,'Turnhout','T', 'Steenweg op Gierle 336, 2300 Turnhout', '+32 (0)3 829 70 89');
 
 
 INSERT INTO `P_INCIDENT_TYPES` (`name`, `code`) VALUES 
