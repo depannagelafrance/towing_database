@@ -109,6 +109,7 @@ BEGIN
 		FROM 	T_USERS
 		WHERE 	1 = 1
 				AND company_id = v_company_id
+				AND dd IS NULL
 		ORDER BY last_name, first_name;
 	END IF;
 END $$
@@ -177,7 +178,7 @@ BEGIN
 		CALL R_NOT_AUTHORIZED;
 	ELSE
 		DELETE FROM T_USER_ROLES
-		WHERE user_id = p_id
+		WHERE user_id = 
 		LIMIT 100;
 	END IF;
 END $$
