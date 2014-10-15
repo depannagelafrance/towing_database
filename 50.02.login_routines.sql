@@ -65,7 +65,8 @@ BEGIN
 	SELECT 	`id` INTO v_id
 	FROM 	T_USERS u
 	WHERE	lower(u.login) = lower(p_login)
-			AND is_locked = 1;
+			AND is_locked = 1
+	LIMIT 	0,1;
 
 	IF v_id IS NOT NULL THEN
 		SELECT 'ACCOUNT_LOCKED' as error, 403 as statusCode;
@@ -77,13 +78,15 @@ BEGIN
 		WHERE	lower(u.login) = lower(p_login)
 				AND u.id = up.user_id
 				AND u.is_active = 1 AND dd IS NULL
-				AND up.pwd = PASSWORD(p_pwd);
+				AND up.pwd = PASSWORD(p_pwd)
+		LIMIT 	0,1;
 
 		IF v_id IS NOT NULL AND v_token IS NOT NULL THEN
 			SELECT 	`id` INTO v_id
 			FROM 	T_USERS u
 			WHERE	id = v_id
-					AND is_locked = 0;
+					AND is_locked = 0
+			LIMIT 	0,1;
 
 			IF v_id IS NULL THEN
 				SELECT 'ACCOUNT_LOCKED' as error, 403 as statusCode;
