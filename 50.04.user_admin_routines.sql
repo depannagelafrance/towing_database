@@ -19,7 +19,7 @@ DROP PROCEDURE IF EXISTS R_FETCH_ROLES_FOR_USER $$
 DROP PROCEDURE IF EXISTS R_FETCH_USER_ROLES $$
 DROP PROCEDURE IF EXISTS R_FETCH_ALL_ROLES $$
 DROP PROCEDURE IF EXISTS R_FETCH_USER_MODULES $$
-
+DROP PROCEDURE IF EXISTS R_FETCH_USER_COMPANY $$
 
 -- ---------------------------------------------------------------------
 -- CREATE ROUTINES
@@ -337,6 +337,24 @@ BEGIN
 													FROM 	`T_USERS` u, `T_USER_ROLES` ur 
 													WHERE 	u.id =v_user_id 
 															AND u.id = ur.user_id);
+	END IF;
+END $$
+
+CREATE PROCEDURE R_FETCH_USER_COMPANY(IN p_token VARCHAR(255)) 
+BEGIN
+	DECLARE v_company_id BIGINT;
+	DECLARE v_user_id VARCHAR(36);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		SELECT `id`,
+			`name`, `code`,
+			`street`, `street_number`, `street_pobox`, `zip`, `city`,
+			`phone`, `fax`, `email`, `website`, `vat`
+		FROM `T_COMPANIES` WHERE id = v_company_id;
 	END IF;
 END $$
 
