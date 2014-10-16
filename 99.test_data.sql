@@ -26,7 +26,7 @@ values(4, 1, 'kris', 'Kris', 'VDM', 'kvandermast@gmail.com', 1, 0, null, now(), 
 INSERT INTO `T_USER_PASSWORDS` (`id`, `user_id`, `pwd`) VALUES (4, 4, PASSWORD('kris'));
 
 
-INSERT INTO `P_MODULE_ROLES` (`role_id`, `module_id`) 
+INSERT INTO `P_MODULE_ROLES` (`role_id`, `module_id`)
 	VALUES (1, 3), (2, 4), (3, 1), (4, 2);
 
 
@@ -45,7 +45,7 @@ SELECT id, '4' FROM P_ROLES;
 INSERT INTO `T_COMPANY_DEPOTS`(`id`,`company_id`,`name`,`street`,`street_number`,`street_pobox`,`zip`,`city`)
 VALUES (1,1,'DEPOT LA FRANCE','Street','123',null,'2000','Antwerpen');
 
-INSERT INTO `depannage_lafrance`.`P_DICTIONARY`(`category`, `name`, `cd`, `cd_by`)
+INSERT INTO `P_DICTIONARY`(`category`, `name`, `cd`, `cd_by`)
 VALUES	('COLLECTOR', 'Klant', now(), 'SYSTEM'),
 		('COLLECTOR', 'Verzekering', now(), 'SYSTEM'),
 		('INSURANCE', 'AXA', now(), 'SYSTEM'),
