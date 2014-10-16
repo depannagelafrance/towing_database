@@ -45,6 +45,14 @@ SELECT id, '4' FROM P_ROLES;
 INSERT INTO `T_COMPANY_DEPOTS`(`id`,`company_id`,`name`,`street`,`street_number`,`street_pobox`,`zip`,`city`)
 VALUES (1,1,'DEPOT LA FRANCE','Street','123',null,'2000','Antwerpen');
 
+INSERT INTO `depannage_lafrance`.`P_DICTIONARY`(`category`, `name`, `cd`, `cd_by`)
+VALUES	('COLLECTOR', 'Klant', now(), 'SYSTEM'),
+		('COLLECTOR', 'Verzekering', now(), 'SYSTEM'),
+		('INSURANCE', 'AXA', now(), 'SYSTEM'),
+		('INSURANCE', 'Baloise', now(), 'SYSTEM'),
+		('TRAFFIC_LANE', 'Pechstrook', now(), 'SYSTEM'),
+		('TRAFFIC_LANE', '1°', now(), 'SYSTEM'),
+		('TRAFFIC_LANE', '2°', now(), 'SYSTEM');
 
 
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
