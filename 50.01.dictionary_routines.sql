@@ -82,13 +82,20 @@ CREATE PROCEDURE R_ADD_INSURANCE(IN p_name VARCHAR(255), IN p_token VARCHAR(255)
 BEGIN
 	DECLARE v_company_id BIGINT;
 	DECLARE v_user_id, v_guid VARCHAR(36);
+	DECLAre v_id BIGINT;
 
 	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
 	
 	IF v_user_id IS NULL OR v_company_id IS NULL THEN
 		CALL R_NOT_AUTHORIZED;
 	ELSE
-		CALL R_ADD_DICTIONARY('INSURANCE', p_name, F_RESOLVE_LOGIN(v_user_id, p_token));
+		SELECT id INTO v_id FROM P_DICTIONARY WHERE category = 'INSURANCE' AND `name` = p_name AND dd IS NULL;
+
+		IF v_id IS NULL THEN
+			CALL R_ADD_DICTIONARY('INSURANCE', p_name, F_RESOLVE_LOGIN(v_user_id, p_token));
+		ELSE
+			SELECT 'INSURANCE_ALREADY_EXISTS' as error, 409 as statusCode;
+		END IF;
 	END IF;
 END $$
 
