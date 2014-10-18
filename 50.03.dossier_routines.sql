@@ -447,7 +447,7 @@ CREATE PROCEDURE R_UPDATE_TOWING_CUSTOMER(IN p_id BIGINT, IN p_voucher_id BIGINT
 										  IN p_company_name VARCHAR(255), IN p_company_vat VARCHAR(255),
 										  IN p_street VARCHAR(255), IN p_street_number VARCHAR(45), IN p_street_pobox VARCHAR(45),
 										  IN p_zip VARCHAR(45), IN p_city VARCHAR(255), IN p_country VARCHAR(255),
-										  IN p_phone VARCHAR(45),
+										  IN p_phone VARCHAR(45), IN p_email VARCHAR(255),
 										  IN p_token VARCHAR(255))
 BEGIN
 	DECLARE v_company_id, v_dossier_id BIGINT;
@@ -471,6 +471,7 @@ BEGIN
 			`city` = p_city,
 			`country` = p_country,
 			`phone` = p_phone,
+			`email`= p_email,
 			`ud` = now(),
 			`ud_by` = F_RESOLVE_LOGIN(v_user_id, p_token)
 		WHERE `id` = p_id AND `voucher_id`= p_voucher_id
@@ -485,7 +486,7 @@ CREATE PROCEDURE R_UPDATE_TOWING_CAUSER(  IN p_id BIGINT, IN p_voucher_id BIGINT
 										  IN p_company_name VARCHAR(255), IN p_company_vat VARCHAR(255),
 										  IN p_street VARCHAR(255), IN p_street_number VARCHAR(45), IN p_street_pobox VARCHAR(45),
 										  IN p_zip VARCHAR(45), IN p_city VARCHAR(255), IN p_country VARCHAR(255),
-										  IN p_phone VARCHAR(45),
+										  IN p_phone VARCHAR(45), IN p_email VARCHAR(255),
 										  IN p_token VARCHAR(255))
 BEGIN
 	DECLARE v_company_id, v_dossier_id BIGINT;
@@ -509,6 +510,7 @@ BEGIN
 			`city` = p_city,
 			`country` = p_country,
             `phone` = p_phone,
+			`email` = p_email,
 			`ud` = now(),
 			`ud_by` = F_RESOLVE_LOGIN(v_user_id, p_token)
 		WHERE `id` = p_id AND `voucher_id`= p_voucher_id;
@@ -691,7 +693,7 @@ BEGIN
 	IF v_user_id IS NULL OR v_company_id IS NULL THEN
 		CALL R_NOT_AUTHORIZED;
 	ELSE
-		SELECT	id, voucher_id, first_name, last_name, company_name, company_vat, street, street_number, street_pobox, zip, city, country, phone
+		SELECT	id, voucher_id, first_name, last_name, company_name, company_vat, street, street_number, street_pobox, zip, city, country, phone, email
 		FROM 	T_TOWING_CUSTOMERS
 		WHERE 	voucher_id = p_voucher_id
 		LIMIT 	0,1;
@@ -708,7 +710,7 @@ BEGIN
 	IF v_user_id IS NULL OR v_company_id IS NULL THEN
 		CALL R_NOT_AUTHORIZED;
 	ELSE
-		SELECT	id, voucher_id, first_name, last_name, company_name, company_vat, street, street_number, street_pobox, zip, city, country, phone
+		SELECT	id, voucher_id, first_name, last_name, company_name, company_vat, street, street_number, street_pobox, zip, city, country, phone, email
 		FROM 	T_TOWING_INCIDENT_CAUSERS
 		WHERE 	voucher_id = p_voucher_id
 		LIMIT 	0,1;
