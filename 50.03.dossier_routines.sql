@@ -1,3 +1,8 @@
+SET GLOBAL event_scheduler = ON;
+SET @@global.event_scheduler = ON;
+SET GLOBAL event_scheduler = 1;
+SET @@global.event_scheduler = 1;
+
 DELIMITER $$
 
 -- ---------------------------------------------------------------------
@@ -30,6 +35,8 @@ DROP PROCEDURE IF EXISTS R_FETCH_ALL_ALLOTMENTS_BY_DIRECTION $$
 DROP PROCEDURE IF EXISTS R_FETCH_ALL_COMPANIES_BY_ALLOTMENT $$
 DROP PROCEDURE IF EXISTS R_FETCH_ALL_TRAFFIC_POSTS_BY_ALLOTMENT $$
 
+DROP PROCEDURE IF EXISTS R_UPDATE_TOWING_STORAGE_COST $$
+
 DROP FUNCTION IF EXISTS F_NEXT_DOSSIER_NUMBER $$
 DROP FUNCTION IF EXISTS F_NEXT_TOWING_VOUCHER_NUMBER $$
 DROP FUNCTION IF EXISTS F_RESOLVE_TIMEFRAME_CATEGORY $$
@@ -39,6 +46,7 @@ DROP TRIGGER IF EXISTS TRG_AU_DOSSIER $$
 DROP TRIGGER IF EXISTS TRG_AI_TOWING_VOUCHER $$
 DROP TRIGGER IF EXISTS TRG_AI_TOWING_ACTIVITY $$
 
+DROP EVENT IF EXISTS E_UPDATE_TOWING_STORAGE_COST $$
 
 
 -- ---------------------------------------------------------------------
@@ -802,6 +810,49 @@ BEGIN
 			`ud` = now(), `ud_by` = 'TODO'
 	WHERE 	towing_voucher_id = NEW.towing_voucher_id
 	LIMIT	1;
+END $$
+
+CREATE PROCEDURE R_UPDATE_TOWING_STORAGE_COST()
+BEGIN
+	DECLARE v_voucher_id, v_dossier_id, v_timeframe_id BIGINT DEFAULT NULL;
+	DECLARE no_rows_found BOOLEAN DEFAULT FALSE;
+	
+	DECLARE c CURSOR FOR SELECT tv.id as voucher_id, dossier_id, timeframe_id 
+						 FROM T_TOWING_VOUCHERS tv, T_DOSSIERS d 
+						 WHERE tv.dossier_id = d.id
+						 AND vehicule_collected IS NULL;
+								  
+	DECLARE CONTINUE HANDLER FOR NOT FOUND SET no_rows_found = TRUE;
+	
+	OPEN c;
+	
+	REPEAT
+		FETCH c INTO v_voucher_id, v_dossier_id, v_timeframe_id;
+		
+		INSERT INTO T_TOWING_ACTIVITIES(towing_voucher_id, activity_id, amount, cal_fee_excl_vat, cal_fee_incl_vat)
+		SELECT 	tv.id, t.activity_id, datediff(now(), call_date), t.fee_excl_vat, t.fee_incl_vat 
+		FROM 	T_DOSSIERS d, T_TOWING_VOUCHERS tv,
+				(SELECT taf.id as activity_id, taf.fee_excl_vat, taf.fee_incl_vat
+				 FROM 	`P_TIMEFRAME_ACTIVITY_FEE` taf, `P_TIMEFRAME_ACTIVITIES` ta
+				 WHERE 	taf.timeframe_activity_id = ta.id AND taf.timeframe_id = v_timeframe_id
+						AND `code` = 'STALLING'
+						AND current_date BETWEEN taf.valid_from AND taf.valid_until) t
+		WHERE d.id = v_dossier_id
+			AND tv.dossier_id = d.id
+		ON DUPLICATE KEY UPDATE amount = datediff(now(), call_date), 
+								cal_fee_excl_vat = (amount * t.fee_excl_vat), 
+								cal_fee_incl_vat = (amount * t.fee_incl_vat);
+			
+	UNTIL no_rows_found END REPEAT;	
+END $$
+-- ----------------------------------------------------
+-- RECALCULATE STORAGE COSTS ON DAILY BASIS
+-- ----------------------------------------------------
+CREATE EVENT E_UPDATE_TOWING_STORAGE_COST
+ON SCHEDULE EVERY 1 DAY STARTS '2014-01-01 01:00:00'
+DO
+BEGIN
+	CALL R_UPDATE_TOWING_STORAGE_COST();
 END $$
 
 DELIMITER ;
