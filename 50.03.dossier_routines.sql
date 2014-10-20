@@ -194,7 +194,7 @@ CREATE PROCEDURE  R_UPDATE_TOWING_VOUCHER(IN p_dossier_id BIGINT, IN p_voucher_i
 										  IN p_signa_by VARCHAR(255), IN p_signa_by_vehicule VARCHAR(15), IN p_signa_arrival DATETIME, 
 										  IN p_towed_by VARCHAR(255), IN p_towed_by_vehicule VARCHAR(15), 
 										  IN p_towing_called DATETIME, IN p_towing_arrival DATETIME, IN p_towing_start DATETIME, IN p_towing_end DATETIME,
-										  IN p_police_signature DATE, IN p_recipient_signature DATE, IN p_vehicule_collected DATE,
+										  IN p_police_signature DATETIME, IN p_recipient_signature DATE, IN p_vehicule_collected DATETIME,
 										  IN p_cic DATETIME,
 										  IN p_additional_info TEXT, 
 										  IN p_token VARCHAR(255))
