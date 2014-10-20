@@ -21,6 +21,10 @@ DROP PROCEDURE IF EXISTS R_UPDATE_TOWING_DEPOT 		$$
 DROP PROCEDURE IF EXISTS R_UPDATE_TOWING_CUSTOMER 	$$
 DROP PROCEDURE IF EXISTS R_UPDATE_TOWING_CAUSER		$$
 
+DROP PROCEDURE IF EXISTS R_UPDATE_TOWING_VOUCHER_ACTIVITY	$$
+
+DROP PROCEDURE IF EXISTS R_UPDATE_TOWING_STORAGE_COST $$
+
 DROP PROCEDURE IF EXISTS R_FETCH_DOSSIER_BY_ID $$
 DROP PROCEDURE IF EXISTS R_FETCH_DOSSIER_BY_NUMBER $$
 DROP PROCEDURE IF EXISTS R_FETCH_TOWING_VOUCHERS_BY_DOSSIER $$
@@ -34,8 +38,6 @@ DROP PROCEDURE IF EXISTS R_FETCH_ALL_AVAILABLE_ACTIVITIES $$
 DROP PROCEDURE IF EXISTS R_FETCH_ALL_ALLOTMENTS_BY_DIRECTION $$
 DROP PROCEDURE IF EXISTS R_FETCH_ALL_COMPANIES_BY_ALLOTMENT $$
 DROP PROCEDURE IF EXISTS R_FETCH_ALL_TRAFFIC_POSTS_BY_ALLOTMENT $$
-
-DROP PROCEDURE IF EXISTS R_UPDATE_TOWING_STORAGE_COST $$
 
 DROP FUNCTION IF EXISTS F_NEXT_DOSSIER_NUMBER $$
 DROP FUNCTION IF EXISTS F_NEXT_TOWING_VOUCHER_NUMBER $$
@@ -194,7 +196,7 @@ CREATE PROCEDURE  R_UPDATE_TOWING_VOUCHER(IN p_dossier_id BIGINT, IN p_voucher_i
 										  IN p_signa_by VARCHAR(255), IN p_signa_by_vehicule VARCHAR(15), IN p_signa_arrival DATETIME, 
 										  IN p_towed_by VARCHAR(255), IN p_towed_by_vehicule VARCHAR(15), 
 										  IN p_towing_called DATETIME, IN p_towing_arrival DATETIME, IN p_towing_start DATETIME, IN p_towing_end DATETIME,
-										  IN p_police_signature DATETIME, IN p_recipient_signature DATE, IN p_vehicule_collected DATETIME,
+										  IN p_police_signature DATETIME, IN p_recipient_signature DATETIME, IN p_vehicule_collected DATETIME,
 										  IN p_cic DATETIME,
 										  IN p_additional_info TEXT, 
 										  IN p_token VARCHAR(255))
@@ -524,6 +526,31 @@ BEGIN
 		WHERE `id` = p_id AND `voucher_id`= p_voucher_id;
 
 		SELECT p_id AS id;
+	END IF;
+END $$
+
+CREATE PROCEDURE R_UPDATE_TOWING_VOUCHER_ACTIVITY(IN p_voucher_id BIGINT, IN p_activity_id BIGINT, IN p_amount DOUBLE, IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id, v_dossier_id BIGINT;
+	DECLARE v_user_id VARCHAR(36);
+	DECLARE v_fee_excl_vat, v_fee_incl_vat DOUBLE;
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		SELECT 	taf.fee_excl_vat, taf.fee_incl_vat
+		INTO	v_fee_excl_vat, v_fee_incl_vat
+		FROM   `P_TIMEFRAME_ACTIVITY_FEE` taf
+		WHERE 	id = p_activity_id
+		LIMIT 	0,1;
+
+		INSERT INTO T_TOWING_ACTIVITIES(towing_voucher_id, activity_id, amount, cal_fee_excl_vat, cal_fee_incl_vat)
+		VALUES (p_voucher_id, p_activity_id, p_amount, (p_amount * v_fee_excl_vat), (p_amount * v_fee_incl_vat))
+		ON DUPLICATE KEY UPDATE amount = p_amount, 
+								cal_fee_excl_vat = (p_amount * v_fee_excl_vat), 
+								cal_fee_incl_vat = (p_amount * v_fee_incl_vat);
 	END IF;
 END $$
 
