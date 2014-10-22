@@ -39,6 +39,18 @@ DROP PROCEDURE IF EXISTS R_FETCH_ALL_ALLOTMENTS_BY_DIRECTION $$
 DROP PROCEDURE IF EXISTS R_FETCH_ALL_COMPANIES_BY_ALLOTMENT $$
 DROP PROCEDURE IF EXISTS R_FETCH_ALL_TRAFFIC_POSTS_BY_ALLOTMENT $$
 
+DROP PROCEDURE IF EXISTS R_ADD_BLOB_TO_VOUCHER $$
+DROP PROCEDURE IF EXISTS R_ADD_COLLECTOR_SIGNATURE $$
+DROP PROCEDURE IF EXISTS R_ADD_CAUSER_SIGNATURE $$
+DROP PROCEDURE IF EXISTS R_ADD_POLICE_SIGNATURE $$
+
+DROP PROCEDURE IF EXISTS R_FETCH_SIGNATURE_BY_VOUCHER $$
+DROP PROCEDURE IF EXISTS R_FETCH_CAUSER_SIGNATURE_BY_VOUCHER $$
+DROP PROCEDURE IF EXISTS R_FETCH_COLLECTOR_SIGNATURE_BY_VOUCHER $$
+DROP PROCEDURE IF EXISTS R_FETCH_TRAFFIC_POST_SIGNATURE_BY_VOUCHER $$
+DROP PROCEDURE IF EXISTS R_FETCH_DOCUMENT_BY_ID $$
+
+
 DROP FUNCTION IF EXISTS F_NEXT_DOSSIER_NUMBER $$
 DROP FUNCTION IF EXISTS F_NEXT_TOWING_VOUCHER_NUMBER $$
 DROP FUNCTION IF EXISTS F_RESOLVE_TIMEFRAME_CATEGORY $$
@@ -752,6 +764,112 @@ BEGIN
 	END IF;
 END $$
 
+CREATE PROCEDURE R_ADD_BLOB_TO_VOUCHER(IN p_voucher_id BIGINT, IN p_category ENUM('SIGNATURE_COLLECTOR', 'SIGNATURE_POLICE', 'SIGNATURE_CAUSER', 'ASSISTANCE_ATT', 'ATT'),
+									   IN p_name VARCHAR(255), IN p_content_type VARCHAR(255), IN p_file_size INT,
+									   IN p_content LONGTEXT,
+									   IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id, v_dossier_id BIGINT;
+	DECLARE v_user_id VARCHAR(36);
+	DECLARE v_blob_id, v_doc_id BIGINT;
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		INSERT INTO `T_DOCUMENT_BLOB`(`content`) VALUES(p_content);
+
+		SET v_blob_id = LAST_INSERT_ID();
+
+		INSERT INTO `T_DOCUMENTS` (`document_blob_id`, `name`, `content_type`, `file_size`, `cd`, `cd_by`)
+		VALUES (v_blob_id, p_name, p_content_type, p_file_size, now(), F_RESOLVE_LOGIN(v_user_id, p_token));
+
+		SET v_doc_id = LAST_INSERT_ID();
+
+		INSERT INTO `T_TOWING_VOUCHER_ATTS` (`towing_voucher_id`, `document_id`, `category`) 
+		VALUES (p_voucher_id, v_doc_id, p_category);
+
+		SELECT LAST_INSERT_ID() as attachment_id, 'OK' as result;
+	END IF;
+END $$
+
+CREATE PROCEDURE R_ADD_COLLECTOR_SIGNATURE(IN p_voucher_id BIGINT, IN p_content_type VARCHAR(255), IN p_file_size INT,
+										   IN p_content LONGTEXT,
+									       IN p_token VARCHAR(255))
+BEGIN
+	CALL R_ADD_BLOB_TO_VOUCHER(p_voucher_id, 'SIGNATURE_COLLECTOR', 'signature_collector.png', p_content_type, p_file_size, p_content, p_token);
+END $$
+
+CREATE PROCEDURE R_ADD_CAUSER_SIGNATURE(IN p_voucher_id BIGINT, IN p_content_type VARCHAR(255), IN p_file_size INT,
+									    IN p_content LONGTEXT,
+									    IN p_token VARCHAR(255))
+BEGIN
+	CALL R_ADD_BLOB_TO_VOUCHER(p_voucher_id, 'SIGNATURE_CAUSER', 'signature_causer.png', p_content_type, p_file_size, p_content, p_token);
+END $$
+
+CREATE PROCEDURE R_ADD_POLICE_SIGNATURE(IN p_voucher_id BIGINT, IN p_content_type VARCHAR(255), IN p_file_size INT,
+										IN p_content LONGTEXT,
+									    IN p_token VARCHAR(255))
+BEGIN
+	CALL R_ADD_BLOB_TO_VOUCHER(p_voucher_id, 'SIGNATURE_POLICE', 'signature_police.png', p_content_type, p_file_size, p_content, p_token);
+END $$
+
+CREATE PROCEDURE R_FETCH_SIGNATURE_BY_VOUCHER(IN p_voucher_id BIGINT, IN p_category VARCHAR(255), IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id, v_dossier_id BIGINT;
+	DECLARE v_user_id VARCHAR(36);
+	DECLARE v_doc_id BIGINT;
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		SELECT 	document_id INTO v_doc_id
+		FROM 	`T_TOWING_VOUCHER_ATTS`
+		WHERE 	towing_voucher_id = p_voucher_id AND category = p_category
+		ORDER 	BY id DESC
+		LIMIT 	0,1;
+
+		SELECT document_blob_id, name, content_type, file_size FROM T_DOCUMENTS WHERE id = v_doc_id;
+	END IF;
+END $$
+
+CREATE PROCEDURE R_FETCH_CAUSER_SIGNATURE_BY_VOUCHER(IN p_voucher_id BIGINT, IN p_token VARCHAR(255))
+BEGIN
+	CALL R_FETCH_SIGNATURE_BY_VOUCHER(p_voucher_id, 'SIGNATURE_CAUSER', p_token); 
+END $$
+
+CREATE PROCEDURE R_FETCH_COLLECTOR_SIGNATURE_BY_VOUCHER(IN p_voucher_id BIGINT, IN p_token VARCHAR(255))
+BEGIN
+	CALL R_FETCH_SIGNATURE_BY_VOUCHER(p_voucher_id, 'SIGNATURE_COLLECTOR', p_token); 
+END $$
+
+CREATE PROCEDURE R_FETCH_TRAFFIC_POST_SIGNATURE_BY_VOUCHER(IN p_voucher_id BIGINT, IN p_token VARCHAR(255))
+BEGIN
+	CALL R_FETCH_SIGNATURE_BY_VOUCHER(p_voucher_id, 'SIGNATURE_POLICE', p_token); 
+END $$
+
+CREATE PROCEDURE R_FETCH_DOCUMENT_BY_ID(IN p_id BIGINT, IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id, v_dossier_id BIGINT;
+	DECLARE v_user_id VARCHAR(36);
+	DECLARE v_doc_id BIGINT;
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		SELECT 	name, content_type, file_size, `content` as data
+		FROM 	`T_DOCUMENT_BLOB` db, `T_DOCUMENTS` d
+		WHERE 	d.document_blob_id = db.id 
+				AND db.id = p_id
+		LIMIT 	0,1;
+
+	END IF;
+END $$
 
 -- ----------------------------------------------------------------
 -- TRIGGERS
