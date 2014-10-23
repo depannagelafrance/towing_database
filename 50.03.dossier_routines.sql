@@ -43,12 +43,21 @@ DROP PROCEDURE IF EXISTS R_ADD_BLOB_TO_VOUCHER $$
 DROP PROCEDURE IF EXISTS R_ADD_COLLECTOR_SIGNATURE $$
 DROP PROCEDURE IF EXISTS R_ADD_CAUSER_SIGNATURE $$
 DROP PROCEDURE IF EXISTS R_ADD_POLICE_SIGNATURE $$
+DROP PROCEDURE IF EXISTS R_ADD_INSURANCE_DOCUMENT $$
 
 DROP PROCEDURE IF EXISTS R_FETCH_SIGNATURE_BY_VOUCHER $$
 DROP PROCEDURE IF EXISTS R_FETCH_CAUSER_SIGNATURE_BY_VOUCHER $$
 DROP PROCEDURE IF EXISTS R_FETCH_COLLECTOR_SIGNATURE_BY_VOUCHER $$
 DROP PROCEDURE IF EXISTS R_FETCH_TRAFFIC_POST_SIGNATURE_BY_VOUCHER $$
 DROP PROCEDURE IF EXISTS R_FETCH_DOCUMENT_BY_ID $$
+
+DROP PROCEDURE IF EXISTS R_FETCH_ALL_DOSSIER_COMMUNICATIONS $$
+DROP PROCEDURE IF EXISTS R_FETCH_ALL_INTERNAL_COMMUNICATIONS $$
+DROP PROCEDURE IF EXISTS R_FETCH_ALL_EMAIL_COMMUNICATIONS $$
+DROP PROCEDURE IF EXISTS R_FETCH_ALL_DOSSIER_COMM_RECIPIENTS $$
+
+DROP PROCEDURE IF EXISTS R_CREATE_DOSSIER_COMMUNICATION $$
+DROP PROCEDURE IF EXISTS R_CREATE_DOSSIER_COMM_RECIPIENT $$
 
 
 DROP FUNCTION IF EXISTS F_NEXT_DOSSIER_NUMBER $$
@@ -275,6 +284,8 @@ BEGIN
 		ELSE
 			SELECT	d.`id`, `dossier_number`, `status`, `call_date`, `call_date_is_holiday`, `call_number`, 
 					`police_traffic_post_id`, 
+						(SELECT `name` FROM `P_POLICE_TRAFFIC_POSTS` WHERE id = d.`police_traffic_post_id`) as `traffic_post_name`,
+						(SELECT `phone` FROM `P_POLICE_TRAFFIC_POSTS` WHERE id = d.`police_traffic_post_id`) as `traffic_post_phone`,
 					`incident_type_id`, it.code as `incident_type_code`, it.name `incident_type_name`,
 					`traffic_lane_id`, (SELECT `name` FROM P_DICTIONARY WHERE id = d.`traffic_lane_id`) as `traffic_lane_name`,
 					`allotment_id`, (SELECT `name` FROM P_ALLOTMENT WHERE id = d.`allotment_id`) as `allotment_name`,
@@ -330,8 +341,9 @@ BEGIN
 		IF v_dossier_id IS NULL THEN
 			CALL R_NOT_FOUND;
 		ELSE
-			SELECT	*
-			FROM 	T_TOWING_VOUCHERS
+			SELECT	*, 
+					(SELECT `name` FROM P_DICTIONARY WHERE id = tv.`collector_id`) as `collector_name`
+			FROM 	T_TOWING_VOUCHERS tv
 			WHERE	`dossier_id` = v_dossier_id;
 		END IF;
 	END IF;
@@ -815,6 +827,14 @@ BEGIN
 	CALL R_ADD_BLOB_TO_VOUCHER(p_voucher_id, 'SIGNATURE_POLICE', 'signature_police.png', p_content_type, p_file_size, p_content, p_token);
 END $$
 
+CREATE PROCEDURE  R_ADD_INSURANCE_DOCUMENT(IN p_voucher_id BIGINT, IN p_filename VARCHAR(255), 
+										   IN p_content_type VARCHAR(255), IN p_file_size INT,
+										   IN p_content LONGTEXT,
+									       IN p_token VARCHAR(255))
+BEGIN
+	CALL R_ADD_BLOB_TO_VOUCHER(p_voucher_id, 'ASSISTANCE_ATT', p_filename, p_content_type, p_file_size, p_content, p_token);
+END $$
+
 CREATE PROCEDURE R_FETCH_SIGNATURE_BY_VOUCHER(IN p_voucher_id BIGINT, IN p_category VARCHAR(255), IN p_token VARCHAR(255))
 BEGIN
 	DECLARE v_company_id, v_dossier_id BIGINT;
@@ -832,7 +852,9 @@ BEGIN
 		ORDER 	BY id DESC
 		LIMIT 	0,1;
 
-		SELECT document_blob_id, name, content_type, file_size FROM T_DOCUMENTS WHERE id = v_doc_id;
+		SELECT 	document_blob_id, name, content_type, file_size
+		FROM	T_DOCUMENTS
+		WHERE	id = v_doc_id;
 	END IF;
 END $$
 
@@ -868,6 +890,104 @@ BEGIN
 				AND db.id = p_id
 		LIMIT 	0,1;
 
+	END IF;
+END $$
+
+CREATE PROCEDURE R_FETCH_ALL_DOSSIER_COMMUNICATIONS(IN p_dossier_id BIGINT, IN p_voucher_id BIGINT, 
+													IN p_type ENUM('INTERNAL', 'EMAIL'), 
+													IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id BIGINT;
+	DECLARE v_user_id VARCHAR(36);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		IF p_voucher_id IS NULL THEN
+			SELECT 	* 
+			FROM 	`T_DOSSIER_COMMUNICATIONS` 
+			WHERE 	dossier_id = p_dossier_id 
+					AND `type` = p_type
+			ORDER 	BY cd DESC;
+		ELSE
+			SELECT 	* 
+			FROM 	`T_DOSSIER_COMMUNICATIONS` 
+			WHERE 	dossier_id = p_dossier_id 
+					AND towing_voucher_id = p_voucher_id 
+					AND `type` = p_type
+			ORDER 	BY cd DESC;
+		END IF;
+	END IF;
+
+END $$
+
+CREATE PROCEDURE R_FETCH_ALL_INTERNAL_COMMUNICATIONS(IN p_dossier_id BIGINT, IN p_voucher_id BIGINT, IN p_token VARCHAR(255))
+BEGIN
+	CALL R_FETCH_ALL_DOSSIER_COMMUNICATIONS(p_dossier_id, p_voucher_id, 'INTERNAL', p_token);
+END $$
+
+CREATE PROCEDURE R_FETCH_ALL_EMAIL_COMMUNICATIONS(IN p_dossier_id BIGINT, IN p_voucher_id BIGINT, IN p_token VARCHAR(255))
+BEGIN
+	CALL R_FETCH_ALL_DOSSIER_COMMUNICATIONS(p_dossier_id, p_voucher_id, 'EMAIL', p_token);
+END $$
+
+CREATE PROCEDURE R_FETCH_ALL_DOSSIER_COMM_RECIPIENTS(IN p_communication_id BIGINT, IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id BIGINT;
+	DECLARE v_user_id VARCHAR(36);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		SELECT 	`type`, `email_address`
+		FROM 	`T_RECIPIENTS` r, `T_DOSSIER_COMMUNICATIONS` dc
+		WHERE	r.dossier_communication_id = dc.id
+				AND dc.id = p_communication_id
+				AND dc.type = 'EMAIL';
+		
+	END IF;
+END $$
+
+CREATE PROCEDURE R_CREATE_DOSSIER_COMMUNICATION(IN p_dossier_id BIGINT, IN p_voucher_id BIGINT,
+												IN p_type ENUM('INTERNAL', 'EMAIL'),
+												IN p_subject VARCHAR(255), IN p_message TEXT,
+												IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id BIGINT;
+	DECLARE v_user_id VARCHAR(36);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		INSERT INTO `T_DOSSIER_COMMUNICATIONS` (`dossier_id`, `towing_voucher_id`, `type`, `subject`, `message`, `cd`, `cd_by`) 
+		VALUES (p_dossier_id, p_voucher_id, p_type, p_subject, p_message, now(), F_RESOLVE_LOGIN(v_user_id, p_token));
+
+		SELECT LAST_INSERT_ID() as communication_id, 'OK' as result;
+	END IF;
+END $$
+
+CREATE PROCEDURE R_CREATE_DOSSIER_COMM_RECIPIENT(IN p_communication_id BIGINT, 
+											     IN p_type ENUM('TO', 'CC', 'BCC'),
+												 IN p_email VARCHAR(255), IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id BIGINT;
+	DECLARE v_user_id VARCHAR(36);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		INSERT INTO `T_RECIPIENTS`(`dossier_communication_id`, `type`, `email_address`)
+		VALUES(p_communication_id, p_type, p_email);
+
+		SELECT LAST_INSERT_ID() as recipient, 'OK' as result;
 	END IF;
 END $$
 
@@ -957,6 +1077,16 @@ BEGIN
 	LIMIT	1;
 END $$
 
+
+
+
+
+-- ----------------------------------------------------------------
+-- EVENTS
+-- ----------------------------------------------------------------
+
+
+
 CREATE PROCEDURE R_UPDATE_TOWING_STORAGE_COST()
 BEGIN
 	DECLARE v_voucher_id, v_dossier_id, v_timeframe_id BIGINT DEFAULT NULL;
@@ -990,6 +1120,7 @@ BEGIN
 			
 	UNTIL no_rows_found END REPEAT;	
 END $$
+
 -- ----------------------------------------------------
 -- RECALCULATE STORAGE COSTS ON DAILY BASIS
 -- ----------------------------------------------------
