@@ -20,6 +20,7 @@ DROP PROCEDURE IF EXISTS R_FETCH_USER_ROLES $$
 DROP PROCEDURE IF EXISTS R_FETCH_ALL_ROLES $$
 DROP PROCEDURE IF EXISTS R_FETCH_USER_MODULES $$
 DROP PROCEDURE IF EXISTS R_FETCH_USER_COMPANY $$
+DROP PROCEDURE IF EXISTS R_ADD_SIGNATURE_TO_USER_PROFILE $$
 
 -- ---------------------------------------------------------------------
 -- CREATE ROUTINES
@@ -355,6 +356,44 @@ BEGIN
 			`street`, `street_number`, `street_pobox`, `zip`, `city`,
 			`phone`, `fax`, `email`, `website`, `vat`
 		FROM `T_COMPANIES` WHERE id = v_company_id;
+	END IF;
+END $$
+
+CREATE PROCEDURE R_ADD_SIGNATURE_TO_USER_PROFILE(IN p_content_type VARCHAR(255), IN p_file_size INT,
+									   IN p_content LONGTEXT,
+									   IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id BIGINT;
+	DECLARE v_user_id VARCHAR(36);
+	DECLARE v_doc_id, v_blob_id BIGINT;
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		SELECT signature_document_id INTO v_doc_id
+		FROM T_USERS WHERE id = v_user_id
+		LIMIT 0,1;
+
+		IF v_doc_id IS NULL THEN
+			INSERT INTO `T_DOCUMENT_BLOB`(`content`) VALUES(p_content);
+
+			SET v_blob_id = LAST_INSERT_ID();
+
+			INSERT INTO `T_DOCUMENTS` (`document_blob_id`, `name`, `content_type`, `file_size`, `cd`, `cd_by`)
+			VALUES (v_blob_id, 'signature_user.png', p_content_type, p_file_size, now(), F_RESOLVE_LOGIN(v_user_id, p_token));
+
+			SET v_doc_id = LAST_INSERT_ID();
+
+			UPDATE T_USERS SET signature_document_id = v_doc_id WHERE id = v_user_id LIMIT 1;
+		ELSE
+			SELECT document_blob_id INTO v_blob_id FROM T_DOCUMENTS WHERE id = v_doc_id LIMIT 0,1;
+
+			UPDATE T_DOCUMENT_BLOB SET content = p_content WHERE id = v_blob_id;
+		END IF;
+
+		SELECT v_doc_id as attachment_id, 'OK' as result;
 	END IF;
 END $$
 
