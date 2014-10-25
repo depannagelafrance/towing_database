@@ -671,7 +671,7 @@ BEGIN
 	IF v_user_id IS NULL OR v_company_id IS NULL THEN
 		CALL R_NOT_AUTHORIZED;
 	ELSE
-		SELECT 	taf.id, ta.name, ta.code 
+		SELECT 	taf.id, ta.name, ta.code, taf.fee_excl_vat, taf.fee_incl_vat 
 		FROM 	`P_TIMEFRAME_ACTIVITIES` ta, `P_TIMEFRAME_ACTIVITY_FEE` taf
 		WHERE 	ta.id = taf.timeframe_activity_id
 				AND taf.timeframe_id = (SELECT timeframe_id FROM T_DOSSIERS WHERE id = p_dossier_id)
