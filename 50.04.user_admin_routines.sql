@@ -351,11 +351,12 @@ BEGIN
 	IF v_user_id IS NULL OR v_company_id IS NULL THEN
 		CALL R_NOT_AUTHORIZED;
 	ELSE
-		SELECT `id`,
-			`name`, `code`,
-			`street`, `street_number`, `street_pobox`, `zip`, `city`,
-			`phone`, `fax`, `email`, `website`, `vat`
-		FROM `T_COMPANIES` WHERE id = v_company_id;
+		SELECT 	`id`,
+				`name`, `code`,
+				`street`, `street_number`, `street_pobox`, `zip`, `city`,
+				`phone`, `fax`, `email`, `website`, `vat`
+		FROM 	`T_COMPANIES` 
+		WHERE 	id = v_company_id;
 	END IF;
 END $$
 
