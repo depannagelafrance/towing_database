@@ -288,6 +288,7 @@ BEGIN
 						(SELECT `name` FROM `P_POLICE_TRAFFIC_POSTS` WHERE id = d.`police_traffic_post_id`) as `traffic_post_name`,
 						(SELECT `phone` FROM `P_POLICE_TRAFFIC_POSTS` WHERE id = d.`police_traffic_post_id`) as `traffic_post_phone`,
 					`incident_type_id`, it.code as `incident_type_code`, it.name `incident_type_name`,
+					`timeframe_id`,
 					`traffic_lane_id`, (SELECT `name` FROM P_DICTIONARY WHERE id = d.`traffic_lane_id`) as `traffic_lane_name`,
 					`allotment_id`, (SELECT `name` FROM P_ALLOTMENT WHERE id = d.`allotment_id`) as `allotment_name`,
 					`allotment_direction_indicator_id`, (SELECT `name` FROM P_ALLOTMENT_DIRECTION_INDICATORS WHERE id = d.`allotment_direction_indicator_id`) as `indicator_name`,
@@ -370,7 +371,12 @@ BEGIN
 		IF v_dossier_id IS NULL THEN
 			CALL R_NOT_FOUND;
 		ELSE
-			SELECT ta.towing_voucher_id, ta.activity_id, tia.code, tia.name, taf.fee_incl_vat, taf.fee_excl_vat, ta.amount, ta.cal_fee_excl_vat, ta.cal_fee_incl_vat 
+			SELECT ta.towing_voucher_id, ta.activity_id, tia.code, tia.name, 
+				   format(taf.fee_incl_vat, 2) as fee_incl_vat, 
+				   format(taf.fee_excl_vat, 2) as fee_excl_vat, 
+				   ta.amount, 
+				   format(ta.cal_fee_excl_vat, 2) as cal_fee_excl_vat, 
+				   format(ta.cal_fee_incl_vat, 2) as cal_fee_incl_vat 
 			FROM T_TOWING_ACTIVITIES ta, P_TIMEFRAME_ACTIVITY_FEE taf, P_TIMEFRAME_ACTIVITIES tia
 			WHERE ta.towing_voucher_id = p_voucher_id
 				AND ta.activity_id = taf.id
@@ -672,7 +678,9 @@ BEGIN
 	IF v_user_id IS NULL OR v_company_id IS NULL THEN
 		CALL R_NOT_AUTHORIZED;
 	ELSE
-		SELECT 	taf.id, ta.name, ta.code, taf.fee_excl_vat, taf.fee_incl_vat 
+		SELECT 	taf.id, ta.name, ta.code, 
+				format(taf.fee_excl_vat, 2) as fee_excl_vat,
+				format(fee_incl_vat, 2) as fee_incl_vat
 		FROM 	`P_TIMEFRAME_ACTIVITIES` ta, `P_TIMEFRAME_ACTIVITY_FEE` taf
 		WHERE 	ta.id = taf.timeframe_activity_id
 				AND taf.timeframe_id = (SELECT timeframe_id FROM T_DOSSIERS WHERE id = p_dossier_id)

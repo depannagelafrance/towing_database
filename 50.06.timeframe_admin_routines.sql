@@ -51,7 +51,10 @@ BEGIN
 	IF v_user_id IS NULL OR v_company_id IS NULL THEN
 		CALL R_NOT_AUTHORIZED;
 	ELSE
-		SELECT 	* 
+		SELECT 	id, timeframe_id, timeframe_activity_id, 
+				format(fee_excl_vat, 2) fee_excl_vat, 
+				format(fee_incl_vat, 2) fee_incl_vat, 
+				valid_from, valid_until 
 		FROM 	P_TIMEFRAME_ACTIVITY_FEE 
 		WHERE 	timeframe_id = p_timeframe_id
 				AND now() BETWEEN valid_from AND valid_until;
