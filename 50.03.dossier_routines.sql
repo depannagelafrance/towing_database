@@ -50,6 +50,8 @@ DROP PROCEDURE IF EXISTS R_FETCH_CAUSER_SIGNATURE_BY_VOUCHER $$
 DROP PROCEDURE IF EXISTS R_FETCH_CAUSER_SIGNATURE_BLOB_BY_VOUCHER $$
 DROP PROCEDURE IF EXISTS R_FETCH_COLLECTOR_SIGNATURE_BY_VOUCHER $$
 DROP PROCEDURE IF EXISTS R_FETCH_TRAFFIC_POST_SIGNATURE_BY_VOUCHER $$
+DROP PROCEDURE IF EXISTS R_FETCH_TRAFFIC_POST_SIGNATURE_BLOB_BY_VOUCHER $$
+DROP PROCEDURE IF EXISTS R_FETCH_VOUCHER_SIGNATURE $$
 DROP PROCEDURE IF EXISTS R_FETCH_DOCUMENT_BY_ID $$
 
 DROP PROCEDURE IF EXISTS R_FETCH_ALL_DOSSIER_COMMUNICATIONS $$
@@ -288,7 +290,7 @@ BEGIN
 						(SELECT `name` FROM `P_POLICE_TRAFFIC_POSTS` WHERE id = d.`police_traffic_post_id`) as `traffic_post_name`,
 						(SELECT `phone` FROM `P_POLICE_TRAFFIC_POSTS` WHERE id = d.`police_traffic_post_id`) as `traffic_post_phone`,
 					`incident_type_id`, it.code as `incident_type_code`, it.name `incident_type_name`,
-					`timeframe_id`,
+					`timeframe_id`, (SELECT `name` FROM P_TIMEFRAMES WHERE id = d.timeframe_id) as "timeframe_name",
 					`traffic_lane_id`, (SELECT `name` FROM P_DICTIONARY WHERE id = d.`traffic_lane_id`) as `traffic_lane_name`,
 					`allotment_id`, (SELECT `name` FROM P_ALLOTMENT WHERE id = d.`allotment_id`) as `allotment_name`,
 					`allotment_direction_indicator_id`, (SELECT `name` FROM P_ALLOTMENT_DIRECTION_INDICATORS WHERE id = d.`allotment_direction_indicator_id`) as `indicator_name`,
@@ -344,7 +346,8 @@ BEGIN
 			CALL R_NOT_FOUND;
 		ELSE
 			SELECT	*, 
-					(SELECT `name` FROM P_DICTIONARY WHERE id = tv.`collector_id`) as `collector_name`
+					(SELECT `name` FROM P_DICTIONARY WHERE id = tv.`collector_id`) as `collector_name`,
+					(SELECT `name` FROM P_DICTIONARY WHERE id = tv.`insurance_id`) as `insurance_name`
 			FROM 	T_TOWING_VOUCHERS tv
 			WHERE	`dossier_id` = v_dossier_id;
 		END IF;
@@ -436,7 +439,7 @@ BEGIN
 			SET v_display_name = trim(concat(v_display_name, ', ', IFNULL(v_street, '')));
 			SET v_display_name = trim(concat(v_display_name, ' ', IFNULL(v_street_number, '')));
 		
-			IF v_street_pobox IS NOT NULL THEN
+			IF v_street_pobox IS NOT NULL AND trim(v_street_pobox) != '' THEN
 				SET v_display_name = trim(concat(v_display_name, '/', IFNULL(v_street_pobox, '')));
 			END IF;
 
@@ -872,7 +875,17 @@ BEGIN
 	CALL R_FETCH_SIGNATURE_BY_VOUCHER(p_voucher_id, 'SIGNATURE_CAUSER', p_token); 
 END $$
 
-CREATE PROCEDURE R_FETCH_CAUSER_SIGNATURE_BLOB_BY_VOUCHER(IN p_voucher_id BIGINT, p_token VARCHAR(255)) 
+CREATE PROCEDURE R_FETCH_CAUSER_SIGNATURE_BLOB_BY_VOUCHER(IN p_voucher_id BIGINT, IN p_token VARCHAR(255)) 
+BEGIN
+	CALL R_FETCH_VOUCHER_SIGNATURE(p_voucher_id, 'SIGNATURE_CAUSER', p_token);
+END $$
+
+CREATE PROCEDURE R_FETCH_TRAFFIC_POST_SIGNATURE_BLOB_BY_VOUCHER(IN p_voucher_id BIGINT, IN p_token VARCHAR(255))
+BEGIN
+	CALL R_FETCH_VOUCHER_SIGNATURE(p_voucher_id, 'SIGNATURE_POLICE', p_token);
+END $$
+
+CREATE PROCEDURE R_FETCH_VOUCHER_SIGNATURE(IN p_voucher_id BIGINT, IN p_category VARCHAR(255), IN p_token VARCHAR(255))
 BEGIN
 	DECLARE v_company_id, v_dossier_id BIGINT;
 	DECLARE v_user_id VARCHAR(36);
@@ -886,7 +899,7 @@ BEGIN
 		SELECT 	document_id INTO v_doc_id
 		FROM 	`T_TOWING_VOUCHER_ATTS`
 		WHERE 	towing_voucher_id = p_voucher_id 
-				AND category = 'SIGNATURE_CAUSER'
+				AND category = p_category
 		ORDER 	BY id DESC
 		LIMIT 	0,1;
 
