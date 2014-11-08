@@ -24,6 +24,8 @@ DROP PROCEDURE IF EXISTS R_UPDATE_TOWING_CAUSER		$$
 DROP PROCEDURE IF EXISTS R_UPDATE_TOWING_VOUCHER_ACTIVITY	$$
 
 DROP PROCEDURE IF EXISTS R_UPDATE_TOWING_STORAGE_COST $$
+DROP PROCEDURE IF EXISTS R_UPDATE_EXTRA_TIME_SIGNA $$
+DROP PROCEDURE IF EXISTS R_UPDATE_EXTRA_TIME_ACCIDENT $$
 
 DROP PROCEDURE IF EXISTS R_FETCH_DOSSIER_BY_ID $$
 DROP PROCEDURE IF EXISTS R_FETCH_DOSSIER_BY_NUMBER $$
@@ -53,6 +55,7 @@ DROP PROCEDURE IF EXISTS R_FETCH_TRAFFIC_POST_SIGNATURE_BY_VOUCHER $$
 DROP PROCEDURE IF EXISTS R_FETCH_TRAFFIC_POST_SIGNATURE_BLOB_BY_VOUCHER $$
 DROP PROCEDURE IF EXISTS R_FETCH_VOUCHER_SIGNATURE $$
 DROP PROCEDURE IF EXISTS R_FETCH_DOCUMENT_BY_ID $$
+DROP PROCEDURE IF EXISTS R_FETCH_COMM_AND_ATT_SUMMARY $$
 
 DROP PROCEDURE IF EXISTS R_FETCH_ALL_DOSSIER_COMMUNICATIONS $$
 DROP PROCEDURE IF EXISTS R_FETCH_ALL_INTERNAL_COMMUNICATIONS $$
@@ -73,7 +76,8 @@ DROP TRIGGER IF EXISTS TRG_AI_TOWING_VOUCHER $$
 DROP TRIGGER IF EXISTS TRG_AI_TOWING_ACTIVITY $$
 
 DROP EVENT IF EXISTS E_UPDATE_TOWING_STORAGE_COST $$
-
+DROP EVENT IF EXISTS E_UPDATE_SIGNA_EXTRA_TIME $$
+DROP EVENT IF EXISTS E_UPDATE_ACCIDENT_EXTRA_TIME $$
 
 -- ---------------------------------------------------------------------
 -- CREATE FUNCTIONS
@@ -1038,6 +1042,25 @@ BEGIN
 	END IF;
 END $$
 
+CREATE PROCEDURE R_FETCH_COMM_AND_ATT_SUMMARY(IN p_dossier_id BIGINT, IN p_voucher_id BIGINT, IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id BIGINT;
+	DECLARE v_user_id VARCHAR(36);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		SELECT 'INTERNAL' as `type`, count(*) as `number` FROM T_DOSSIER_COMMUNICATIONS WHERE dossier_id=p_dossier_id AND type='INTERNAL'
+		union
+		SELECT 'EMAIL', count(*) FROM T_DOSSIER_COMMUNICATIONS WHERE dossier_id=p_dossier_id AND type='EMAIL'
+		union
+		SELECT 'ATT', count(*) FROM T_TOWING_VOUCHER_ATTS WHERE towing_voucher_id = p_voucher_id;
+	END IF;
+
+END $$
+
 -- ----------------------------------------------------------------
 -- TRIGGERS
 -- ----------------------------------------------------------------
@@ -1140,9 +1163,10 @@ BEGIN
 	DECLARE no_rows_found BOOLEAN DEFAULT FALSE;
 	
 	DECLARE c CURSOR FOR SELECT tv.id as voucher_id, dossier_id, timeframe_id 
-						 FROM T_TOWING_VOUCHERS tv, T_DOSSIERS d 
-						 WHERE tv.dossier_id = d.id
-						 AND vehicule_collected IS NULL;
+						 FROM 	T_TOWING_VOUCHERS tv, T_DOSSIERS d 
+						 WHERE 	tv.dossier_id = d.id
+								AND vehicule_collected IS NULL
+								AND datediff(now(), call_date) > 3;
 								  
 	DECLARE CONTINUE HANDLER FOR NOT FOUND SET no_rows_found = TRUE;
 	
@@ -1168,6 +1192,82 @@ BEGIN
 	UNTIL no_rows_found END REPEAT;	
 END $$
 
+CREATE PROCEDURE R_UPDATE_EXTRA_TIME_SIGNA()
+BEGIN
+	DECLARE v_voucher_id, v_dossier_id, v_timeframe_id, v_extra_time BIGINT DEFAULT NULL;
+	
+	DECLARE no_rows_found BOOLEAN DEFAULT FALSE;
+	
+	DECLARE c CURSOR FOR 	SELECT d.id as dossier_id, tv.id as towing_voucher_id, d.timeframe_id,
+								  (TIMESTAMPDIFF(MINUTE, tv.signa_arrival, now()) - 60) as extra_time_signa
+							FROM T_DOSSIERS d, T_TOWING_VOUCHERS tv
+							WHERE d.id = tv.dossier_id
+								AND tv.signa_arrival IS NOT NULL
+								AND TIMESTAMPDIFF(MINUTE, tv.signa_arrival, now()) > 60;
+								  
+	DECLARE CONTINUE HANDLER FOR NOT FOUND SET no_rows_found = TRUE;
+	
+	OPEN c;
+	
+	REPEAT
+		FETCH c INTO v_dossier_id, v_voucher_id, v_timeframe_id, v_extra_time;
+		
+		INSERT INTO T_TOWING_ACTIVITIES(towing_voucher_id, activity_id, amount, cal_fee_excl_vat, cal_fee_incl_vat)
+		SELECT 	tv.id, t.activity_id, CEIL(v_extra_time/15), t.fee_excl_vat, t.fee_incl_vat 
+		FROM 	T_DOSSIERS d, T_TOWING_VOUCHERS tv,
+				(SELECT taf.id as activity_id, taf.fee_excl_vat, taf.fee_incl_vat
+				 FROM 	`P_TIMEFRAME_ACTIVITY_FEE` taf, `P_TIMEFRAME_ACTIVITIES` ta
+				 WHERE 	taf.timeframe_activity_id = ta.id AND taf.timeframe_id = v_timeframe_id
+						AND `code` = 'EXTRA_SIGNALISATIE'
+						AND current_date BETWEEN taf.valid_from AND taf.valid_until) t
+		WHERE 	d.id = v_dossier_id
+				AND tv.dossier_id = d.id
+				AND tv.id = v_voucher_id
+		ON DUPLICATE KEY UPDATE amount = CEIL(v_extra_time/15), 
+								cal_fee_excl_vat = (amount * t.fee_excl_vat), 
+								cal_fee_incl_vat = (amount * t.fee_incl_vat);
+			
+	UNTIL no_rows_found END REPEAT;	
+END $$
+
+
+CREATE PROCEDURE R_UPDATE_EXTRA_TIME_ACCIDENT()
+BEGIN
+	DECLARE v_voucher_id, v_dossier_id, v_timeframe_id, v_extra_time BIGINT DEFAULT NULL;
+	
+	DECLARE no_rows_found BOOLEAN DEFAULT FALSE;
+	
+	DECLARE c CURSOR FOR 	SELECT d.id as dossier_id, tv.id as towing_voucher_id, d.timeframe_id,
+								  (TIMESTAMPDIFF(MINUTE, tv.signa_arrival, now()) - 60) as extra_time_accident
+							FROM T_DOSSIERS d, T_TOWING_VOUCHERS tv, P_INCIDENT_TYPES p
+							WHERE d.id = tv.dossier_id
+								AND d.incident_type_id = p.id AND p.code='ONGEVAL';
+								  
+	DECLARE CONTINUE HANDLER FOR NOT FOUND SET no_rows_found = TRUE;
+	
+	OPEN c;
+	
+	REPEAT
+		FETCH c INTO v_dossier_id, v_voucher_id, v_timeframe_id, v_extra_time;
+		
+		INSERT INTO T_TOWING_ACTIVITIES(towing_voucher_id, activity_id, amount, cal_fee_excl_vat, cal_fee_incl_vat)
+		SELECT 	tv.id, t.activity_id, CEIL(v_extra_time/15), t.fee_excl_vat, t.fee_incl_vat 
+		FROM 	T_DOSSIERS d, T_TOWING_VOUCHERS tv,
+				(SELECT taf.id as activity_id, taf.fee_excl_vat, taf.fee_incl_vat
+				 FROM 	`P_TIMEFRAME_ACTIVITY_FEE` taf, `P_TIMEFRAME_ACTIVITIES` ta
+				 WHERE 	taf.timeframe_activity_id = ta.id AND taf.timeframe_id = v_timeframe_id
+						AND `code` = 'EXTRA_ONGEVAL'
+						AND current_date BETWEEN taf.valid_from AND taf.valid_until) t
+		WHERE 	d.id = v_dossier_id
+				AND tv.dossier_id = d.id
+				AND tv.id = v_voucher_id
+		ON DUPLICATE KEY UPDATE amount = CEIL(v_extra_time/15), 
+								cal_fee_excl_vat = (amount * t.fee_excl_vat), 
+								cal_fee_incl_vat = (amount * t.fee_incl_vat);
+			
+	UNTIL no_rows_found END REPEAT;	
+END $$
+
 -- ----------------------------------------------------
 -- RECALCULATE STORAGE COSTS ON DAILY BASIS
 -- ----------------------------------------------------
@@ -1177,5 +1277,26 @@ DO
 BEGIN
 	CALL R_UPDATE_TOWING_STORAGE_COST();
 END $$
+
+-- ----------------------------------------------------
+-- RECALCULATE EXTRA TIME SIGNA EVERY 15 MINUTES
+-- ----------------------------------------------------
+CREATE EVENT E_UPDATE_SIGNA_EXTRA_TIME
+ON SCHEDULE EVERY 15 MINUTE STARTS '2014-01-01 01:00:00'
+DO
+BEGIN
+	CALL R_UPDATE_EXTRA_TIME_SIGNA();
+END $$
+
+-- ----------------------------------------------------
+-- RECALCULATE EXTRA TIME ACCIDENT EVERY 15 MINUTES
+-- ----------------------------------------------------
+CREATE EVENT E_UPDATE_ACCIDENT_EXTRA_TIME
+ON SCHEDULE EVERY 15 MINUTE STARTS '2014-01-01 01:00:00'
+DO
+BEGIN
+	CALL R_UPDATE_EXTRA_TIME_ACCIDENT();
+END $$
+
 
 DELIMITER ;
