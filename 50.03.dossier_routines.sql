@@ -221,11 +221,11 @@ CREATE PROCEDURE  R_UPDATE_TOWING_VOUCHER(IN p_dossier_id BIGINT, IN p_voucher_i
 										  IN p_insurance_id BIGINT, IN p_insurance_dossier_nr VARCHAR(45), IN p_warranty_holder VARCHAR(255),
 										  IN p_collector_id BIGINT,
 										  IN p_vehicule_type VARCHAR(255), IN p_vehicule_licence_plate VARCHAR(15), IN p_vehicule_country VARCHAR(5),
-										  IN p_signa_by VARCHAR(255), IN p_signa_by_vehicule VARCHAR(15), IN p_signa_arrival DATETIME, 
+										  IN p_signa_by VARCHAR(255), IN p_signa_by_vehicule VARCHAR(15), IN p_signa_arrival TIMESTAMP, 
 										  IN p_towed_by VARCHAR(255), IN p_towed_by_vehicule VARCHAR(15), 
-										  IN p_towing_called DATETIME, IN p_towing_arrival DATETIME, IN p_towing_start DATETIME, IN p_towing_end DATETIME,
-										  IN p_police_signature DATETIME, IN p_recipient_signature DATETIME, IN p_vehicule_collected DATETIME,
-										  IN p_cic DATETIME,
+										  IN p_towing_called TIMESTAMP, IN p_towing_arrival TIMESTAMP, IN p_towing_start TIMESTAMP, IN p_towing_end TIMESTAMP,
+										  IN p_police_signature TIMESTAMP, IN p_recipient_signature TIMESTAMP, IN p_vehicule_collected TIMESTAMP,
+										  IN p_cic TIMESTAMP,
 										  IN p_additional_info TEXT, 
 										  IN p_token VARCHAR(255))
 BEGIN
@@ -349,7 +349,35 @@ BEGIN
 		IF v_dossier_id IS NULL THEN
 			CALL R_NOT_FOUND;
 		ELSE
-			SELECT	*, 
+			SELECT	`id`,
+					`dossier_id`,
+					`insurance_id`,
+					`collector_id`,
+					`voucher_number`,
+					unix_timestamp(`police_signature_dt`) as police_signature_dt,
+					unix_timestamp(`recipient_signature_dt`) as recipient_signature_dt,
+					`insurance_dossiernr`,
+					`insurance_warranty_held_by`,
+					`vehicule_type`,
+					`vehicule_licenceplate`,
+					`vehicule_country`,
+					`vehicule_collected`,
+					`towed_by`,
+					`towed_by_vehicle`,
+					unix_timestamp(`towing_called`) as towing_called,
+					unix_timestamp(`towing_arrival`) as towing_arrival,
+					unix_timestamp(`towing_start`) as towing_start,
+					unix_timestamp(`towing_completed`) as towing_completed,
+					`signa_id`,
+					`signa_by`,
+					`signa_by_vehicle`,
+					unix_timestamp(`signa_arrival`) as signa_arrival,
+					`cic`,
+					`additional_info`,
+					`cd`,
+					`cd_by`,
+					`ud`,
+					`ud_by`, 
 					(SELECT `name` FROM P_DICTIONARY WHERE id = tv.`collector_id`) as `collector_name`,
 					(SELECT `name` FROM P_DICTIONARY WHERE id = tv.`insurance_id`) as `insurance_name`
 			FROM 	T_TOWING_VOUCHERS tv
@@ -357,7 +385,6 @@ BEGIN
 		END IF;
 	END IF;
 END $$
-
 
 CREATE PROCEDURE R_FETCH_TOWING_ACTIVITIES_BY_VOUCHER(IN p_dossier_id BIGINT, IN p_voucher_id BIGINT, IN p_token VARCHAR(255))
 BEGIN
