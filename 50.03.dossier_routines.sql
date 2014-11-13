@@ -21,7 +21,8 @@ DROP PROCEDURE IF EXISTS R_UPDATE_TOWING_DEPOT 		$$
 DROP PROCEDURE IF EXISTS R_UPDATE_TOWING_CUSTOMER 	$$
 DROP PROCEDURE IF EXISTS R_UPDATE_TOWING_CAUSER		$$
 
-DROP PROCEDURE IF EXISTS R_UPDATE_TOWING_VOUCHER_ACTIVITY	$$
+DROP PROCEDURE IF EXISTS R_UPDATE_TOWING_VOUCHER_ACTIVITY $$
+DROP PROCEDURE IF EXISTS R_UPDATE_TOWING_VOUCHER_PAYMENTS $$
 
 DROP PROCEDURE IF EXISTS R_UPDATE_TOWING_STORAGE_COST $$
 DROP PROCEDURE IF EXISTS R_UPDATE_EXTRA_TIME_SIGNA $$
@@ -629,6 +630,44 @@ BEGIN
 	END IF;
 END $$
 
+CREATE PROCEDURE R_UPDATE_TOWING_VOUCHER_PAYMENTS(IN p_dossier_id BIGINT, IN p_voucher_id BIGINT,
+												  IN p_guarantee_insurance DOUBLE(10,2),
+												  IN p_in_cash DOUBLE(10,2), IN p_bank_deposit DOUBLE(10,2), IN p_debit_card DOUBLE(10,2), IN p_credit_card DOUBLE(10,2),
+												  IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id BIGINT;
+	DECLARE v_user_id VARCHAR(36);
+	DECLARE v_cal_fee_excl_vat, v_cal_fee_incl_vat, v_paid DOUBLE(10,2);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		SELECT 	sum(cal_fee_excl_vat), sum(cal_fee_incl_vat) INTO v_cal_fee_excl_vat, v_cal_fee_incl_vat
+		FROM 	T_TOWING_ACTIVITIES
+		WHERE 	towing_voucher_id = p_voucher_id;
+
+		SET v_paid = IFNULL(p_in_cash, 0.0) + IFNULL(p_bank_deposit, 0.0) + IFNULL(p_debit_card, 0.0) + IFNULL(p_credit_card, 0.0);
+	
+		UPDATE `T_TOWING_VOUCHER_PAYMENTS`
+		SET
+			`amount_guaranteed_by_insurance` = p_guarantee_insurance,
+			`amount_customer` = v_cal_fee_incl_vat - IFNULL(p_guarantee_insurance, 0.0),
+			`paid_in_cash` = p_in_cash,
+			`paid_by_bank_deposit` = p_bank_deposit,
+			`paid_by_debit_card` = p_debit_card,
+			`paid_by_credit_card` = p_credit_card,
+			`cal_amount_paid` = v_paid,
+			`cal_amount_unpaid` = v_cal_fee_incl_vat - IFNULL(p_guarantee_insurance, 0.0) - v_paid,
+			`ud` = now(),
+			`ud_by` = F_RESOLVE_LOGIN(v_user_id, p_token)
+		WHERE `towing_voucher_id` = p_voucher_id;
+
+		CALL R_FETCH_TOWING_PAYMENTS_BY_VOUCHER(p_dossier_id, p_voucher_id, p_token);
+	END IF;
+END $$
+
 CREATE PROCEDURE R_FETCH_TOWING_COMPANY_BY_DOSSIER(IN p_dossier_id BIGINT, IN p_token VARCHAR(255))
 BEGIN
 	DECLARE v_company_id, v_dossier_id BIGINT;
@@ -1179,7 +1218,7 @@ BEGIN
 	SET 	`amount_customer` = v_incl_vat, 
 			`cal_amount_paid` = 0, 
 			`cal_amount_unpaid` = v_incl_vat, 
-			`ud` = now(), `ud_by` = 'TODO'
+			`ud` = now(), `ud_by` = (SELECT ud_by FROM T_TOWING_ACTIVITIES WHERE id = NEW.towing_voucher_id LIMIT 0,1)
 	WHERE 	towing_voucher_id = NEW.towing_voucher_id
 	LIMIT	1;
 END $$
