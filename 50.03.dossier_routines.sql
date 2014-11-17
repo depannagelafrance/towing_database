@@ -414,7 +414,7 @@ BEGIN
 					AND ta.activity_id = taf.id
 					AND taf.timeframe_activity_id = tia.id;
 
-			SELECT ta.towing_voucher_id, ta.activity_id, tia.code, tia.name, 
+			SELECT ta.towing_voucher_id, ta.activity_id, tia.code, tia.name, tia.id as timeframe_activity_id,
 				   taf.fee_incl_vat, -- format(taf.fee_incl_vat, 2) as fee_incl_vat, 
 				   taf.fee_excl_vat, -- format(taf.fee_excl_vat, 2) as fee_excl_vat, 
 				   ta.amount, 
