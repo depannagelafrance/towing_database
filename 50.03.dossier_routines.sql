@@ -36,6 +36,7 @@ DROP PROCEDURE IF EXISTS R_FETCH_TOWING_PAYMENTS_BY_VOUCHER $$
 DROP PROCEDURE IF EXISTS R_FETCH_TOWING_COMPANY_BY_DOSSIER $$
 
 DROP PROCEDURE IF EXISTS R_FETCH_ALL_DOSSIERS_BY_FILTER $$
+DROP PROCEDURE IF EXISTS R_FETCH_ALL_DOSSIERS_ASSIGNED_TO_ME_BY_FILTER $$
 DROP PROCEDURE IF EXISTS R_FETCH_ALL_VOUCHERS_BY_FILTER $$
 DROP PROCEDURE IF EXISTS R_FETCH_ALL_AVAILABLE_ACTIVITIES $$
 DROP PROCEDURE IF EXISTS R_FETCH_ALL_ALLOTMENTS_BY_DIRECTION $$
@@ -222,7 +223,7 @@ CREATE PROCEDURE  R_UPDATE_TOWING_VOUCHER(IN p_dossier_id BIGINT, IN p_voucher_i
 										  IN p_insurance_id BIGINT, IN p_insurance_dossier_nr VARCHAR(45), IN p_warranty_holder VARCHAR(255),
 										  IN p_collector_id BIGINT,
 										  IN p_vehicule_type VARCHAR(255), IN p_vehicule_licence_plate VARCHAR(15), IN p_vehicule_country VARCHAR(5),
-										  IN p_signa_by VARCHAR(255), IN p_signa_by_vehicule VARCHAR(15), IN p_signa_arrival TIMESTAMP, 
+										  IN p_signa_id VARCHAR(36), IN p_signa_by VARCHAR(255), IN p_signa_by_vehicule VARCHAR(15), IN p_signa_arrival TIMESTAMP, 
 										  IN p_towed_by VARCHAR(255), IN p_towed_by_vehicule VARCHAR(15), 
 										  IN p_towing_called TIMESTAMP, IN p_towing_arrival TIMESTAMP, IN p_towing_start TIMESTAMP, IN p_towing_end TIMESTAMP,
 										  IN p_police_signature TIMESTAMP, IN p_recipient_signature TIMESTAMP, IN p_vehicule_collected TIMESTAMP,
@@ -256,6 +257,7 @@ BEGIN
 			towing_arrival 			= p_towing_arrival, 
 			towing_start 			= p_towing_start, 
 			towing_completed 		= p_towing_end, 
+			signa_id				= p_signa_id,
 			signa_by 				= p_signa_by, 
 			signa_by_vehicle 		= p_signa_by_vehicule, 
 			signa_arrival 			= p_signa_arrival, 
@@ -716,7 +718,35 @@ BEGIN
 				AND d.allotment_direction_id = ad.id
 				AND d.allotment_direction_indicator_id = adi.id
 				AND d.status = p_filter
+		ORDER BY call_date DESC; 	
+	END IF;
+END $$
 
+CREATE PROCEDURE R_FETCH_ALL_DOSSIERS_ASSIGNED_TO_ME_BY_FILTER(IN p_filter VARCHAR(25), IN p_token VARCHAR(255))
+BEGIN 
+	DECLARE v_company_id, v_dossier_id BIGINT;
+	DECLARE v_user_id VARCHAR(36);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		SELECT 	d.id, d.id as 'dossier_id', t.id as 'voucher_id', d.call_number, d.call_date, d.dossier_number, t.voucher_number, ad.name 'direction_name', adi.name 'indicator_name', c.code as `towing_service`, ip.name as `incident_type`
+		FROM 	`T_TOWING_VOUCHERS`t, 
+				`T_DOSSIERS` d, 
+				`P_ALLOTMENT_DIRECTIONS` ad, 
+				`P_ALLOTMENT_DIRECTION_INDICATORS` adi,
+				`T_COMPANIES` c,
+				`P_INCIDENT_TYPES` ip
+		WHERE 	d.id = t.dossier_id
+				AND d.company_id = v_company_id
+				AND d.company_id = c.id
+				AND d.incident_type_id = ip.id
+				AND d.allotment_direction_id = ad.id
+				AND d.allotment_direction_indicator_id = adi.id
+				AND t.signa_id = v_user_id
+				AND d.status = p_filter
 		ORDER BY call_date DESC; 	
 	END IF;
 END $$

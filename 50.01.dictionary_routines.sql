@@ -27,6 +27,8 @@ DROP PROCEDURE IF EXISTS R_FETCH_COMPANIES_BY_DIRECTION_AND_INDICATOR $$
 DROP PROCEDURE IF EXISTS R_FETCH_INSURANCE_BY_ID $$
 DROP PROCEDURE IF EXISTS R_FETCH_COLLECTOR_BY_ID $$
 
+DROP PROCEDURE IF EXISTS R_FETCH_ALL_DRIVERS_BY_TYPE $$
+
 DROP PROCEDURE IF EXISTS R_CREATE_AUDIT_LOG $$
 
 -- ---------------------------------------------------------------------
@@ -355,6 +357,34 @@ BEGIN
 		WHERE 	id = p_id
 				AND category = 'COLLECTOR'
 				AND dd IS NULL;
+	END IF;
+END $$
+
+CREATE PROCEDURE R_FETCH_ALL_DRIVERS_BY_TYPE(IN p_type ENUM('signa', 'towing'), IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id BIGINT;
+	DECLARE v_user_id, v_guid VARCHAR(36);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+	
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		IF p_type = 'signa' THEN
+			SELECT 	`id`, CONCAT(IFNULL(last_name, ''), ' ', IFNULL(first_name, ' ')) as `name`
+			FROM 	T_USERS
+			WHERE 	company_id = v_company_id
+					AND dd IS NULL
+					AND is_signa=1
+			ORDER BY last_name, first_name;
+		ELSE
+			SELECT 	`id`, CONCAT(IFNULL(last_name, ''), ' ', IFNULL(first_name, ' ')) as `name`
+			FROM 	T_USERS
+			WHERE 	company_id = v_company_id
+					AND dd IS NULL
+					AND is_towing=1
+			ORDER BY last_name, first_name;
+		END IF;
 	END IF;
 END $$
 
