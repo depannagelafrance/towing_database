@@ -21,6 +21,7 @@ DROP PROCEDURE IF EXISTS R_FETCH_ALL_ROLES $$
 DROP PROCEDURE IF EXISTS R_FETCH_USER_MODULES $$
 DROP PROCEDURE IF EXISTS R_FETCH_USER_COMPANY $$
 DROP PROCEDURE IF EXISTS R_ADD_SIGNATURE_TO_USER_PROFILE $$
+DROP PROCEDURE IF EXISTS R_UPDATE_USER_PROFILE $$
 
 -- ---------------------------------------------------------------------
 -- CREATE ROUTINES
@@ -399,6 +400,26 @@ BEGIN
 		END IF;
 
 		SELECT v_doc_id as attachment_id, 'OK' as result;
+	END IF;
+END $$
+
+
+CREATE PROCEDURE R_UPDATE_USER_PROFILE(IN p_is_signa BOOL, IN p_is_towing BOOL, IN p_licence_plate VARCHAR(10), IN p_registration_id VARCHAR(255), IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id BIGINT;
+	DECLARE v_user_id VARCHAR(36);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		UPDATE 	T_USERS
+		SET 	is_signa=p_is_signa, is_towing=p_is_towing, licence_plate=p_licence_plate, mobile_device_id=p_registration_id
+		WHERE 	id = v_user_id
+		LIMIT 	1;
+
+		SELECT v_user_id as user_id, 'OK' as result;
 	END IF;
 END $$
 
