@@ -68,6 +68,8 @@ DROP PROCEDURE IF EXISTS R_FETCH_ALL_DOSSIER_COMM_RECIPIENTS $$
 DROP PROCEDURE IF EXISTS R_CREATE_DOSSIER_COMMUNICATION $$
 DROP PROCEDURE IF EXISTS R_CREATE_DOSSIER_COMM_RECIPIENT $$
 
+DROP PROCEDURE IF EXISTS R_SEARCH_TOWING_VOUCHER $$
+DROP PROCEDURE IF EXISTS R_SEARCH_TOWING_VOUCHER_BY_NUMBER $$
 
 DROP FUNCTION IF EXISTS F_NEXT_DOSSIER_NUMBER $$
 DROP FUNCTION IF EXISTS F_NEXT_TOWING_VOUCHER_NUMBER $$
@@ -1170,8 +1172,64 @@ BEGIN
 		union
 		SELECT 'ATT', count(*) FROM T_TOWING_VOUCHER_ATTS WHERE towing_voucher_id = p_voucher_id;
 	END IF;
-
 END $$
+
+CREATE PROCEDURE R_SEARCH_TOWING_VOUCHER(IN p_call_number VARCHAR(45), IN p_date TIMESTAMP, IN p_type VARCHAR(255), IN p_licence_plate VARCHAR(15), IN p_customer_name VARCHAR(255))
+BEGIN
+	DECLARE v_company_id BIGINT;
+	DECLARE v_user_id VARCHAR(36);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		IF p_call_number IS NOT NULL AND TRIM(p_call_number) != '' THEN
+			SET @sql = "SELECT * FROM T_DOSSIERS";
+		ELSE
+			SET @sql = "SELECT * FROM T_TOWING_VOUCHERS";
+		END IF ;
+
+		PREPARE STMT FROM @sql;
+		EXECUTE STMT; -- USING @id;	
+	END IF;
+END $$
+
+CREATE PROCEDURE R_SEARCH_TOWING_VOUCHER_BY_NUMBER(IN p_number VARCHAR(45), IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id BIGINT;
+	DECLARE v_user_id VARCHAR(36);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		SET @sql = concat("SELECT 	d.id, d.id as 'dossier_id', t.id as 'voucher_id', d.call_number, d.call_date, d.dossier_number, t.voucher_number, ad.name 'direction_name', adi.name 'indicator_name', c.code as `towing_service`, ip.name as `incident_type`
+					FROM 	`T_TOWING_VOUCHERS`t, 
+							`T_DOSSIERS` d, 
+							`P_ALLOTMENT_DIRECTIONS` ad, 
+							`P_ALLOTMENT_DIRECTION_INDICATORS` adi,
+							`T_COMPANIES` c,
+							`P_INCIDENT_TYPES` ip
+					WHERE 	d.id = t.dossier_id
+							AND d.company_id = ?
+							AND d.company_id = c.id
+							AND d.incident_type_id = ip.id
+							AND d.allotment_direction_id = ad.id
+							AND d.allotment_direction_indicator_id = adi.id
+							AND voucher_number LIKE '%", p_number, "%'
+					ORDER BY d.call_date DESC");
+
+		SET @v_number = p_number;
+		SET @v_company = v_company_id;
+
+		PREPARE STMT FROM @sql;
+		EXECUTE STMT USING @v_company;
+	END IF;
+END $$
+
+
 
 -- ----------------------------------------------------------------
 -- TRIGGERS
