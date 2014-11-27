@@ -539,6 +539,7 @@ CREATE PROCEDURE R_UPDATE_TOWING_CUSTOMER(IN p_id BIGINT, IN p_voucher_id BIGINT
 										  IN p_street VARCHAR(255), IN p_street_number VARCHAR(45), IN p_street_pobox VARCHAR(45),
 										  IN p_zip VARCHAR(45), IN p_city VARCHAR(255), IN p_country VARCHAR(255),
 										  IN p_phone VARCHAR(45), IN p_email VARCHAR(255),
+										  IN p_invoice_ref VARCHAR(255),
 										  IN p_token VARCHAR(255))
 BEGIN
 	DECLARE v_company_id, v_dossier_id BIGINT;
@@ -563,6 +564,7 @@ BEGIN
 			`country` = p_country,
 			`phone` = p_phone,
 			`email`= p_email,
+			`invoice_ref` = p_invoice_ref,
 			`ud` = now(),
 			`ud_by` = F_RESOLVE_LOGIN(v_user_id, p_token)
 		WHERE `id` = p_id AND `voucher_id`= p_voucher_id
@@ -877,7 +879,7 @@ BEGIN
 	IF v_user_id IS NULL OR v_company_id IS NULL THEN
 		CALL R_NOT_AUTHORIZED;
 	ELSE
-		SELECT	id, voucher_id, first_name, last_name, company_name, company_vat, street, street_number, street_pobox, zip, city, country, phone, email
+		SELECT	id, voucher_id, first_name, last_name, company_name, company_vat, street, street_number, street_pobox, zip, city, country, phone, email, invoice_ref
 		FROM 	T_TOWING_CUSTOMERS
 		WHERE 	voucher_id = p_voucher_id
 		LIMIT 	0,1;
