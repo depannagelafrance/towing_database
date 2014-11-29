@@ -1176,7 +1176,7 @@ BEGIN
 	END IF;
 END $$
 
-CREATE PROCEDURE R_SEARCH_TOWING_VOUCHER(IN p_call_number VARCHAR(45), IN p_date TIMESTAMP, IN p_type VARCHAR(255), IN p_licence_plate VARCHAR(15), IN p_customer_name VARCHAR(255))
+CREATE PROCEDURE R_SEARCH_TOWING_VOUCHER(IN p_call_number VARCHAR(45), IN p_date TIMESTAMP, IN p_type VARCHAR(255), IN p_licence_plate VARCHAR(15), IN p_customer_name VARCHAR(255), IN p_token VARCHAR(255))
 BEGIN
 	DECLARE v_company_id BIGINT;
 	DECLARE v_user_id VARCHAR(36);
@@ -1186,14 +1186,46 @@ BEGIN
 	IF v_user_id IS NULL OR v_company_id IS NULL THEN
 		CALL R_NOT_AUTHORIZED;
 	ELSE
-		IF p_call_number IS NOT NULL AND TRIM(p_call_number) != '' THEN
-			SET @sql = "SELECT * FROM T_DOSSIERS";
-		ELSE
-			SET @sql = "SELECT * FROM T_TOWING_VOUCHERS";
+		SET @sql = concat("SELECT 	d.id, d.id as 'dossier_id', t.id as 'voucher_id', d.call_number, d.call_date, d.dossier_number, t.voucher_number, ad.name 'direction_name', adi.name 'indicator_name', c.code as `towing_service`, ip.name as `incident_type`
+					FROM 	`T_TOWING_VOUCHERS`t, 
+                            `T_TOWING_CUSTOMERS` cu,
+							`T_DOSSIERS` d, 
+							`P_ALLOTMENT_DIRECTIONS` ad, 
+							`P_ALLOTMENT_DIRECTION_INDICATORS` adi,
+							`T_COMPANIES` c,
+							`P_INCIDENT_TYPES` ip
+					WHERE 	d.id = t.dossier_id
+							AND d.company_id = ", v_company_id, "
+							AND d.company_id = c.id
+							AND cu.voucher_id = t.id
+							AND d.incident_type_id = ip.id
+							AND d.allotment_direction_id = ad.id
+							AND d.allotment_direction_indicator_id = adi.id");
+
+		IF TRIM(IFNULL(p_call_number, ""))  != '' THEN
+			SET @sql = concat(@sql, " AND d.call_number LIKE '%", p_call_number, "%'");
 		END IF ;
 
+		IF TRIM(IFNULL(p_type, ""))  != '' THEN
+			SET @sql = concat(@sql, " AND t.vehicule_type LIKE '%", p_type, "%'");
+		END IF ;
+
+		IF TRIM(IFNULL(p_licence_plate, ""))  != '' THEN
+			SET @sql = concat(@sql, " AND t.vehicule_licenceplate LIKE '%", p_licence_plate, "%'");
+		END IF ;
+
+		IF TRIM(IFNULL(p_date, ""))  != '' THEN
+			SET @sql = concat(@sql, " AND d.call_date = '", p_date, "'");
+		END IF ;
+
+		IF TRIM(IFNULL(p_customer_name, "")) != "" THEN
+			SET @sql = concat(@sql, " AND (cu.first_name LIKE '%", p_customer_name, "%' OR cu.last_name LIKE '%", p_customer_name, "%') ");
+		END IF;
+
+		SET @sql = concat(@sql, " ORDER BY d.call_date DESC");
+
 		PREPARE STMT FROM @sql;
-		EXECUTE STMT; -- USING @id;	
+		EXECUTE STMT;
 	END IF;
 END $$
 
