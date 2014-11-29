@@ -74,8 +74,9 @@ BEGIN
 	ELSE
 		SELECT 	id INTO v_id
 		FROM 	P_TIMEFRAME_ACTIVITY_FEE 
-		WHERE 	id = p_timeframe_activity_id
-				AND timeframe_id = p_timeframe_id;
+		WHERE 	timeframe_activity_id = p_timeframe_activity_id
+				AND timeframe_id = p_timeframe_id
+				AND now() BETWEEN valid_from AND valid_until;
 
 		IF v_id IS NULL THEN
 			CALL R_NOT_FOUND;
