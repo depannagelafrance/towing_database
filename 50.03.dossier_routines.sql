@@ -439,6 +439,7 @@ CREATE PROCEDURE R_FETCH_TOWING_PAYMENTS_BY_VOUCHER(IN p_dossier_id BIGINT, IN p
 BEGIN
 	DECLARE v_company_id, v_dossier_id BIGINT;
 	DECLARE v_user_id VARCHAR(36);
+	DECLARE v_cal_fee_excl_vat, v_cal_fee_incl_vat DOUBLE(10,2);
 
 	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
 
@@ -455,7 +456,11 @@ BEGIN
 		IF v_dossier_id IS NULL THEN
 			CALL R_NOT_FOUND;
 		ELSE
-			SELECT	*
+			SELECT 	sum(cal_fee_excl_vat), sum(cal_fee_incl_vat) INTO v_cal_fee_excl_vat, v_cal_fee_incl_vat
+			FROM 	T_TOWING_ACTIVITIES
+			WHERE 	towing_voucher_id = p_voucher_id;
+
+			SELECT	*, v_cal_fee_excl_vat as total_excl_vat, v_cal_fee_incl_vat as total_incl_vat
 			FROM 	T_TOWING_VOUCHER_PAYMENTS
 			WHERE	`towing_voucher_id` = p_voucher_id;
 		END IF;
