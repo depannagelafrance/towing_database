@@ -188,16 +188,18 @@ INSERT INTO `P_ALLOTMENT` (`id`, `name`) VALUES (1, 'Perceel 1: Ring');
 
 INSERT INTO `P_ROLES` (`id`, `code`, `name`) VALUES 
 	(1, 'ADMIN', 'Algemeen beheerder'),
-	(2, 'COMPANY_ADMIN', 'Beheerder'),
-	(3, 'FAST_DISPATCH', 'F.A.S.T. Dispatch'),
-	(4, 'FAST_MANAGER', 'F.A.S.T. Dossier beheerder');
+	(2, 'FAST_DISPATCH', 'F.A.S.T. Dispatch'),
+	(3, 'FAST_MANAGER', 'F.A.S.T. Dossier beheerder');
 
 
 INSERT INTO `P_MODULES` (`id`, `code`, `name`) VALUES
-	(1, 'FAST_DISPATCH', 'F.A.S.T. Dispatch'),
-	(2, 'FAST_DOSSIER', 'F.A.S.T. Dossierbeheer'),
-	(3, 'ADMIN', 'Algemeen beheer'),
-	(4, 'COMPANY_ADMIN', 'Beheer');
+	(2, 'FAST_DISPATCH', 'F.A.S.T. Dispatch'),
+	(3, 'FAST_DOSSIER', 'F.A.S.T. Dossierbeheer'),
+	(1, 'ADMIN', 'Algemeen beheer');
+
+
+INSERT INTO `P_MODULE_ROLES` (`role_id`, `module_id`)
+	VALUES (1, 1), (2, 2), (3, 3);
 
 INSERT INTO `T_COMPANIES`(id, name, code, street, street_number, street_pobox, city, phone, fax, email, website) VALUES 
 	(1, 'Depannage La France NV', 'LAFRANCE', 'Voorspoedstraat', '8', '', 'Essen', '+32472702460', '', 'kvandermast@gmail.com', '');

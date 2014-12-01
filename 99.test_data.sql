@@ -26,10 +26,6 @@ values(4, 1, 'kris', 'Kris', 'VDM', 'kvandermast@gmail.com', 1, 0, null, now(), 
 INSERT INTO `T_USER_PASSWORDS` (`id`, `user_id`, `pwd`) VALUES (4, 4, PASSWORD('kris'));
 
 
-INSERT INTO `P_MODULE_ROLES` (`role_id`, `module_id`)
-	VALUES (1, 3), (2, 4), (3, 1), (4, 2);
-
-
 INSERT INTO `T_USER_ROLES` (`role_id`, `user_id`)
 SELECT id, '1' FROM P_ROLES;
 
