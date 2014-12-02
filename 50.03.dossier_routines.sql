@@ -22,6 +22,8 @@ DROP PROCEDURE IF EXISTS R_UPDATE_TOWING_CUSTOMER 	$$
 DROP PROCEDURE IF EXISTS R_UPDATE_TOWING_CAUSER		$$
 
 DROP PROCEDURE IF EXISTS R_UPDATE_TOWING_VOUCHER_ACTIVITY $$
+DROP PROCEDURE IF EXISTS R_REMOVE_TOWING_VOUCHER_ACTIVITY $$
+
 DROP PROCEDURE IF EXISTS R_UPDATE_TOWING_VOUCHER_PAYMENTS $$
 
 DROP PROCEDURE IF EXISTS R_UPDATE_TOWING_STORAGE_COST $$
@@ -639,6 +641,42 @@ BEGIN
 		ON DUPLICATE KEY UPDATE amount = p_amount, 
 								cal_fee_excl_vat = (p_amount * v_fee_excl_vat), 
 								cal_fee_incl_vat = (p_amount * v_fee_incl_vat);
+	END IF;
+END $$
+
+CREATE PROCEDURE R_REMOVE_TOWING_VOUCHER_ACTIVITY(IN p_voucher_id BIGINT, IN p_activity_id BIGINT, IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id, v_dossier_id BIGINT;
+	DECLARE v_user_id VARCHAR(36);
+	DECLARE v_fee_excl_vat, v_fee_incl_vat DOUBLE;
+	DECLARE v_cal_fee_excl_vat, v_cal_fee_incl_vat, v_paid DOUBLE(10,2);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		DELETE 
+		FROM 	T_TOWING_ACTIVITIES 
+		WHERE 	towing_voucher_id = p_voucher_id 
+				AND activity_id = p_activity_id
+		LIMIT 1;
+
+		SELECT 	sum(cal_fee_excl_vat), sum(cal_fee_incl_vat) INTO v_cal_fee_excl_vat, v_cal_fee_incl_vat
+		FROM 	T_TOWING_ACTIVITIES
+		WHERE 	towing_voucher_id = p_voucher_id;
+
+		SET v_paid = IFNULL(p_in_cash, 0.0) + IFNULL(p_bank_deposit, 0.0) + IFNULL(p_debit_card, 0.0) + IFNULL(p_credit_card, 0.0);
+	
+		UPDATE `T_TOWING_VOUCHER_PAYMENTS`
+		SET
+			`amount_customer` = v_cal_fee_incl_vat - IFNULL(`amount_guaranteed_by_insurance`, 0.0),
+			`ud` = now(),
+			`ud_by` = F_RESOLVE_LOGIN(v_user_id, p_token)
+		WHERE `towing_voucher_id` = p_voucher_id;
+
+
+		SELECT 'OK' as result;
 	END IF;
 END $$
 
