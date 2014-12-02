@@ -1294,8 +1294,8 @@ BEGIN
 		WHERE 	id = NEW.incident_type_id
 		LIMIT	0,1;
 
-		CASE v_incident_type_code
-			WHEN 'PANNE' OR 'ONGEVAL' OR 'ACHTERGELATEN_VOERTUIG' THEN
+		CASE 
+			WHEN v_incident_type_code = 'PANNE' OR v_incident_type_code = 'ONGEVAL' OR v_incident_type_code = 'ACHTERGELATEN_VOERTUIG' THEN
 				INSERT INTO T_TOWING_ACTIVITIES(towing_voucher_id, activity_id, amount, cal_fee_excl_vat, cal_fee_incl_vat)
 				SELECT 	id, t.activity_id, 1.00, t.fee_excl_vat, t.fee_incl_vat 
 				FROM 	T_TOWING_VOUCHERS tv,
