@@ -11,7 +11,7 @@ DROP PROCEDURE IF EXISTS R_CALENDAR_ITEM_BY_ID $$
 -- ---------------------------------------------------------------------
 -- CREATE ROUTINES
 -- ---------------------------------------------------------------------
-CREATE PROCEDURE R_ADD_CALENDAR_ITEM(IN p_item VARCHAR(255), IN p_date DATE, IN p_token VARCHAR(255))
+CREATE PROCEDURE R_ADD_CALENDAR_ITEM(IN p_item VARCHAR(255), IN p_date TIMESTAMP, IN p_token VARCHAR(255))
 BEGIN
 	DECLARE v_company_id, v_dossier_id BIGINT;
 	DECLARE v_user_id VARCHAR(36);
@@ -28,7 +28,7 @@ BEGIN
 	END IF;
 END $$
 
-CREATE PROCEDURE R_UPDATE_CALENDAR_ITEM(IN p_id INT, IN p_item VARCHAR(255), IN p_date DATE, IN p_token VARCHAR(255))
+CREATE PROCEDURE R_UPDATE_CALENDAR_ITEM(IN p_id INT, IN p_item VARCHAR(255), IN p_date TIMESTAMP, IN p_token VARCHAR(255))
 BEGIN
 	DECLARE v_company_id, v_dossier_id BIGINT;
 	DECLARE v_user_id VARCHAR(36);
@@ -77,7 +77,7 @@ BEGIN
 	IF v_user_id IS NULL OR v_company_id IS NULL THEN
 		CALL R_NOT_AUTHORIZED;
 	ELSE
-		SELECT	`id`, `year`, `name`, `holiday`
+		SELECT	`id`, `year`, `name`, unix_timestamp(`holiday`) as holiday
 		FROM 	`P_HOLIDAYS`
 		WHERE	`year` = p_year
 				AND dd IS NULL
@@ -99,8 +99,6 @@ BEGIN
 		FROM 	`P_HOLIDAYS`
 		WHERE 	id = p_id
 		LIMIT 	1;
-
-		CALL R_CALENDAR_ITEM_BY_ID(p_id, p_token);
 	END IF;
 END $$
 
