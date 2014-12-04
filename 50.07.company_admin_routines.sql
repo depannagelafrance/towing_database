@@ -6,6 +6,9 @@ DELIMITER $$
 DROP PROCEDURE IF EXISTS R_FETCH_COMPANY_DEPOT $$
 DROP PROCEDURE IF EXISTS R_FETCH_COMPANY_ALLOTMENTS $$
 
+DROP PROCEDURE IF EXISTS R_UPDATE_COMPANY_DEPOT $$
+DROP PROCEDURE IF EXISTS R_UPDATE_USER_COMPANY $$
+
 DROP FUNCTION IF EXISTS F_COMPANY_DEPOT_DISPLAY_NAME $$
 
 
@@ -80,6 +83,69 @@ BEGIN
 	END IF;
 
 END $$
+
+CREATE PROCEDURE `R_UPDATE_USER_COMPANY`(IN p_name VARCHAR(255), IN p_code VARCHAR(255), 
+									     IN p_street VARCHAR(255), IN p_number VARCHAR(45), IN p_pobox VARCHAR(45),
+										 IN p_zip VARCHAR(45), IN p_city VARCHAR(255),
+										 IN p_phone VARCHAR(45), IN p_fax VARCHAR(45),
+										 IN p_email VARCHAR(255), IN p_website VARCHAR(255),
+										 IN p_vat VARCHAR(45),
+										 IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id BIGINT;
+	DECLARE v_user_id VARCHAR(36);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		UPDATE `T_COMPANIES`
+		SET `name` = p_name, 
+			`code` = p_code,
+			`street` = p_street, 
+			`street_number` = p_number, 
+			`street_pobox` = p_pobox, 
+			`zip` = p_zip, 
+			`city` = p_city,
+			`phone` = p_phone, 
+			`fax` = p_fax, 
+			`email` = p_email, 
+			`website` = p_website, 
+			`vat` = p_vat
+		WHERE 	id = v_company_id;
+
+		CALL R_FETCH_USER_COMPANY(p_token);
+	END IF;
+END$$
+
+CREATE PROCEDURE R_UPDATE_COMPANY_DEPOT(IN p_name VARCHAR(255), 
+									     IN p_street VARCHAR(255), IN p_number VARCHAR(45), IN p_pobox VARCHAR(45),
+										 IN p_zip VARCHAR(45), IN p_city VARCHAR(255),
+										 IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id BIGINT;
+	DECLARE v_user_id VARCHAR(36);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		UPDATE `T_COMPANY_DEPOTS`
+		SET `name` = p_name, 
+			`street` = p_street, 
+			`street_number` = p_number, 
+			`street_pobox` = p_pobox, 
+			`zip` = p_zip, 
+			`city` = p_city
+		WHERE 	id = v_company_id;
+
+		CALL R_FETCH_COMPANY_DEPOT(p_token);
+	END IF;
+END$$
+
+
 
 
 
