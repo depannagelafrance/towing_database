@@ -302,1450 +302,1442 @@ INSERT INTO `P_TIMEFRAME_ACTIVITY_FEE` (`id`, `timeframe_id`, `timeframe_activit
 UPDATE `P_TIMEFRAME_ACTIVITY_FEE` SET fee_excl_vat = (fee_incl_vat/121)*100 WHERE id > 0 and id < 28;
 
 
-INSERT INTO `P_ALLOTMENT_DIRECTIONS` (`id`, `name`) VALUES 
-(1,'A112 > A12'),
-(2,'A112 > Antwerpen'),
-(3,'A12 > Antwerpen'),
-(4,'A12 > Brussel'),
-(5,'E17 > Antwerpen'),
-(6,'E17 > Gent'),
-(7,'E19 > Antwerpen'),
-(8,'E19 > Brussel'),
-(9,'E313 > Antwerpen'),
-(10,'E313 > Hasselt'),
-(11,'E34 > Antwerpen'),
-(12,'E34 > Turnhout/Eindhoven'),
-(13,'N49 > Antwerpen'),
-(14,'N49 > Zelzate'),
-(15,'R2 > Beveren'),
-(16,'R2 > Stabroek'),
-(17,'Ring > Gent'),
-(18,'Ring > NL'),
-(19,'R1 > Breda '),
-(20,'E34 - N49 - Expressweg > Antwerpen'),
-(21,'R1 > Gent'),
-(22,'R1 > NL'),
-(23,'R > Breda'),
-(25,'E313 - E34 > R1'),
-(26,'R1 > Hasselt'),
-(27,'R1 > Knokke'),
-(28,'E34 - N49 - Expressweg > Zelzate'),
-(29,'A112 > Brussel'),
-(31,'A112 > Gent'),
-(32,'E313 - E34 > Antwerpen'),
-(33,'E313 - E34 > Hasselt'),
-(34,'E34');
+INSERT INTO `P_ALLOTMENT_DIRECTIONS` (`id`,`name`) VALUES (1,'A112 > A12');
+INSERT INTO `P_ALLOTMENT_DIRECTIONS` (`id`,`name`) VALUES (2,'A112 > Antwerpen');
+INSERT INTO `P_ALLOTMENT_DIRECTIONS` (`id`,`name`) VALUES (3,'A12 > Antwerpen');
+INSERT INTO `P_ALLOTMENT_DIRECTIONS` (`id`,`name`) VALUES (4,'A12 > Brussel');
+INSERT INTO `P_ALLOTMENT_DIRECTIONS` (`id`,`name`) VALUES (5,'E17 > Antwerpen');
+INSERT INTO `P_ALLOTMENT_DIRECTIONS` (`id`,`name`) VALUES (6,'E17 > Gent');
+INSERT INTO `P_ALLOTMENT_DIRECTIONS` (`id`,`name`) VALUES (7,'E19 > Antwerpen');
+INSERT INTO `P_ALLOTMENT_DIRECTIONS` (`id`,`name`) VALUES (8,'E19 > Brussel');
+INSERT INTO `P_ALLOTMENT_DIRECTIONS` (`id`,`name`) VALUES (9,'E313 > Antwerpen');
+INSERT INTO `P_ALLOTMENT_DIRECTIONS` (`id`,`name`) VALUES (10,'E313 > Hasselt');
+INSERT INTO `P_ALLOTMENT_DIRECTIONS` (`id`,`name`) VALUES (11,'E34 > Antwerpen');
+INSERT INTO `P_ALLOTMENT_DIRECTIONS` (`id`,`name`) VALUES (12,'E34 > Turnhout/Eindhoven');
+INSERT INTO `P_ALLOTMENT_DIRECTIONS` (`id`,`name`) VALUES (13,'N49 > Antwerpen');
+INSERT INTO `P_ALLOTMENT_DIRECTIONS` (`id`,`name`) VALUES (14,'N49 > Zelzate');
+INSERT INTO `P_ALLOTMENT_DIRECTIONS` (`id`,`name`) VALUES (15,'R2 > Beveren');
+INSERT INTO `P_ALLOTMENT_DIRECTIONS` (`id`,`name`) VALUES (16,'R2 > Stabroek');
+INSERT INTO `P_ALLOTMENT_DIRECTIONS` (`id`,`name`) VALUES (20,'E34 - N49 - Expressweg > Antwerpen');
+INSERT INTO `P_ALLOTMENT_DIRECTIONS` (`id`,`name`) VALUES (21,'R1 > Gent');
+INSERT INTO `P_ALLOTMENT_DIRECTIONS` (`id`,`name`) VALUES (22,'R1 > NL');
+INSERT INTO `P_ALLOTMENT_DIRECTIONS` (`id`,`name`) VALUES (25,'E313 - E34 > R1');
+INSERT INTO `P_ALLOTMENT_DIRECTIONS` (`id`,`name`) VALUES (26,'R1 > Hasselt');
+INSERT INTO `P_ALLOTMENT_DIRECTIONS` (`id`,`name`) VALUES (27,'R1 > Knokke');
+INSERT INTO `P_ALLOTMENT_DIRECTIONS` (`id`,`name`) VALUES (28,'E34 - N49 - Expressweg > Zelzate');
+INSERT INTO `P_ALLOTMENT_DIRECTIONS` (`id`,`name`) VALUES (29,'A112 > Brussel');
+INSERT INTO `P_ALLOTMENT_DIRECTIONS` (`id`,`name`) VALUES (31,'A112 > Gent');
+INSERT INTO `P_ALLOTMENT_DIRECTIONS` (`id`,`name`) VALUES (32,'E313 - E34 > Antwerpen');
+INSERT INTO `P_ALLOTMENT_DIRECTIONS` (`id`,`name`) VALUES (33,'E313 - E34 > Hasselt');
+INSERT INTO `P_ALLOTMENT_DIRECTIONS` (`id`,`name`) VALUES (34,'E34');
 
-INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`allotment_directions_id`, `name`, `lat`, `long`) VALUES
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1,7,'27,8',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (2,7,'27,9',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (3,7,'28',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (4,7,'28,1',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (5,7,'28,2',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (6,7,'28,3',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (7,7,'28,4',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (8,7,'28,5',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (9,7,'28,6',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (10,7,'28,7',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (11,7,'28,8',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (12,7,'28,9',4.429920952,51.139678576);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (13,7,'29',4.429632955,51.140580432);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (14,7,'29,1',4.429207207,51.141437666);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (15,7,'29,2',4.428720116,51.142282233);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (16,7,'29,3',4.428153179,51.143120596);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (17,7,'29,4',4.427594667,51.143935577);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (18,7,'29,5',4.427026987,51.144765297);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (19,7,'29,6',4.426459908,51.14559378);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (20,7,'29,7',4.425899964,51.146415886);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (21,7,'29,8',4.425331174,51.147241698);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (22,7,'29,9',4.424763389,51.148058344);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (23,7,'30',4.424195882,51.148879528);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (24,7,'30,1',4.423633059,51.149709984);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (25,7,'30,2',4.422980634,51.150655949);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (26,7,'30,3',4.422487032,51.151375137);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (27,7,'30,4',4.421931983,51.152282202);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (28,7,'30,5',4.421423036,51.153022096);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (29,7,'30,6',4.420817909,51.153828249);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (30,7,'30,7',4.420288404,51.154657201);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (31,7,'30,8',4.419670017,51.155470618);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (32,7,'30,9',4.419105901,51.156296747);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (33,7,'31',4.418611269,51.157131581);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (34,7,'31,1',4.417961563,51.157932595);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (35,7,'31,2',4.417393,51.158760997);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (36,7,'31,3',4.416871834,51.159564041);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (37,7,'31,4',4.416281495,51.160390839);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (38,7,'31,5',4.415710011,51.161225538);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (39,7,'31,6',4.415160864,51.162061829);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (40,7,'31,7',4.414673907,51.16289765);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (41,7,'31,8',4.414252798,51.163757306);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (42,7,'31,9',4.413939687,51.164607998);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (43,7,'32',4.413786983,51.165499364);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (44,7,'32,1',4.413724001,51.166395055);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (45,7,'32,3',4.41393231,51.16817466);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (46,7,'32,4',4.413988115,51.169076116);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (47,7,'32,5',4.41415572,51.169964921);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (48,7,'32,7',4.414472484,51.171740948);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (49,7,'32,8',4.414619445,51.172634368);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (50,7,'33,2',4.416287401,51.175973303);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (51,7,'34,4',4.415937398,51.186389191);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (52,7,'34,6',4.414909351,51.188094343);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (53,7,'34,7',4.414496415,51.188955335);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (54,7,'34,8',4.414071298,51.18980833);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (55,7,'34,9',4.413661327,51.190660328);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (56,7,'35',4.413239333,51.191519341);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (57,8,'27',4.429468224,51.122642921);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (58,8,'27,1',4.429392752,51.123544082);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (59,8,'27,2',4.429365564,51.124436481);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (60,8,'27,3',4.429347132,51.125324639);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (61,8,'27,4',4.429308516,51.126220044);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (62,8,'27,6',4.429408984,51.128011235);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (63,8,'27,7',4.429398509,51.128913255);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (64,8,'27,8',4.429392477,51.129800422);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (65,8,'27,9',4.429242815,51.130704582);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (66,8,'28',4.429293676,51.131602886);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (67,8,'28,1',4.429295448,51.13249729);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (68,8,'28,2',4.429271465,51.13338319);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (69,8,'28,3',4.42925046,51.134290031);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (70,8,'28,4',4.429235556,51.135186288);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (71,8,'28,6',4.429193043,51.136978796);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (72,8,'28,7',4.429156692,51.137874269);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (73,8,'28,8',4.429051316,51.138731889);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (74,8,'28,9',4.429118416,51.139619203);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (75,8,'29',4.428884704,51.140481948);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (76,8,'29,1',4.428528069,51.141315416);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (77,8,'29,2',4.428070192,51.142143795);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (78,8,'29,3',4.427544381,51.142966233);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (79,8,'29,4',4.427017669,51.14374427);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (80,8,'29,5',4.426419818,51.144621142);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (81,8,'29,6',4.425854974,51.145440072);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (82,8,'29,7',4.425291517,51.146261742);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (83,8,'29,8',4.424723973,51.147079504);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (84,8,'29,9',4.424249605,51.147764893);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (85,8,'30',4.423591122,51.148735602);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (86,8,'30,1',4.423035525,51.149559981);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (87,8,'30,3',4.421804301,51.151182753);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (88,8,'30,4',4.421309074,51.151962144);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (89,8,'30,5',4.420740762,51.152845191);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (90,8,'30,6',4.420191678,51.153679036);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (91,8,'30,7',4.419607764,51.154509807);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (92,8,'30,8',4.41906154,51.155316175);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (93,8,'30,9',4.41848534,51.156142419);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (94,8,'31',4.417930755,51.156965088);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (95,8,'31,1',4.417369748,51.157790104);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (96,8,'31,2',4.416795374,51.158614916);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (97,8,'31,3',4.416236482,51.159433793);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (98,8,'31,4',4.415683856,51.16024871);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (99,8,'31,5',4.415106077,51.161087361);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (100,8,'31,6',4.414552865,51.161922407);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (101,8,'31,7',4.414044829,51.162791117);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (102,8,'31,8',4.413587496,51.163652327);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (103,8,'31,9',4.413235158,51.164552901);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (104,8,'32',4.413033432,51.165457994);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (105,8,'32,1',4.41295917,51.166402369);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (106,8,'32,3',4.413167565,51.168297805);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (107,8,'32,4',4.413327988,51.169254485);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (108,8,'32,7',4.413824582,51.171836288);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (109,8,'32,8',4.413999499,51.172519693);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (110,8,'32,9',4.41421315,51.173402765);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (111,8,'33',4.414635176,51.174261777);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (112,8,'33,1',4.415049058,51.175123399);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (113,8,'33,2',4.415637829,51.175944641);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (114,8,'33,3',4.416274391,51.176753217);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (115,8,'33,4',4.416825851,51.177579253);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (116,8,'33,5',4.417254399,51.17843413);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (117,8,'33,6',4.417525077,51.179315212);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (118,8,'33,7',4.417630065,51.180206265);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (119,8,'33,8',4.417565042,51.181101359);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (120,8,'33,9',4.41729973,51.181989311);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (121,8,'34',4.416910081,51.182838394);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (122,8,'34,1',4.416474707,51.183700533);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (123,8,'34,2',4.416035135,51.184562062);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (124,8,'34,3',4.415640561,51.185424842);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (125,8,'34,4',4.41518943,51.186276396);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (126,8,'34,5',4.414775375,51.187140356);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (127,8,'34,6',4.414488333,51.188020354);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (128,8,'34,7',4.414070374,51.188870381);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (129,8,'34,8',4.413645398,51.189728408);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (130,8,'34,9',4.413221408,51.190587331);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (131,8,'35',4.412799425,51.191465397);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (132,10,'0,1',4.44810539,51.215762405);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (133,10,'0,2',4.449520404,51.215853389);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (134,10,'0,3',4.45096235,51.215955395);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (135,10,'0,4',4.452368352,51.216042397);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (136,10,'0,5',4.453817356,51.216006389);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (137,10,'0,6',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (138,10,'0,7',4.456459364,51.215958333);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (139,10,'0,8',4.457543326,51.215504412);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (140,10,'0,9',4.458342372,51.214853403);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (141,10,'1',4.459093385,51.214094384);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (142,10,'1,1',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (143,10,'1,2',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (144,10,'1,3',4.461507443,51.211859958);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (145,10,'1,4',4.462606426,51.211305396);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (146,10,'1,5',4.463850416,51.210883376);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (147,10,'1,6',4.465212486,51.210619353);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (148,10,'1,7',4.466630419,51.21052434);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (149,10,'1,8',4.468055529,51.210575366);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (150,10,'1,9',4.469659518,51.210757363);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (151,10,'2',4.471237458,51.210996346);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (152,10,'2,1',4.472630437,51.211196373);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (153,10,'2,2',4.474079536,51.211338358);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (154,10,'2,3',4.475489411,51.211346343);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (155,10,'2,4',4.47689553,51.211216343);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (156,10,'2,5',4.477730539,51.211095396);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (157,10,'2,6',4.479646431,51.210749346);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (158,10,'2,7',4.481037563,51.210529336);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (159,10,'2,8',4.482451493,51.210391352);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (160,10,'2,9',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (161,10,'3',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (162,10,'3,1',4.486689563,51.210559393);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (163,10,'3,2',4.488109481,51.210641372);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (164,10,'3,3',4.489481585,51.210879333);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (165,10,'3,4',4.490899496,51.21100838);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (166,10,'3,5',4.492323525,51.211121314);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (167,10,'3,6',4.493757495,51.211203391);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (168,10,'3,7',4.495190546,51.211261362);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (169,10,'3,8',4.496622557,51.211304306);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (170,10,'3,9',4.498022495,51.211288304);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (171,10,'4',4.499616591,51.211362313);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (172,10,'4,1',4.500872569,51.211397311);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (173,10,'4,2',4.50228957,51.211442361);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (174,10,'4,3',4.503705537,51.21147535);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (175,10,'4,4',4.505143547,51.211509375);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (176,10,'4,5',4.506554525,51.21154737);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (177,10,'4,6',4.507978515,51.211581377);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (178,10,'4,7',4.509385493,51.211620331);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (179,10,'4,8',4.510812516,51.2116623);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (180,10,'4,9',4.512243547,51.211703349);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (181,10,'5',4.513752569,51.211743295);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (182,10,'5,1',4.515186477,51.21178736);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (183,10,'5,2',4.516620515,51.211826284);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (184,10,'5,3',4.518038815,51.211866944);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (185,10,'5,4',4.519478602,51.211911284);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (186,10,'5,5',4.520937541,51.211948326);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (187,10,'5,6',4.52232794,51.211991237);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (188,10,'5,7',4.523772594,51.212030285);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (189,10,'5,9',4.526629594,51.212082306);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (190,10,'6',4.527767407,51.212083757);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (191,10,'6,1',4.529444621,51.212037329);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (192,10,'6,2',4.530865572,51.211970305);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (193,10,'6,3',4.532276532,51.211871278);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (194,10,'6,4',4.533689534,51.211744277);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (195,10,'6,5',4.535090568,51.211594267);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (196,10,'6,6',4.536481614,51.211415311);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (197,10,'6,7',4.537861664,51.211206332);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (198,10,'6,8',4.539220639,51.210951347);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (199,10,'6,9',4.54056358,51.210659339);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (200,10,'7',4.541899691,51.210344314);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (201,10,'7,1',4.543258624,51.210090271);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (202,10,'7,2',4.544646645,51.209737297);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (203,10,'7,3',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (204,10,'7,4',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (205,10,'7,5',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (206,10,'7,6',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (207,10,'7,7',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (208,10,'7,8',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (209,10,'7,9',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (210,10,'8',4.555094634,51.206894268);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (211,10,'8,1',4.556222549,51.20659424);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (212,10,'8,2',4.557728544,51.206202273);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (213,10,'8,3',4.55907116,51.205876425);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (214,10,'8,4',4.560377668,51.205540306);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (215,10,'8,5',4.561683597,51.205191219);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (216,10,'8,6',4.562972656,51.204850235);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (217,10,'8,7',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (218,10,'8,8',4.565663593,51.204130284);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (219,10,'8,9',4.566927568,51.203792265);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (220,10,'9',4.568298601,51.203433287);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (221,10,'9,1',4.569644544,51.203067235);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (222,10,'9,2',4.570958603,51.2027112);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (223,10,'9,3',4.572261647,51.202360203);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (224,10,'9,4',4.573553635,51.201972268);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (225,10,'9,5',4.577986639,51.200882263);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (226,10,'9,6',4.579443597,51.200484262);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (227,10,'9,7',4.58061457,51.200188238);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (228,10,'9,8',4.58193265,51.199840253);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (229,10,'9,9',4.583267634,51.19950121);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (230,10,'10',4.584609555,51.199181195);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (231,10,'10,1',4.585961565,51.198881191);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (232,10,'10,2',4.587324549,51.198606228);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (233,10,'10,3',4.588693596,51.198346249);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (234,10,'10,4',4.590079643,51.198114267);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (235,10,'10,5',4.591470622,51.197899248);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (236,10,'10,6',4.592874588,51.197710253);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (237,10,'10,7',4.594286613,51.197533272);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (238,10,'10,8',4.595693628,51.197387203);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (239,10,'10,9',4.597120569,51.197251236);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (240,10,'11',4.598524642,51.197121229);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (241,10,'11,1',4.599953571,51.196985224);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (242,10,'11,2',4.601355615,51.19685321);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (243,10,'11,3',4.602783535,51.196719239);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (244,10,'11,4',4.604198588,51.196588244);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (245,10,'11,5',4.605614628,51.196456241);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (246,10,'11,6',4.607032647,51.196321251);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (247,10,'11,7',4.608443666,51.196189224);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (248,10,'11,8',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (249,10,'11,9',4.611268564,51.195930237);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (250,10,'12',4.612679532,51.195793217);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (251,10,'12,1',4.614093654,51.195659228);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (252,10,'12,2',4.615509639,51.195527197);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (253,10,'12,3',4.616937627,51.195394223);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (254,10,'12,4',4.618333568,51.1952622);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (255,10,'12,5',4.619725618,51.195126214);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (256,10,'12,6',4.621160608,51.194996231);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (257,10,'12,7',4.622454588,51.194875253);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (258,10,'12,8',4.623835627,51.194744185);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (259,10,'12,9',4.62523767,51.194610179);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (260,10,'13',4.626828583,51.194459205);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (261,10,'13,1',4.628255638,51.194324209);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (262,10,'13,2',4.629590643,51.194204232);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (263,10,'13,3',4.631176567,51.194061209);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (264,10,'13,4',4.632491582,51.193925243);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (265,10,'13,5',4.633904631,51.19379821);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (266,10,'13,6',4.635175664,51.193678224);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (267,10,'13,7',4.636736611,51.193526194);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (268,10,'13,8',4.638138604,51.19339617);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (269,10,'13,9',4.639490986,51.193266119);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (270,10,'14',4.640874675,51.193121217);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (271,10,'14,1',4.642494218,51.1929421);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (272,10,'14,2',4.643743664,51.192735242);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (273,10,'14,3',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (274,10,'14,4',4.646532585,51.192339229);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (275,10,'14,5',4.647908607,51.192087175);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (276,10,'14,6',4.649263551,51.191805223);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (277,10,'14,7',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (278,9,'0',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (279,9,'0,1',4.448077374,51.216116387);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (280,9,'0,2',4.449471358,51.216206398);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (281,9,'0,3',4.450923314,51.216297341);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (282,9,'0,4',4.452334334,51.216383351);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (283,9,'0,5',4.453749385,51.216479409);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (284,9,'0,6',4.455120659,51.216550823);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (285,9,'0,7',4.456817553,51.216390055);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (286,9,'0,8',4.458064608,51.215774981);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (287,9,'0,9',4.458896673,51.215063167);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (288,9,'1',4.459618072,51.214272543);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (289,9,'1,1',4.460295732,51.213495251);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (290,9,'1,2',4.461020077,51.212766523);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (291,9,'1,3',4.461882824,51.212123544);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (292,9,'1,4',4.462893362,51.211593335);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (293,9,'1,5',4.464067449,51.211205346);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (294,9,'1,6',4.465329412,51.210968368);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (295,9,'1,7',4.466626109,51.21087523);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (296,9,'1,8',4.467966414,51.210921586);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (297,9,'1,9',4.469526791,51.211087242);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (298,9,'2',4.471123394,51.211315355);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (299,9,'2,1',4.472527411,51.211519329);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (300,9,'2,2',4.474083455,51.211675762);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (301,9,'2,3',4.475509783,51.211687889);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (302,9,'2,4',4.476996002,51.211551578);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (303,9,'2,5',4.478146654,51.211372845);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (304,9,'2,6',4.479807496,51.211079339);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (305,9,'2,7',4.481126514,51.210859396);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (306,9,'2,8',4.4825145,51.210758378);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (307,9,'2,9',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (308,9,'3',4.485195463,51.210852378);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (309,9,'3,1',4.486589475,51.210986354);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (310,9,'3,2',4.487985548,51.211139367);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (311,9,'3,3',4.489416482,51.211212332);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (312,9,'3,4',4.490848567,51.211340376);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (313,9,'3,5',4.492315443,51.211471332);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (314,9,'3,6',4.493754502,51.211526349);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (315,9,'3,7',4.495169543,51.211588383);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (316,9,'3,8',4.496623464,51.211633372);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (317,9,'3,9',4.498021514,51.211706357);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (318,9,'4',4.499606495,51.211740377);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (319,9,'4,1',4.500842566,51.211766321);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (320,9,'4,2',4.502297463,51.211798384);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (321,9,'4,3',4.503733476,51.21183135);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (322,9,'4,4',4.50509356,51.211835354);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (323,9,'4,5',4.506535595,51.211871335);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (324,9,'4,6',4.507976487,51.2119073);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (325,9,'4,7',4.509392488,51.211945345);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (326,9,'4,8',4.510805497,51.211987331);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (327,9,'4,9',4.51223655,51.212032334);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (328,9,'5',4.513731572,51.212076342);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (329,9,'5,1',4.515164472,51.212115285);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (330,9,'5,2',4.516600536,51.212158342);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (331,9,'5,3',4.518040597,51.212197331);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (332,9,'5,4',4.519450526,51.212255307);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (333,9,'5,5',4.52090055,51.212276362);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (334,9,'5,6',4.522395581,51.212318283);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (335,9,'5,7',4.523776548,51.21235728);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (336,9,'5,8',4.525196566,51.212390276);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (337,9,'5,9',4.526644571,51.212404341);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (338,9,'6',4.527964604,51.212408316);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (339,9,'6,1',4.529494531,51.212358328);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (340,9,'6,2',4.530907632,51.21229428);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (341,9,'6,3',4.53236954,51.212193294);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (342,9,'6,4',4.533860594,51.212080295);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (343,9,'6,5',4.535199626,51.211917337);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (344,9,'6,6',4.53660556,51.211737279);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (345,9,'6,7',4.538020613,51.211549283);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (346,9,'6,8',4.539409581,51.211314297);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (347,9,'6,9',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (348,9,'7',4.542177635,51.210777328);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (349,9,'7,1',4.543476574,51.210397263);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (350,9,'7,2',4.544793653,51.210051313);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (351,9,'7,3',4.546126584,51.209702269);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (352,9,'7,4',4.547425601,51.209358295);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (353,9,'7,5',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (354,9,'7,6',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (355,9,'7,7',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (356,9,'7,8',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (357,9,'7,9',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (358,9,'8',4.555390631,51.207272303);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (359,9,'8,1',4.556665683,51.206909298);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (360,9,'8,2',4.557946592,51.206549237);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (361,9,'8,3',4.559273586,51.206196278);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (362,9,'8,4',4.560587542,51.205844224);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (363,9,'8,5',4.561901668,51.205503301);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (364,9,'8,6',4.563188676,51.205149284);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (365,9,'8,7',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (366,9,'8,8',4.565880645,51.204433282);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (367,9,'8,9',4.567152643,51.204096236);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (368,9,'9',4.568513668,51.203737273);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (369,9,'9,1',4.569622338,51.203448058);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (370,9,'9,2',4.57119865,51.203031228);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (371,9,'9,3',4.572531584,51.20270822);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (372,9,'9,4',4.573849527,51.20236428);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (373,9,'9,5',4.575180623,51.20202228);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (374,9,'9,6',4.576536478,51.20166008);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (375,9,'9,7',4.577784218,51.201365889);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (376,9,'9,8',4.582146823,51.200117413);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (377,9,'9,9',4.583451177,51.199786408);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (378,9,'10',4.584767643,51.199458201);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (379,9,'10,1',4.586115995,51.199160752);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (380,9,'10,2',4.587523659,51.198872188);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (381,9,'10,3',4.588901574,51.198610213);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (382,9,'10,4',4.59024261,51.1983882);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (383,9,'10,5',4.591645594,51.198169201);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (384,9,'10,6',4.593025547,51.197983217);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (385,9,'10,7',4.594439617,51.19781324);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (386,9,'10,8',4.59584263,51.197666189);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (387,9,'10,9',4.597246536,51.197528198);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (388,9,'11',4.598506644,51.197416267);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (389,9,'11,1',4.599960571,51.197271225);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (390,9,'11,2',4.601403555,51.197142185);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (391,9,'11,3',4.602778547,51.197007242);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (392,9,'11,4',4.604201629,51.196878208);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (393,9,'11,5',4.605623631,51.196735227);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (394,9,'11,6',4.607100957,51.196605768);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (395,9,'11,7',4.608436581,51.196480197);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (396,9,'11,8',4.609857608,51.196347234);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (397,9,'11,9',4.611264624,51.196217249);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (398,9,'12',4.612661569,51.19607819);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (399,9,'12,1',4.614096593,51.195945237);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (400,9,'12,2',4.615522632,51.195819206);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (401,9,'12,3',4.616388658,51.195731189);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (402,9,'12,4',4.61839561,51.195547185);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (403,9,'12,5',4.619764674,51.195418258);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (404,9,'12,6',4.621150604,51.1952882);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (405,9,'12,7',4.622532577,51.195156106);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (406,9,'12,8',4.623891086,51.195029097);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (407,9,'12,9',4.625277646,51.194907253);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (408,9,'13',4.626828612,51.194748186);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (409,9,'13,1',4.628324799,51.194610121);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (410,9,'13,2',4.629687973,51.194480343);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (411,9,'13,3',4.631210739,51.194342776);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (412,9,'13,4',4.632574871,51.194214119);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (413,9,'13,5',4.63389167,51.194084255);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (414,9,'13,6',4.635278541,51.193957175);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (415,9,'13,7',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (416,5,'97,5',4.320089178,51.201028227);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (417,5,'97,6',4.321130139,51.201627186);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (418,5,'97,7',4.322258283,51.202201182);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (419,5,'97,8',4.323330224,51.202778202);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (420,5,'97,9',4.324437256,51.20334318);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (421,5,'98',4.325569226,51.203892247);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (422,5,'98,1',4.32669623,51.204423235);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (423,5,'98,2',4.327838294,51.204943251);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (424,5,'98,3',4.329041347,51.20545222);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (425,5,'98,4',4.330244286,51.205917554);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (426,5,'98,5',4.331434651,51.206366167);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (427,5,'98,6',4.332621385,51.206903273);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (428,5,'98,7',4.333847893,51.207365803);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (429,5,'98,8',4.335069763,51.207836217);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (430,5,'98,9',4.33632575,51.208253726);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (431,5,'99',4.337553364,51.208719233);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (432,5,'99,1',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (433,5,'99,2',4.339981276,51.209665144);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (434,5,'99,3',4.341177989,51.210137579);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (435,5,'99,4',4.342450905,51.210617261);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (436,5,'99,5',4.343698357,51.211096301);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (437,5,'99,6',4.344912352,51.211562324);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (438,5,'99,7',4.346056406,51.212002346);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (439,5,'99,8',4.347164286,51.212417272);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (440,5,'99,9',4.348414296,51.212822325);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (441,5,'100',4.349612402,51.21317028);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (442,5,'100,1',4.350855347,51.213442277);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (443,5,'100,3',4.35345709,51.213755359);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (444,5,'100,4',4.354812973,51.213797094);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (445,5,'100,5',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (446,6,'97,4',4.318720218,51.200668215);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (447,6,'97,5',4.319741326,51.201289067);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (448,6,'97,6',4.320773833,51.201884134);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (449,6,'97,7',4.321808682,51.202551382);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (450,6,'97,8',4.322921291,51.203092193);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (451,6,'97,9',4.324040197,51.203662213);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (452,6,'98',4.325178316,51.204218207);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (453,6,'98,1',4.326331214,51.204758196);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (454,6,'98,2',4.327500313,51.205291258);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (455,6,'98,3',4.328676328,51.205800222);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (456,6,'98,4',4.329871266,51.206296236);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (457,6,'98,5',4.331088275,51.206780291);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (458,6,'98,6',4.332305318,51.207253277);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (459,6,'98,7',4.333495331,51.207739276);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (460,6,'98,8',4.334705266,51.20821628);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (461,6,'98,9',4.335938408,51.20869229);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (462,6,'99',4.337140384,51.209161267);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (463,6,'99,1',4.338412392,51.209578297);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (464,6,'99,2',4.339635313,51.210039254);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (465,6,'99,3',4.340805406,51.210584318);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (466,6,'99,4',4.342093367,51.211006254);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (467,6,'99,5',4.343331396,51.211452346);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (468,6,'99,6',4.344573303,51.211918289);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (469,6,'99,7',4.34572533,51.212452334);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (470,6,'99,8',4.346776313,51.213066347);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (471,6,'99,9',4.347854345,51.213742285);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (472,6,'100',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (473,6,'100,1',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (474,6,'100,2',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (475,6,'100,3',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (476,6,'100,4',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (477,6,'100,5',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (478,12,'9,5',4.574846612,51.201586204);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (479,12,'9,6',4.576206567,51.201113269);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (480,12,'9,7',4.577496651,51.200539233);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (481,12,'9,8',4.578667645,51.199896272);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (482,12,'9,9',4.579659577,51.199273215);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (483,12,'10',4.580958649,51.198557195);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (484,12,'10,1',4.582309556,51.198047263);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (485,12,'10,2',4.583781647,51.197700235);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (486,12,'10,3',4.585308593,51.197525219);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (487,12,'10,4',4.586871546,51.1975262);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (488,12,'10,5',4.58844765,51.197706187);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (489,12,'10,6',4.589920542,51.198051197);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (490,12,'10,7',4.591245641,51.198569226);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (491,12,'10,8',4.59241664,51.199226226);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (492,12,'10,9',4.593421627,51.199984202);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (493,12,'11',4.594396578,51.200737193);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (494,12,'11,1',4.595551561,51.20143428);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (495,12,'11,2',4.596692641,51.201973276);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (496,12,'11,3',4.597906543,51.20244821);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (497,12,'11,4',4.599147661,51.202895215);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (498,12,'11,5',4.600400622,51.203331217);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (499,12,'11,6',4.601660593,51.203762248);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (500,12,'11,7',4.602896555,51.204194213);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (501,12,'11,8',4.604132528,51.204652231);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (502,12,'11,9',4.60542344,51.205061536);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (503,12,'12',4.606653529,51.20552121);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (504,12,'12,1',4.607853587,51.205965239);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (505,12,'12,2',4.609068266,51.206388614);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (506,12,'12,3',4.61030565,51.206813246);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (507,12,'12,4',4.611559638,51.207241218);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (508,12,'12,5',4.612812537,51.207675291);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (509,12,'12,6',4.614082687,51.208076611);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (510,12,'12,7',4.615353721,51.208511608);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (511,12,'12,8',4.616593663,51.208944215);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (512,12,'12,9',4.617828667,51.209386272);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (513,12,'13',4.619192627,51.209828222);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (514,12,'13,1',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (515,12,'13,2',4.621637563,51.210711244);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (516,12,'13,3',4.622880642,51.211147208);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (517,12,'13,4',4.624176557,51.211584214);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (518,12,'13,5',4.625423591,51.212028232);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (519,12,'13,6',4.62666966,51.212474218);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (520,12,'13,7',4.627914646,51.212927292);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (521,12,'13,8',4.629197539,51.213347283);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (522,12,'13,9',4.630409573,51.213836269);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (523,12,'14',4.63163867,51.214326283);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (524,12,'14,1',4.632819664,51.214834278);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (525,12,'14,2',4.633964556,51.215381264);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (526,11,'10',4.579793903,51.200983079);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (527,11,'10,1',4.581193702,51.200758686);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (528,11,'10,2',4.582575716,51.200616754);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (529,11,'10,3',4.583989038,51.20052879);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (530,11,'10,4',4.585402404,51.20050065);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (531,11,'10,5',4.586819671,51.200534618);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (532,11,'10,6',4.588246949,51.200628594);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (533,11,'10,7',4.58964014,51.200778498);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (534,11,'10,8',4.591030161,51.200981528);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (535,11,'10,9',4.592407531,51.20122924);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (536,11,'11',4.593744552,51.201555224);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (537,11,'11,1',4.595062594,51.201946217);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (538,11,'11,2',4.596306652,51.202359269);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (539,11,'11,3',4.597556597,51.202801239);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (540,11,'11,4',4.598679586,51.203171267);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (541,11,'11,5',4.600096602,51.203681197);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (542,11,'11,6',4.60135659,51.204114209);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (543,11,'11,7',4.60260659,51.204548216);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (544,11,'11,8',4.603875764,51.204955945);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (545,11,'11,9',4.605131857,51.205383922);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (546,11,'12',4.606392626,51.205846221);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (547,11,'12,1',4.607602608,51.206243223);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (548,11,'12,2',4.608837439,51.206653382);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (549,11,'12,3',4.610070585,51.207095247);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (550,11,'12,4',4.611318574,51.207524223);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (551,11,'12,5',4.61255253,51.207974247);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (552,2,'0,6',4.384766276,51.203152303);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (553,2,'0,7',4.383683262,51.202564337);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (554,2,'0,8',4.382751343,51.20191531);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (555,2,'0,9',4.381911269,51.201152292);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (556,2,'1',4.381240321,51.200354283);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (557,2,'1,1',4.380857233,51.19950231);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (558,2,'1,2',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (559,2,'1,3',4.381416271,51.197766306);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (560,2,'1,4',4.382556199,51.197017896);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (561,2,'1,5',4.383464471,51.196572709);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (562,2,'1,6',4.384707232,51.196067336);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (563,2,'1,7',4.385364738,51.195298404);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (564,2,'1,8',4.386149734,51.194583244);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (565,2,'1,9',4.386810244,51.193774331);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (566,2,'2',4.387243326,51.192903277);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (567,2,'2,1',4.387649265,51.192109366);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (568,2,'2,2',4.388124211,51.191245294);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (569,2,'2,3',4.388448827,51.190369557);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (570,2,'2,4',4.388779822,51.189511619);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (571,2,'2,5',4.389120911,51.188640005);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (572,2,'2,6',4.389453322,51.187772985);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (573,2,'2,7',4.389792457,51.186907073);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (574,2,'2,8',4.390052218,51.186050962);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (575,2,'2,9',4.390258707,51.185150585);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (576,2,'3',4.390456499,51.184272261);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (577,2,'3,1',4.390531248,51.183377314);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (578,2,'3,2',4.39033537,51.182500661);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (579,1,'1,8',4.386752302,51.194778768);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (580,1,'1,9',4.387080209,51.193849341);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (581,1,'2',4.387829928,51.193009489);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (582,1,'2,1',4.387933197,51.192128356);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (583,1,'2,2',4.388329809,51.191446722);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (584,1,'2,3',4.388676437,51.190465505);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (585,1,'2,4',4.389012311,51.189601025);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (586,1,'2,5',4.389347775,51.188728131);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (587,1,'2,6',4.389687157,51.187863424);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (588,1,'2,7',4.390025706,51.186991181);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (589,1,'2,8',4.390295753,51.186115862);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (590,1,'2,9',4.390507659,51.185234009);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (591,1,'3',4.390704076,51.184355767);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (592,1,'3,1',4.390811095,51.183461758);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (593,1,'3,2',4.390611098,51.182537122);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (594,21,'2,8',4.425856369,51.24067341);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (595,21,'2,9',4.425899358,51.239775366);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (596,21,'3',4.426115335,51.238892427);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (597,21,'3,1',4.426565318,51.238048381);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (598,21,'3,2',4.427248314,51.237259405);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (599,21,'3,3',4.428161366,51.236573405);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (600,21,'3,4',4.429270281,51.236011425);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (601,21,'3,5',4.430479368,51.235537377);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (602,21,'3,6',4.431720256,51.235093411);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (603,21,'3,7',4.432943338,51.234628408);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (604,21,'3,8',4.434120369,51.234116411);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (605,21,'3,9',4.435225287,51.233553387);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (606,21,'4',4.436261371,51.232932419);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (607,21,'4,1',4.437237261,51.232287387);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (608,21,'4,2',4.438207391,51.231637407);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (609,21,'4,3',4.439168309,51.230973403);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (610,21,'4,4',4.440138366,51.230311363);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (611,21,'4,5',4.441109256,51.229651381);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (612,21,'4,6',4.442142031,51.228955987);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (613,21,'4,7',4.442999556,51.228336319);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (614,21,'4,8',4.443984258,51.227671412);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (615,21,'4,9',4.444939298,51.227014374);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (616,21,'5',4.4458141,51.226308747);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (617,21,'5,1',4.446769638,51.225609952);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (618,21,'5,2',4.44762437,51.224903386);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (619,21,'5,3',4.448405386,51.224165362);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (620,21,'5,4',4.449088311,51.22341841);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (621,21,'5,5',4.449676332,51.222600333);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (622,21,'5,6',4.45012437,51.221796371);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (623,21,'5,7',4.450411272,51.220937331);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (624,21,'5,8',4.450524348,51.220071761);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (625,21,'5,9',4.450692635,51.219214278);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (626,21,'6',4.450614344,51.218331363);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (627,21,'6,1',4.450366361,51.217469369);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (628,21,'6,2',4.449955659,51.21662426);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (629,21,'6,3',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (630,21,'6,4',4.448783349,51.215026332);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (631,21,'6,5',4.448354368,51.214489387);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (632,21,'6,6',4.447460434,51.213452368);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (633,21,'6,7',4.446727397,51.212672394);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (634,21,'6,8',4.445917321,51.211934352);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (635,21,'6,9',4.445135571,51.211138259);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (636,21,'7',4.444550871,51.210328911);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (637,21,'7,1',4.443814389,51.209556391);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (638,21,'7,2',4.442941425,51.208802369);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (639,21,'7,3',4.442288048,51.208020535);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (640,21,'7,4',4.441548954,51.207254231);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (641,21,'7,5',4.440848336,51.206494458);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (642,21,'7,6',4.440111343,51.205695386);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (643,21,'7,7',4.43926037,51.20491939);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (644,21,'7,8',4.438661778,51.204092922);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (645,21,'7,9',4.438097458,51.203253357);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (646,21,'8',4.437443361,51.202427434);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (647,21,'8,1',4.436984421,51.201588361);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (648,21,'8,2',4.436561492,51.200709445);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (649,21,'8,3',4.435984478,51.199819381);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (650,21,'8,4',4.435570858,51.198997523);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (651,21,'8,5',4.435084204,51.198173917);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (652,21,'8,6',4.434595521,51.197350078);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (653,21,'8,7',4.433983378,51.196575407);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (654,21,'8,8',4.433269444,51.19580639);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (655,21,'9',4.431481428,51.194467361);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (656,21,'9,1',4.430379492,51.193925402);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (657,21,'9,2',4.429224419,51.19342337);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (658,21,'9,3',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (659,21,'9,4',4.426873352,51.192464413);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (660,21,'9,5',4.425587184,51.192115031);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (661,21,'9,6',4.424260402,51.19180539);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (662,21,'9,7',4.422838274,51.191478561);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (663,21,'9,8',4.421348088,51.191270641);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (664,21,'9,9',4.420218133,51.191123969);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (665,21,'10',4.41883652,51.190855251);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (666,21,'10,1',4.417438147,51.190745693);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (667,21,'10,2',4.416024575,51.190684278);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (668,21,'10,3',4.414609358,51.190670473);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (669,21,'10,4',4.413186153,51.190703923);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (670,21,'10,5',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (671,21,'10,6',4.410227587,51.19097226);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (672,21,'10,7',4.409016206,51.191115076);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (673,21,'10,8',4.407643187,51.191325458);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (674,21,'10,9',4.406296791,51.191579337);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (675,21,'11',4.404965928,51.191881805);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (676,21,'11,1',4.403501386,51.192233383);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (677,21,'11,2',4.402352595,51.192567351);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (678,21,'11,3',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (679,21,'11,4',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (680,21,'11,5',4.39856223,51.193826352);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (681,21,'11,6',4.397311283,51.194319327);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (682,21,'11,7',4.396095321,51.194752326);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (683,21,'11,8',4.394908283,51.195270339);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (684,21,'11,9',4.393736333,51.19569836);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (685,21,'12',4.392452232,51.196179336);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (686,21,'12,1',4.391129461,51.196628558);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (687,21,'12,2',4.38988133,51.197042373);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (688,21,'12,3',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (689,21,'12,4',4.387147304,51.197708352);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (690,21,'12,5',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (691,21,'12,6',4.384388034,51.198223204);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (692,21,'12,7',4.383008349,51.198480339);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (693,21,'12,8',4.38164332,51.198782336);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (694,21,'12,9',4.380390306,51.199130327);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (695,21,'13',4.37919324,51.199589306);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (696,21,'13,1',4.378261283,51.200173281);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (697,21,'13,2',4.377265556,51.200752964);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (698,21,'13,3',4.376339235,51.20146732);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (699,21,'13,4',4.375456301,51.202187263);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (700,21,'13,5',4.374750305,51.202751331);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (701,21,'13,6',4.373838104,51.203608542);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (702,21,'13,7',4.373058619,51.20434855);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (703,21,'13,8',4.372285633,51.205083957);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (704,21,'13,9',4.371510313,51.205818395);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (705,21,'14',4.370726917,51.206562013);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (706,21,'14,1',4.369960003,51.207294743);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (707,21,'14,2',4.36917156,51.208038354);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (708,21,'14,3',4.368349359,51.208770358);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (709,21,'14,4',4.367617275,51.209554329);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (710,21,'14,5',4.366834366,51.210293351);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (711,21,'14,6',4.366047283,51.211029312);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (712,21,'14,7',4.365231268,51.211760324);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (713,21,'14,8',4.364410362,51.212494296);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (714,21,'14,9',4.363484394,51.213166327);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (715,21,'15',4.362560404,51.213825318);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (716,21,'15,1',4.361338306,51.214331303);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (717,21,'15,2',4.360157398,51.214837367);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (718,21,'15,3',4.358884394,51.215242077);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (719,21,'15,4',4.357544293,51.215547783);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (720,21,'15,5',4.356297692,51.215954803);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (721,21,'15,6',4.355139874,51.216461326);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (722,21,'15,7',4.354084118,51.217052837);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (723,21,'15,8',4.353159803,51.217707295);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (724,21,'15,9',4.352518317,51.218497316);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (725,21,'16',4.352232344,51.219363309);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (726,21,'16,1',4.352204417,51.220257381);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (727,21,'16,2',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (728,21,'16,3',4.352215402,51.222046341);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (729,21,'16,4',4.35220637,51.222934302);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (730,21,'16,5',4.352188469,51.223824212);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (731,21,'16,6',4.352216352,51.224727304);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (732,21,'16,7',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (733,22,'1,9',4.426593319,51.248715423);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (734,22,'2',4.426648329,51.247815398);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (735,22,'2,1',4.426769388,51.246939429);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (736,22,'2,2',4.426162332,51.246039371);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (737,22,'2,3',4.426192287,51.245139357);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (738,22,'2,4',4.42622237,51.244229367);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (739,22,'2,5',4.426209261,51.243364428);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (740,22,'2,6',4.426226327,51.242466398);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (741,22,'2,7',4.426763659,51.24154554);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (742,22,'2,8',4.42666827,51.240668426);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (743,22,'2,9',4.426637393,51.239799361);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (744,22,'3',4.426729276,51.238966368);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (745,22,'3,1',4.427110158,51.238181088);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (746,22,'3,2',4.427735387,51.237455376);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (747,22,'3,3',4.428575345,51.236826395);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (748,22,'3,4',4.429612287,51.236299413);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (749,22,'3,5',4.430831086,51.235894548);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (750,22,'3,6',4.432069058,51.235444775);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (751,22,'3,7',4.433305848,51.234964258);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (752,22,'3,8',4.434512023,51.23442162);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (753,22,'3,9',4.435632546,51.233827366);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (754,22,'4',4.436684305,51.233199997);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (755,22,'4,1',4.437675501,51.232534842);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (756,22,'4,2',4.438637384,51.231870399);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (757,22,'4,3',4.439599317,51.23121538);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (758,22,'4,4',4.440569377,51.230556392);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (759,22,'4,5',4.441537265,51.229899375);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (760,22,'4,6',4.442507275,51.229243337);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (761,22,'4,7',4.443473283,51.228608416);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (762,22,'4,8',4.444488347,51.227960422);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (763,22,'4,9',4.445536293,51.227304398);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (764,22,'5',4.446453316,51.226616364);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (765,22,'5,1',4.447326289,51.22596736);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (766,22,'5,2',4.448248281,51.225202368);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (767,22,'5,3',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (768,22,'5,4',4.449809273,51.223642354);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (769,22,'5,5',4.450463374,51.222801396);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (770,22,'5,6',4.45095937,51.221927378);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (771,22,'5,7',4.451300299,51.221033333);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (772,22,'5,8',4.451488306,51.220114408);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (773,22,'5,9',4.451571279,51.219211374);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (774,22,'6',4.451315399,51.218267414);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (775,22,'6,1',4.451005331,51.21726839);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (776,22,'6,2',4.450625363,51.216471385);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (777,22,'6,3',4.450091329,51.215626397);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (778,22,'6,4',4.449435426,51.214806388);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (779,22,'6,5',4.448980303,51.21421742);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (780,22,'6,6',4.448028363,51.213241386);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (781,22,'6,7',4.447327348,51.212445395);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (782,22,'6,8',4.446590457,51.211660388);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (783,22,'6,9',4.445866341,51.210884357);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (784,22,'7',4.445135376,51.210105359);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (785,22,'7,1',4.444468388,51.209319395);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (786,22,'7,2',4.443729443,51.208531405);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (787,22,'7,3',4.442999419,51.207758415);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (788,22,'7,4',4.442223345,51.206986348);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (789,22,'7,5',4.44149337,51.206213438);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (790,22,'7,6',4.440915412,51.205372388);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (791,22,'7,7',4.44015936,51.204638406);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (792,22,'7,8',4.439484483,51.203827428);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (793,22,'7,9',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (794,22,'8',4.438267442,51.202212393);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (795,22,'8,1',4.437774442,51.201376399);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (796,22,'8,2',4.43717952,51.200506081);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (797,22,'8,3',4.436802491,51.199687407);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (798,22,'8,4',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (799,22,'8,5',4.435839437,51.19796838);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (800,22,'8,6',4.435248396,51.197139441);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (801,22,'8,7',4.434619476,51.196317441);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (802,22,'8,8',4.433877467,51.19552741);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (803,22,'8,9',4.432982431,51.194644428);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (804,22,'9',4.432088391,51.194046372);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (805,22,'9,1',4.430953444,51.193421384);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (806,22,'9,2',4.429784487,51.192907409);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (807,22,'9,3',4.428549371,51.192428422);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (808,22,'9,4',4.42731242,51.191949423);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (809,22,'9,5',4.425916349,51.191634439);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (810,22,'9,6',4.424488345,51.19127541);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (811,22,'9,7',4.423135388,51.190976372);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (812,22,'9,8',4.421652449,51.1906994);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (813,22,'9,9',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (814,22,'10',4.41892933,51.190379355);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (815,22,'10,1',4.417490777,51.190272702);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (816,22,'10,2',4.416018441,51.190200353);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (817,22,'10,3',4.414607332,51.19016739);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (818,22,'10,4',4.413127825,51.190269745);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (819,22,'10,5',4.411664311,51.190317362);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (820,22,'10,6',4.41008132,51.190500402);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (821,22,'10,7',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (822,22,'10,8',4.40727885,51.190825291);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (823,22,'10,9',4.405923972,51.191103393);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (824,22,'11',4.40461363,51.1914172);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (825,22,'11,1',4.403206259,51.19182036);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (826,22,'11,2',4.402031263,51.192162356);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (827,22,'11,3',4.40067532,51.192539356);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (828,22,'11,4',4.399422241,51.192968355);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (829,22,'11,5',4.398168295,51.193420353);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (830,22,'11,6',4.396935355,51.19387431);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (831,22,'11,7',4.395688387,51.194344369);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (832,22,'11,8',4.394455494,51.194810991);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (833,22,'11,9',4.39324441,51.195240434);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (834,22,'12',4.392005204,51.195748686);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (835,22,'12,1',4.39078234,51.196203309);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (836,22,'12,2',4.389538218,51.196611349);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (837,22,'12,3',4.38823124,51.196949365);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (838,22,'12,4',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (839,22,'12,5',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (840,22,'12,6',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (841,22,'12,7',4.382832263,51.198110305);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (842,22,'12,8',4.381444208,51.198402326);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (843,22,'12,9',4.380115221,51.198793442);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (844,22,'13',4.378874271,51.19928229);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (845,22,'13,1',4.377709885,51.199838503);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (846,22,'13,2',4.376677904,51.200481589);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (847,22,'13,3',4.375661468,51.201202452);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (848,22,'13,4',4.374874265,51.201933491);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (849,22,'13,5',4.374297311,51.202655269);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (850,22,'13,6',4.373478167,51.203369334);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (851,22,'13,7',4.372685088,51.204114745);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (852,22,'13,8',4.371895135,51.204861467);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (853,22,'13,9',4.371104762,51.205609844);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (854,22,'14',4.370328391,51.206347967);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (855,22,'14,1',4.369531181,51.207105602);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (856,22,'14,2',4.368751187,51.207857127);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (857,22,'14,3',4.367978313,51.208607309);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (858,22,'14,4',4.367133322,51.209343278);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (859,22,'14,5',4.366320359,51.210077353);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (860,22,'14,6',4.365431384,51.210782299);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (861,22,'14,7',4.364427332,51.211417304);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (862,22,'14,8',4.363365978,51.211986838);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (863,22,'14,9',4.362226407,51.212489354);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (864,22,'15',4.360893298,51.212925309);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (865,22,'15,1',4.35958737,51.213280355);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (866,22,'15,2',4.358211206,51.213542929);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (867,22,'15,3',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (868,22,'15,4',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (869,22,'15,5',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (870,22,'15,6',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (871,22,'15,7',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (872,22,'15,8',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (873,22,'15,9',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (874,22,'16',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (875,22,'16,1',4.351661375,51.220267374);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (876,22,'16,2',4.351660344,51.221163336);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (877,22,'16,3',4.351619874,51.222051403);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (878,22,'16,4',4.35162223,51.2229515);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (879,22,'16,5',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (880,22,'16,6',4.351655731,51.22471737);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (881,16,'77,6',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (882,16,'77,7',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (883,16,'77,8',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (884,16,'77,9',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (885,16,'78',4.24605475031,51.2420941438);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (886,16,'78,1',4.24705856706,51.24274006);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (887,16,'78,2',4.24804741903,51.2433748695);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (888,16,'78,3',4.24904231861,51.2440184767);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (889,16,'78,4',4.25004138075,51.2446576298);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (890,16,'78,5',4.25103597337,51.245296698);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (891,16,'78,6',4.2520342857,51.2459370467);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (892,16,'78,7',4.25299889568,51.2465031104);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (893,16,'78,8',4.25394269811,51.2471017293);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (894,16,'78,9',4.25506002105,51.2478103606);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (895,16,'79',4.25608868833,51.2484692285);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (896,16,'79,1',4.25705670618,51.2490902163);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (897,16,'79,2',4.25808911848,51.2497581208);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (898,16,'79,3',4.2590607638,51.2503882541);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (899,16,'79,4',4.26000183071,51.2510604615);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (900,16,'79,5',4.26094794542,51.2517352545);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (901,16,'79,7',4.26276866161,51.2531144424);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (902,16,'79,8',4.26360712391,51.2538442428);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (903,15,'77,6',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (904,15,'77,7',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (905,15,'77,8',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (906,15,'77,9',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (907,15,'78',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (908,15,'78,1',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (909,15,'78,2',4.2477856804,51.2435390903);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (910,15,'78,4',4.24976699333,51.2448907463);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (911,15,'78,5',4.25070453426,51.2454726303);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (912,15,'78,6',4.25171823948,51.246119235);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (913,15,'78,7',4.25265979273,51.2467197761);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (914,15,'78,8',4.25351430641,51.2472754637);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (915,15,'78,9',4.25466260406,51.2480139431);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (916,15,'79',4.25575074164,51.248723007);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (917,15,'79,1',4.25669736718,51.2493184241);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (918,15,'79,2',4.25770516538,51.2499595144);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (919,14,'0',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (920,14,'0,1',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (921,14,'0,2',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (922,14,'0,3',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (923,14,'0,4',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (924,14,'0,5',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (925,14,'0,6',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (926,14,'0,7',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (927,14,'0,8',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (928,14,'0,9',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (929,14,'1',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (930,14,'1,1',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (931,14,'1,2',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (932,14,'1,3',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (933,14,'1,4',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (934,14,'1,5',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (935,14,'1,6',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (936,14,'1,7',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (937,14,'1,8',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (938,14,'1,9',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (939,14,'2',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (940,14,'2,1',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (941,14,'2,2',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (942,14,'2,3',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (943,14,'2,4',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (944,14,'2,5',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (945,14,'2,6',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (946,14,'2,7',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (947,14,'2,8',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (948,14,'2,9',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (949,14,'3',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (950,14,'3,1',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (951,14,'3,2',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (952,14,'3,3',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (953,14,'3,4',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (954,14,'3,5',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (955,14,'3,6',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (956,14,'3,7',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (957,14,'3,8',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (958,14,'3,9',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (959,14,'4',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (960,14,'4,1',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (961,14,'4,2',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (962,14,'4,3',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (963,14,'4,4',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (964,14,'4,5',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (965,14,'4,6',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (966,14,'4,7',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (967,14,'4,8',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (968,14,'4,9',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (969,14,'5',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (970,14,'5,1',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (971,14,'5,2',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (972,14,'5,3',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (973,14,'5,4',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (974,14,'5,5',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (975,14,'5,6',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (976,14,'5,7',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (977,14,'5,8',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (978,14,'5,9',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (979,14,'6',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (980,14,'6,1',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (981,14,'6,2',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (982,14,'6,3',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (983,14,'6,4',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (984,14,'6,5',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (985,14,'6,6',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (986,14,'6,7',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (987,14,'6,8',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (988,14,'6,9',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (989,14,'7',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (990,14,'7,1',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (991,14,'7,2',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (992,14,'7,3',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (993,14,'7,4',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (994,14,'7,5',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (995,14,'7,6',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (996,14,'7,7',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (997,14,'7,8',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (998,14,'7,9',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (999,14,'8',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1000,14,'8,1',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1001,13,'0',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1002,13,'0,1',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1003,13,'0,2',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1004,13,'0,3',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1005,13,'0,4',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1006,13,'0,5',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1007,13,'0,6',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1008,13,'0,7',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1009,13,'0,8',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1010,13,'0,9',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1011,13,'1',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1012,13,'1,1',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1013,13,'1,2',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1014,13,'1,3',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1015,13,'1,4',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1016,13,'1,5',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1017,13,'1,6',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1018,13,'1,7',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1019,13,'1,8',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1020,13,'1,9',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1021,13,'2',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1022,13,'2,1',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1023,13,'2,2',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1024,13,'2,3',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1025,13,'2,4',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1026,13,'2,5',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1027,13,'2,6',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1028,13,'2,7',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1029,13,'2,8',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1030,13,'2,9',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1031,13,'3',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1032,13,'3,1',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1033,13,'3,2',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1034,13,'3,3',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1035,13,'3,4',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1036,13,'3,5',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1037,13,'3,6',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1038,13,'3,7',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1039,13,'3,8',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1040,13,'3,9',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1041,13,'4',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1042,13,'4,1',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1043,13,'4,2',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1044,13,'4,3',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1045,13,'4,4',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1046,13,'4,5',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1047,13,'4,6',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1048,13,'4,7',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1049,13,'4,8',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1050,13,'4,9',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1051,13,'5',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1052,13,'5,1',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1053,13,'5,2',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1054,13,'5,3',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1055,13,'5,4',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1056,13,'5,5',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1057,13,'5,6',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1058,13,'5,7',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1059,13,'5,8',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1060,13,'5,9',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1061,13,'6',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1062,13,'6,1',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1063,13,'6,2',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1064,13,'6,3',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1065,13,'6,4',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1066,13,'6,5',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1067,13,'6,6',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1068,13,'6,7',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1069,13,'6,8',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1070,13,'6,9',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1071,13,'7',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1072,13,'7,1',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1073,13,'7,2',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1074,13,'7,3',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1075,13,'7,4',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1076,13,'7,5',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1077,13,'7,6',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1078,13,'7,7',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1079,13,'7,8',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1080,13,'7,9',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1081,13,'8',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1082,13,'8,1',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1083,3,'29,3',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1084,3,'29,4',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1085,3,'29,5',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1086,3,'29,6',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1087,3,'29,7',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1088,3,'29,8',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1089,3,'29,9',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1090,3,'30',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1091,3,'30,1',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1092,3,'30,2',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1093,3,'30,3',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1094,3,'30,4',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1095,3,'30,5',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1096,3,'30,6',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1097,3,'30,7',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1098,3,'30,8',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1099,3,'30,9',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1100,3,'31',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1101,3,'31,1',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1102,3,'31,2',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1103,3,'31,3',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1104,3,'31,4',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1105,3,'31,5',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1106,3,'31,6',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1107,3,'31,7',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1108,3,'31,8',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1109,3,'31,9',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1110,3,'32',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1111,3,'32,1',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1112,3,'32,2',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1113,3,'32,3',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1114,3,'32,4',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1115,3,'32,5',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1116,3,'32,6',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1117,3,'32,7',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1118,3,'32,8',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1119,3,'32,9',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1120,3,'33',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1121,3,'33,1',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1122,3,'33,2',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1123,3,'33,3',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1124,3,'33,4',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1125,3,'33,5',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1126,3,'33,6',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1127,3,'33,7',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1128,3,'33,8',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1129,3,'33,9',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1130,3,'34',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1131,3,'34,1',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1132,3,'34,2',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1133,3,'34,3',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1134,3,'34,4',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1135,3,'34,5',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1136,3,'34,6',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1137,3,'34,7',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1138,3,'34,8',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1139,3,'34,9',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1140,3,'35',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1141,3,'35,1',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1142,3,'35,2',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1143,3,'35,3',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1144,3,'35,4',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1145,3,'35,5',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1146,3,'35,6',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1147,3,'35,7',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1148,4,'29,3',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1149,4,'29,4',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1150,4,'29,5',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1151,4,'29,6',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1152,4,'29,7',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1153,4,'29,8',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1154,4,'29,9',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1155,4,'30',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1156,4,'30,1',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1157,4,'30,2',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1158,4,'30,3',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1159,4,'30,4',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1160,4,'30,5',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1161,4,'30,6',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1162,4,'30,7',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1163,4,'30,8',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1164,4,'30,9',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1165,4,'31',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1166,4,'31,1',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1167,4,'31,2',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1168,4,'31,3',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1169,4,'31,4',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1170,4,'31,5',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1171,4,'31,6',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1172,4,'31,7',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1173,4,'31,8',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1174,4,'31,9',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1175,4,'32',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1176,4,'32,1',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1177,4,'32,2',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1178,4,'32,3',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1179,4,'32,4',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1180,4,'32,5',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1181,4,'32,6',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1182,4,'32,7',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1183,4,'32,8',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1184,4,'32,9',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1185,4,'33',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1186,4,'33,1',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1187,4,'33,2',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1188,4,'33,3',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1189,4,'33,4',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1190,4,'33,5',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1191,4,'33,6',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1192,4,'33,7',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1193,4,'33,8',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1194,4,'33,9',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1195,4,'34',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1196,4,'34,1',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1197,4,'34,2',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1198,4,'34,3',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1199,4,'34,4',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1200,4,'34,5',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1201,4,'34,6',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1202,4,'34,7',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1203,4,'34,8',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1204,4,'34,9',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1205,4,'35',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1206,4,'35,1',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1207,4,'35,2',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1208,4,'35,3',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1209,4,'35,4',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1210,4,'35,5',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1211,4,'35,6',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1212,4,'35,7',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1213,22,'Oprit 1 (Merksem 2 - Mc Donalds)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1214,22,'Oprit 1 (Merksem 1 ) ',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1215,21,'Oprit 1 (Merksem)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1216,22,'Afrit 1 (Merksem 1)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1217,22,'Afrit 1 (Merksem 2 - Haven 1-199)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1218,21,'Viaduct Merksem',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1219,22,'Viaduct Merksem',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1220,21,'Viaduct Sportpaleis',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1221,22,'Viaduct Sportpaleis',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1222,22,'Dienstparking Deurne',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1223,21,'Oprit 2 (Deurne)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1224,22,'Afrit 2 (Deurne)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1225,21,'KNPT Antwerpen Oost',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1226,21,'Aansluiting Ring > E34 - E313',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1227,22,'Aansluiting E34 - E313 > Ring',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1228,25,'70 Bocht',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1229,26,'Aansluiting Ring > E34 - E313',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1230,21,'Afrit 3 (Borgerhout)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1231,21,'Aansluiting E34 - E313 > Ring',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1232,22,'Oprit 3 (Borgerhout)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1233,22,'Dienstparking Borgerhout',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1234,22,'Afrit 3 (Borgerhout)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1235,21,'Oprit 3 (Borgerhout)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1236,21,'Afrit 4 (Berchem)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1237,22,'Oprit 4 (Berchem)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1238,21,'Aansluiting Ring > A12 - E19',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1239,21,'Visput',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1240,22,'Aansluiting E19 > Ring',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1241,22,'Aansluiting A12 -> Ring',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1242,21,'Aansluiting E19 > Ring',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1243,22,'Aansluiting Ring > E19',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1244,22,'Afrit 5 (Berchem - Wilrijk)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1245,21,'Oprit 5 (Berchem - Wilrijk)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1246,22,'Oprit 5 (Berchem - Wilrijk)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1247,22,'Kolonel Silvertop',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1248,21,'Afrit 5a (Antwerpen-Centrum)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1249,22,'Oprit 5a (Bolivar A112)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1250,21,'Aansluiting Bolivar A112 - A12 > Ring',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1251,21,'Dienstparking Kennedy-tunnel',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1252,21,'Regie',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1253,22,'Afrit 5a (Antwerpen-Centrum)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1254,22,'Aansluiting Ring > A12',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1255,21,'Kennedy-tunnel',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1256,22,'Kennedy-tunnel',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1257,22,'Oprit 6 (Linkeroever)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1258,21,'Afrit 6 (Linkeroever-Gazet van Antwerpen)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1259,21,'Aansluiting Ring > E34 - N49 - Expressweg',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1260,22,'Aansluiting E34 - N49 - Expressweg > Ring',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1261,22,'Aansluiting E34 - N49 - Expressweg > E17',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1262,27,'Aansluiting E17 >  E34 - N49 - Expressweg',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1263,22,'Pechhaven PP 9128',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1264,20,'Oprit 7 (Linkeroever - Charles de Coster)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1265,28,'Afrit 7 (Linkeroever - Charles de Coster)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1266,28,'Oprit 7 (Linkeroever - Charles de Coster)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1267,20,'Afrit 7 (Linkeroever - Charles de Coster)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1268,28,'LO-bocht',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1269,28,'LO-bocht',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1270,20,'Flyover - Oprit 8 ',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1271,20,'Oprit 8 (Waaslandhaven-Oost)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1272,28,'Afrit 8 (Waaslandhaven-Oost)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1273,20,'Oprit 9 (Beveren)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1274,28,'Afrit 9 (Beveren)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1275,20,'Afrit 9 (Beveren)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1276,28,'Oprit 9 (Beveren)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1277,28,'Aansluiting E34 - N49 - Expressweg > R2 (Rotterdam)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1278,28,'Aansluiting R2 > E34 - N49 - Expressweg',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1279,20,'Aansluiting R2 > E34 - N49 - Expressweg',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1280,20,'Aansluiting E34 - N49 - Expressweg > R2 (Rotterdam)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1281,16,'Afrit 10 (Waaslandhaven-Zuid)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1282,15,'Oprit 10 (Waaslandhaven-Zuid)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1283,6,'Afrit 17 (Zwijndrecht)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1284,6,'Oprit 17 (Zwijndrecht)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1285,5,'Oprit 17 (Zwijndrecht)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1286,5,'Afrit 17 (Zwijndrecht)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1287,6,'Afrit 16 (Kruibeke)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1288,5,'Oprit 16 (Kruibeke)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1289,6,'Oprit 16 (Kruibeke)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1290,5,'Afrit 16 (Kruibeke)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1291,6,'Dienstparking Kruibeke',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1292,5,'Dienstparking Kruibeke',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1293,4,'Kruising Kontichsteenweg - Mc Donalds',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1294,3,'Afslag n177 - Mortsel',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1295,4,'Afslag Aartselaar',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1296,4,'Kruising Atomiumlaan',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1297,3,'Kruising Atomiumlaan',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1298,4,'Kruising Terbekehofdreef',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1299,3,'Kruising Terbekehofdreef',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1300,3,'Afslag Boomsteenweg - Ikea',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1301,3,'Oprit begin Viaduct',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1302,4,'Afrit einde viaduct - n177 - Brantano',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1303,3,'Viaduct Wilrijk',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1304,4,'Viaduct Wilrijk',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1305,3,'Oprit bevrijdingstunnel',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1306,4,'Oprit begin Viaduct',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1307,3,'Bevrijdingstunnel',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1308,4,'Bevrijdingstunnel',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1309,3,'Dienstweg populierenlaan',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1310,4,'Dienstweg Sparrenstraat',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1311,3,'Oprit Dikke Mee - Vogelzang',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1312,4,'Afrit Wilrijk - Vogelzang',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1313,29,'Oprit 13 (Antwerpen-Zuid - Hoboken)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1314,2,'Afrit 13 (Antwerpen-Zuid - Hoboken)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1315,2,'Jan de Vostunnel',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1316,29,'Jan de Vostunnel',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1317,29,'Afrit Antwerpen Wilrijk',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1318,2,'Oprit Antwerpen Wilrijk',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1319,29,'Afrit Hoboken ',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1320,31,'Oprit Kolonel Silvertop',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1321,7,'Oprit 7 (Kontich - Boom - Aartselaar)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1322,8,'Afrit 7 (Kontich - Boom - Aartselaar)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1323,7,'Dienstuitrit 6a UZA',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1324,8,'Dienstoprit 6a UZA',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1325,7,'Dienstoprit 6a UZA',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1326,8,'Dienstuitrit 6a UZA',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1327,7,'Afrit 6 (Hoboken - Wilrijk - Mortsel)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1328,8,'Oprit 6 (Wilrijk)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1329,7,'Craeybeckxtunnel',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1330,8,'Craeybeckxtunnel',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1331,7,'Afrit 5a (Antwerpen-Centrum - Berchem)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1332,8,'Oprit 5a (Antwerpen-Centrum - Berchem)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1333,7,'Dienstparking Kontich',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1334,8,'Dienstparking Kontich',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1335,32,'Drietand',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1336,32,'Afrit 17 (Antwerpen-Centrum - Borgerhout)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1337,33,'Oprit 17 (Antwerpen-Centrum - Borgerhout)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1338,33,'Spitsstrook',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1339,33,'Afrit 18 (Wommelgem)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1340,33,'Oprit 18 (Wommelgem)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1341,32,'Oprit 18 (Wommelgem)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1342,32,'Afrit 18 (Wommelgem)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1343,33,'Q8',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1344,32,'Q8',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1345,33,'Splitsing E313 - E34',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1346,32,'Aansluiting E313 - E34',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1347,32,'Busstrook',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1348,10,'Afrit 19 (Lier - Nijlen - Zandhoven)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1349,10,'Oprit 19 (Zandhoven)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1350,9,'Afrit 19 (Lier - Zoersel - Zandhoven)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1351,9,'Oprit 19 (Zandhoven)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1352,12,'Brug Albertkanaal',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1353,11,'Brug Albertkanaal',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1354,12,'Afrit 19 (Oelegem)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1355,12,'Oprit 19 (Oelegem)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1356,11,'Afrit 19 (Schilde - Ranst)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1357,11,'Oprit 19 (Oelegem - Ranst)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1358,34,'Doorsteek',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1359,21,'Pechhaven PP 335',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1360,21,'Pechhaven PP 313',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1361,21,'Pechhaven PP 333',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1362,21,'Pechhaven PP 311',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1363,21,'Pechhaven PP 309',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1364,21,'Pechhaven ',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1365,21,'Pechhaven',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1366,21,'Pechhaven',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1367,21,'Pechhaven',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1368,21,'Pechhaven',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1369,21,'Pechhaven',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1370,22,'Pechhaven PP 9111',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1371,22,'Pechhaven PP 336',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1372,22,'Pechhaven PP 312',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1373,22,'Pechhaven PP 314',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1374,22,'Pechhaven',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1375,22,'Pechhaven PP 310',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1376,22,'Pechhaven',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1377,22,'Pechhaven',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1378,33,'Pechhaven PP 322',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1379,33,'Pechhaven PP 324',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1380,33,'Pechhaven',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1381,9,'Pechhaven PP 9102',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1382,9,'Pechhaven PP 703',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1383,9,'Pechhaven PP 9101',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1384,9,'Pechhaven PP 701',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1385,32,'Pechhaven PP 9125',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1386,32,'Pechhaven PP 9124',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1387,32,'Pechhaven PP 9123',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1388,32,'Pechhaven PP 9122',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1389,32,'Pechhaven PP 9121',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1390,32,'Pechhaven PP 9120',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1391,4,'Pechhaven PP 382',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1392,4,'Pechhaven PP 384',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1393,4,'Pechhaven ',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1394,4,'Pechhaven (links)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1395,4,'Pechhaven',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1396,4,'Pechhaven',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1397,3,'Pechhaven PP 381',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1398,3,'Pechhaven PP 383',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1399,3,'Pechhaven (links)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1400,3,'Pechhaven',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1401,3,'Pechhaven',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1402,8,'Pechhaven PP 2518 (Groeninghe)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1403,8,'Pechhaven PP 2522 (na UZA)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1404,7,'Pechhaven PP 2517 (Groeninghe)',NULL,NULL);
+INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`id`,`allotment_directions_id`,`name`,`lat`,`long`) VALUES (1405,7,'Pechhaven PP 2521 (voor UZA)',NULL,NULL);
 
-(7, '27,8', null, null),
-(7, '27,9', null, null),
-(7, '28', null, null),
-(7, '28,1', null, null),
-(7, '28,2', null, null),
-(7, '28,3', null, null),
-(7, '28,4', null, null),
-(7, '28,5', null, null),
-(7, '28,6', null, null),
-(7, '28,7', null, null),
-(7, '28,8', null, null),
-(7, '28,9', 4.429920952, 51.139678576),
-(7, '29', 4.429632955, 51.140580432),
-(7, '29,1', 4.429207207, 51.141437666),
-(7, '29,2', 4.428720116, 51.142282233),
-(7, '29,3', 4.428153179, 51.143120596),
-(7, '29,4', 4.427594667, 51.143935577),
-(7, '29,5', 4.427026987, 51.144765297),
-(7, '29,6', 4.426459908, 51.14559378),
-(7, '29,7', 4.425899964, 51.146415886),
-(7, '29,8', 4.425331174, 51.147241698),
-(7, '29,9', 4.424763389, 51.148058344),
-(7, '30', 4.424195882, 51.148879528),
-(7, '30,1', 4.423633059, 51.149709984),
-(7, '30,2', 4.422980634, 51.150655949),
-(7, '30,3', 4.422487032, 51.151375137),
-(7, '30,4', 4.421931983, 51.152282202),
-(7, '30,5', 4.421423036, 51.153022096),
-(7, '30,6', 4.420817909, 51.153828249),
-(7, '30,7', 4.420288404, 51.154657201),
-(7, '30,8', 4.419670017, 51.155470618),
-(7, '30,9', 4.419105901, 51.156296747),
-(7, '31', 4.418611269, 51.157131581),
-(7, '31,1', 4.417961563, 51.157932595),
-(7, '31,2', 4.417393, 51.158760997),
-(7, '31,3', 4.416871834, 51.159564041),
-(7, '31,4', 4.416281495, 51.160390839),
-(7, '31,5', 4.415710011, 51.161225538),
-(7, '31,6', 4.415160864, 51.162061829),
-(7, '31,7', 4.414673907, 51.16289765),
-(7, '31,8', 4.414252798, 51.163757306),
-(7, '31,9', 4.413939687, 51.164607998),
-(7, '32', 4.413786983, 51.165499364),
-(7, '32,1', 4.413724001, 51.166395055),
-(7, '32,3', 4.41393231, 51.16817466),
-(7, '32,4', 4.413988115, 51.169076116),
-(7, '32,5', 4.41415572, 51.169964921),
-(7, '32,7', 4.414472484, 51.171740948),
-(7, '32,8', 4.414619445, 51.172634368),
-(7, '33,2', 4.416287401, 51.175973303),
-(7, '34,4', 4.415937398, 51.186389191),
-(7, '34,6', 4.414909351, 51.188094343),
-(7, '34,7', 4.414496415, 51.188955335),
-(7, '34,8', 4.414071298, 51.18980833),
-(7, '34,9', 4.413661327, 51.190660328),
-(7, '35', 4.413239333, 51.191519341),
-(8, '27', 4.429468224, 51.122642921),
-(8, '27,1', 4.429392752, 51.123544082),
-(8, '27,2', 4.429365564, 51.124436481),
-(8, '27,3', 4.429347132, 51.125324639),
-(8, '27,4', 4.429308516, 51.126220044),
-(8, '27,6', 4.429408984, 51.128011235),
-(8, '27,7', 4.429398509, 51.128913255),
-(8, '27,8', 4.429392477, 51.129800422),
-(8, '27,9', 4.429242815, 51.130704582),
-(8, '28', 4.429293676, 51.131602886),
-(8, '28,1', 4.429295448, 51.13249729),
-(8, '28,2', 4.429271465, 51.13338319),
-(8, '28,3', 4.42925046, 51.134290031),
-(8, '28,4', 4.429235556, 51.135186288),
-(8, '28,6', 4.429193043, 51.136978796),
-(8, '28,7', 4.429156692, 51.137874269),
-(8, '28,8', 4.429051316, 51.138731889),
-(8, '28,9', 4.429118416, 51.139619203),
-(8, '29', 4.428884704, 51.140481948),
-(8, '29,1', 4.428528069, 51.141315416),
-(8, '29,2', 4.428070192, 51.142143795),
-(8, '29,3', 4.427544381, 51.142966233),
-(8, '29,4', 4.427017669, 51.14374427),
-(8, '29,5', 4.426419818, 51.144621142),
-(8, '29,6', 4.425854974, 51.145440072),
-(8, '29,7', 4.425291517, 51.146261742),
-(8, '29,8', 4.424723973, 51.147079504),
-(8, '29,9', 4.424249605, 51.147764893),
-(8, '30', 4.423591122, 51.148735602),
-(8, '30,1', 4.423035525, 51.149559981),
-(8, '30,3', 4.421804301, 51.151182753),
-(8, '30,4', 4.421309074, 51.151962144),
-(8, '30,5', 4.420740762, 51.152845191),
-(8, '30,6', 4.420191678, 51.153679036),
-(8, '30,7', 4.419607764, 51.154509807),
-(8, '30,8', 4.41906154, 51.155316175),
-(8, '30,9', 4.41848534, 51.156142419),
-(8, '31', 4.417930755, 51.156965088),
-(8, '31,1', 4.417369748, 51.157790104),
-(8, '31,2', 4.416795374, 51.158614916),
-(8, '31,3', 4.416236482, 51.159433793),
-(8, '31,4', 4.415683856, 51.16024871),
-(8, '31,5', 4.415106077, 51.161087361),
-(8, '31,6', 4.414552865, 51.161922407),
-(8, '31,7', 4.414044829, 51.162791117),
-(8, '31,8', 4.413587496, 51.163652327),
-(8, '31,9', 4.413235158, 51.164552901),
-(8, '32', 4.413033432, 51.165457994),
-(8, '32,1', 4.41295917, 51.166402369),
-(8, '32,3', 4.413167565, 51.168297805),
-(8, '32,4', 4.413327988, 51.169254485),
-(8, '32,7', 4.413824582, 51.171836288),
-(8, '32,8', 4.413999499, 51.172519693),
-(8, '32,9', 4.41421315, 51.173402765),
-(8, '33', 4.414635176, 51.174261777),
-(8, '33,1', 4.415049058, 51.175123399),
-(8, '33,2', 4.415637829, 51.175944641),
-(8, '33,3', 4.416274391, 51.176753217),
-(8, '33,4', 4.416825851, 51.177579253),
-(8, '33,5', 4.417254399, 51.17843413),
-(8, '33,6', 4.417525077, 51.179315212),
-(8, '33,7', 4.417630065, 51.180206265),
-(8, '33,8', 4.417565042, 51.181101359),
-(8, '33,9', 4.41729973, 51.181989311),
-(8, '34', 4.416910081, 51.182838394),
-(8, '34,1', 4.416474707, 51.183700533),
-(8, '34,2', 4.416035135, 51.184562062),
-(8, '34,3', 4.415640561, 51.185424842),
-(8, '34,4', 4.41518943, 51.186276396),
-(8, '34,5', 4.414775375, 51.187140356),
-(8, '34,6', 4.414488333, 51.188020354),
-(8, '34,7', 4.414070374, 51.188870381),
-(8, '34,8', 4.413645398, 51.189728408),
-(8, '34,9', 4.413221408, 51.190587331),
-(8, '35', 4.412799425, 51.191465397),
-(10, '0,1', 4.44810539, 51.215762405),
-(10, '0,2', 4.449520404, 51.215853389),
-(10, '0,3', 4.45096235, 51.215955395),
-(10, '0,4', 4.452368352, 51.216042397),
-(10, '0,5', 4.453817356, 51.216006389),
-(10, '0,6', null, null),
-(10, '0,7', 4.456459364, 51.215958333),
-(10, '0,8', 4.457543326, 51.215504412),
-(10, '0,9', 4.458342372, 51.214853403),
-(10, '1', 4.459093385, 51.214094384),
-(10, '1,1', null, null),
-(10, '1,2', null, null),
-(10, '1,3', 4.461507443, 51.211859958),
-(10, '1,4', 4.462606426, 51.211305396),
-(10, '1,5', 4.463850416, 51.210883376),
-(10, '1,6', 4.465212486, 51.210619353),
-(10, '1,7', 4.466630419, 51.21052434),
-(10, '1,8', 4.468055529, 51.210575366),
-(10, '1,9', 4.469659518, 51.210757363),
-(10, '2', 4.471237458, 51.210996346),
-(10, '2,1', 4.472630437, 51.211196373),
-(10, '2,2', 4.474079536, 51.211338358),
-(10, '2,3', 4.475489411, 51.211346343),
-(10, '2,4', 4.47689553, 51.211216343),
-(10, '2,5', 4.477730539, 51.211095396),
-(10, '2,6', 4.479646431, 51.210749346),
-(10, '2,7', 4.481037563, 51.210529336),
-(10, '2,8', 4.482451493, 51.210391352),
-(10, '2,9', null, null),
-(10, '3', null, null),
-(10, '3,1', 4.486689563, 51.210559393),
-(10, '3,2', 4.488109481, 51.210641372),
-(10, '3,3', 4.489481585, 51.210879333),
-(10, '3,4', 4.490899496, 51.21100838),
-(10, '3,5', 4.492323525, 51.211121314),
-(10, '3,6', 4.493757495, 51.211203391),
-(10, '3,7', 4.495190546, 51.211261362),
-(10, '3,8', 4.496622557, 51.211304306),
-(10, '3,9', 4.498022495, 51.211288304),
-(10, '4', 4.499616591, 51.211362313),
-(10, '4,1', 4.500872569, 51.211397311),
-(10, '4,2', 4.50228957, 51.211442361),
-(10, '4,3', 4.503705537, 51.21147535),
-(10, '4,4', 4.505143547, 51.211509375),
-(10, '4,5', 4.506554525, 51.21154737),
-(10, '4,6', 4.507978515, 51.211581377),
-(10, '4,7', 4.509385493, 51.211620331),
-(10, '4,8', 4.510812516, 51.2116623),
-(10, '4,9', 4.512243547, 51.211703349),
-(10, '5', 4.513752569, 51.211743295),
-(10, '5,1', 4.515186477, 51.21178736),
-(10, '5,2', 4.516620515, 51.211826284),
-(10, '5,3', 4.518038815, 51.211866944),
-(10, '5,4', 4.519478602, 51.211911284),
-(10, '5,5', 4.520937541, 51.211948326),
-(10, '5,6', 4.52232794, 51.211991237),
-(10, '5,7', 4.523772594, 51.212030285),
-(10, '5,9', 4.526629594, 51.212082306),
-(10, '6', 4.527767407, 51.212083757),
-(10, '6,1', 4.529444621, 51.212037329),
-(10, '6,2', 4.530865572, 51.211970305),
-(10, '6,3', 4.532276532, 51.211871278),
-(10, '6,4', 4.533689534, 51.211744277),
-(10, '6,5', 4.535090568, 51.211594267),
-(10, '6,6', 4.536481614, 51.211415311),
-(10, '6,7', 4.537861664, 51.211206332),
-(10, '6,8', 4.539220639, 51.210951347),
-(10, '6,9', 4.54056358, 51.210659339),
-(10, '7', 4.541899691, 51.210344314),
-(10, '7,1', 4.543258624, 51.210090271),
-(10, '7,2', 4.544646645, 51.209737297),
-(10, '7,3', null, null),
-(10, '7,4', null, null),
-(10, '7,5', null, null),
-(10, '7,6', null, null),
-(10, '7,7', null, null),
-(10, '7,8', null, null),
-(10, '7,9', null, null),
-(10, '8', 4.555094634, 51.206894268),
-(10, '8,1', 4.556222549, 51.20659424),
-(10, '8,2', 4.557728544, 51.206202273),
-(10, '8,3', 4.55907116, 51.205876425),
-(10, '8,4', 4.560377668, 51.205540306),
-(10, '8,5', 4.561683597, 51.205191219),
-(10, '8,6', 4.562972656, 51.204850235),
-(10, '8,7', null, null),
-(10, '8,8', 4.565663593, 51.204130284),
-(10, '8,9', 4.566927568, 51.203792265),
-(10, '9', 4.568298601, 51.203433287),
-(10, '9,1', 4.569644544, 51.203067235),
-(10, '9,2', 4.570958603, 51.2027112),
-(10, '9,3', 4.572261647, 51.202360203),
-(10, '9,4', 4.573553635, 51.201972268),
-(10, '9,5', 4.577986639, 51.200882263),
-(10, '9,6', 4.579443597, 51.200484262),
-(10, '9,7', 4.58061457, 51.200188238),
-(10, '9,8', 4.58193265, 51.199840253),
-(10, '9,9', 4.583267634, 51.19950121),
-(10, '10', 4.584609555, 51.199181195),
-(10, '10,1', 4.585961565, 51.198881191),
-(10, '10,2', 4.587324549, 51.198606228),
-(10, '10,3', 4.588693596, 51.198346249),
-(10, '10,4', 4.590079643, 51.198114267),
-(10, '10,5', 4.591470622, 51.197899248),
-(10, '10,6', 4.592874588, 51.197710253),
-(10, '10,7', 4.594286613, 51.197533272),
-(10, '10,8', 4.595693628, 51.197387203),
-(10, '10,9', 4.597120569, 51.197251236),
-(10, '11', 4.598524642, 51.197121229),
-(10, '11,1', 4.599953571, 51.196985224),
-(10, '11,2', 4.601355615, 51.19685321),
-(10, '11,3', 4.602783535, 51.196719239),
-(10, '11,4', 4.604198588, 51.196588244),
-(10, '11,5', 4.605614628, 51.196456241),
-(10, '11,6', 4.607032647, 51.196321251),
-(10, '11,7', 4.608443666, 51.196189224),
-(10, '11,8', null, null),
-(10, '11,9', 4.611268564, 51.195930237),
-(10, '12', 4.612679532, 51.195793217),
-(10, '12,1', 4.614093654, 51.195659228),
-(10, '12,2', 4.615509639, 51.195527197),
-(10, '12,3', 4.616937627, 51.195394223),
-(10, '12,4', 4.618333568, 51.1952622),
-(10, '12,5', 4.619725618, 51.195126214),
-(10, '12,6', 4.621160608, 51.194996231),
-(10, '12,7', 4.622454588, 51.194875253),
-(10, '12,8', 4.623835627, 51.194744185),
-(10, '12,9', 4.62523767, 51.194610179),
-(10, '13', 4.626828583, 51.194459205),
-(10, '13,1', 4.628255638, 51.194324209),
-(10, '13,2', 4.629590643, 51.194204232),
-(10, '13,3', 4.631176567, 51.194061209),
-(10, '13,4', 4.632491582, 51.193925243),
-(10, '13,5', 4.633904631, 51.19379821),
-(10, '13,6', 4.635175664, 51.193678224),
-(10, '13,7', 4.636736611, 51.193526194),
-(10, '13,8', 4.638138604, 51.19339617),
-(10, '13,9', 4.639490986, 51.193266119),
-(10, '14', 4.640874675, 51.193121217),
-(10, '14,1', 4.642494218, 51.1929421),
-(10, '14,2', 4.643743664, 51.192735242),
-(10, '14,3', null, null),
-(10, '14,4', 4.646532585, 51.192339229),
-(10, '14,5', 4.647908607, 51.192087175),
-(10, '14,6', 4.649263551, 51.191805223),
-(10, '14,7', null, null),
-(9, '0', null, null),
-(9, '0,1', 4.448077374, 51.216116387),
-(9, '0,2', 4.449471358, 51.216206398),
-(9, '0,3', 4.450923314, 51.216297341),
-(9, '0,4', 4.452334334, 51.216383351),
-(9, '0,5', 4.453749385, 51.216479409),
-(9, '0,6', 4.455120659, 51.216550823),
-(9, '0,7', 4.456817553, 51.216390055),
-(9, '0,8', 4.458064608, 51.215774981),
-(9, '0,9', 4.458896673, 51.215063167),
-(9, '1', 4.459618072, 51.214272543),
-(9, '1,1', 4.460295732, 51.213495251),
-(9, '1,2', 4.461020077, 51.212766523),
-(9, '1,3', 4.461882824, 51.212123544),
-(9, '1,4', 4.462893362, 51.211593335),
-(9, '1,5', 4.464067449, 51.211205346),
-(9, '1,6', 4.465329412, 51.210968368),
-(9, '1,7', 4.466626109, 51.21087523),
-(9, '1,8', 4.467966414, 51.210921586),
-(9, '1,9', 4.469526791, 51.211087242),
-(9, '2', 4.471123394, 51.211315355),
-(9, '2,1', 4.472527411, 51.211519329),
-(9, '2,2', 4.474083455, 51.211675762),
-(9, '2,3', 4.475509783, 51.211687889),
-(9, '2,4', 4.476996002, 51.211551578),
-(9, '2,5', 4.478146654, 51.211372845),
-(9, '2,6', 4.479807496, 51.211079339),
-(9, '2,7', 4.481126514, 51.210859396),
-(9, '2,8', 4.4825145, 51.210758378),
-(9, '2,9', null, null),
-(9, '3', 4.485195463, 51.210852378),
-(9, '3,1', 4.486589475, 51.210986354),
-(9, '3,2', 4.487985548, 51.211139367),
-(9, '3,3', 4.489416482, 51.211212332),
-(9, '3,4', 4.490848567, 51.211340376),
-(9, '3,5', 4.492315443, 51.211471332),
-(9, '3,6', 4.493754502, 51.211526349),
-(9, '3,7', 4.495169543, 51.211588383),
-(9, '3,8', 4.496623464, 51.211633372),
-(9, '3,9', 4.498021514, 51.211706357),
-(9, '4', 4.499606495, 51.211740377),
-(9, '4,1', 4.500842566, 51.211766321),
-(9, '4,2', 4.502297463, 51.211798384),
-(9, '4,3', 4.503733476, 51.21183135),
-(9, '4,4', 4.50509356, 51.211835354),
-(9, '4,5', 4.506535595, 51.211871335),
-(9, '4,6', 4.507976487, 51.2119073),
-(9, '4,7', 4.509392488, 51.211945345),
-(9, '4,8', 4.510805497, 51.211987331),
-(9, '4,9', 4.51223655, 51.212032334),
-(9, '5', 4.513731572, 51.212076342),
-(9, '5,1', 4.515164472, 51.212115285),
-(9, '5,2', 4.516600536, 51.212158342),
-(9, '5,3', 4.518040597, 51.212197331),
-(9, '5,4', 4.519450526, 51.212255307),
-(9, '5,5', 4.52090055, 51.212276362),
-(9, '5,6', 4.522395581, 51.212318283),
-(9, '5,7', 4.523776548, 51.21235728),
-(9, '5,8', 4.525196566, 51.212390276),
-(9, '5,9', 4.526644571, 51.212404341),
-(9, '6', 4.527964604, 51.212408316),
-(9, '6,1', 4.529494531, 51.212358328),
-(9, '6,2', 4.530907632, 51.21229428),
-(9, '6,3', 4.53236954, 51.212193294),
-(9, '6,4', 4.533860594, 51.212080295),
-(9, '6,5', 4.535199626, 51.211917337),
-(9, '6,6', 4.53660556, 51.211737279),
-(9, '6,7', 4.538020613, 51.211549283),
-(9, '6,8', 4.539409581, 51.211314297),
-(9, '6,9', null, null),
-(9, '7', 4.542177635, 51.210777328),
-(9, '7,1', 4.543476574, 51.210397263),
-(9, '7,2', 4.544793653, 51.210051313),
-(9, '7,3', 4.546126584, 51.209702269),
-(9, '7,4', 4.547425601, 51.209358295),
-(9, '7,5', null, null),
-(9, '7,6', null, null),
-(9, '7,7', null, null),
-(9, '7,8', null, null),
-(9, '7,9', null, null),
-(9, '8', 4.555390631, 51.207272303),
-(9, '8,1', 4.556665683, 51.206909298),
-(9, '8,2', 4.557946592, 51.206549237),
-(9, '8,3', 4.559273586, 51.206196278),
-(9, '8,4', 4.560587542, 51.205844224),
-(9, '8,5', 4.561901668, 51.205503301),
-(9, '8,6', 4.563188676, 51.205149284),
-(9, '8,7', null, null),
-(9, '8,8', 4.565880645, 51.204433282),
-(9, '8,9', 4.567152643, 51.204096236),
-(9, '9', 4.568513668, 51.203737273),
-(9, '9,1', 4.569622338, 51.203448058),
-(9, '9,2', 4.57119865, 51.203031228),
-(9, '9,3', 4.572531584, 51.20270822),
-(9, '9,4', 4.573849527, 51.20236428),
-(9, '9,5', 4.575180623, 51.20202228),
-(9, '9,6', 4.576536478, 51.20166008),
-(9, '9,7', 4.577784218, 51.201365889),
-(9, '9,8', 4.582146823, 51.200117413),
-(9, '9,9', 4.583451177, 51.199786408),
-(9, '10', 4.584767643, 51.199458201),
-(9, '10,1', 4.586115995, 51.199160752),
-(9, '10,2', 4.587523659, 51.198872188),
-(9, '10,3', 4.588901574, 51.198610213),
-(9, '10,4', 4.59024261, 51.1983882),
-(9, '10,5', 4.591645594, 51.198169201),
-(9, '10,6', 4.593025547, 51.197983217),
-(9, '10,7', 4.594439617, 51.19781324),
-(9, '10,8', 4.59584263, 51.197666189),
-(9, '10,9', 4.597246536, 51.197528198),
-(9, '11', 4.598506644, 51.197416267),
-(9, '11,1', 4.599960571, 51.197271225),
-(9, '11,2', 4.601403555, 51.197142185),
-(9, '11,3', 4.602778547, 51.197007242),
-(9, '11,4', 4.604201629, 51.196878208),
-(9, '11,5', 4.605623631, 51.196735227),
-(9, '11,6', 4.607100957, 51.196605768),
-(9, '11,7', 4.608436581, 51.196480197),
-(9, '11,8', 4.609857608, 51.196347234),
-(9, '11,9', 4.611264624, 51.196217249),
-(9, '12', 4.612661569, 51.19607819),
-(9, '12,1', 4.614096593, 51.195945237),
-(9, '12,2', 4.615522632, 51.195819206),
-(9, '12,3', 4.616388658, 51.195731189),
-(9, '12,4', 4.61839561, 51.195547185),
-(9, '12,5', 4.619764674, 51.195418258),
-(9, '12,6', 4.621150604, 51.1952882),
-(9, '12,7', 4.622532577, 51.195156106),
-(9, '12,8', 4.623891086, 51.195029097),
-(9, '12,9', 4.625277646, 51.194907253),
-(9, '13', 4.626828612, 51.194748186),
-(9, '13,1', 4.628324799, 51.194610121),
-(9, '13,2', 4.629687973, 51.194480343),
-(9, '13,3', 4.631210739, 51.194342776),
-(9, '13,4', 4.632574871, 51.194214119),
-(9, '13,5', 4.63389167, 51.194084255),
-(9, '13,6', 4.635278541, 51.193957175),
-(9, '13,7', null, null),
-(5, '97,5', 4.320089178, 51.201028227),
-(5, '97,6', 4.321130139, 51.201627186),
-(5, '97,7', 4.322258283, 51.202201182),
-(5, '97,8', 4.323330224, 51.202778202),
-(5, '97,9', 4.324437256, 51.20334318),
-(5, '98', 4.325569226, 51.203892247),
-(5, '98,1', 4.32669623, 51.204423235),
-(5, '98,2', 4.327838294, 51.204943251),
-(5, '98,3', 4.329041347, 51.20545222),
-(5, '98,4', 4.330244286, 51.205917554),
-(5, '98,5', 4.331434651, 51.206366167),
-(5, '98,6', 4.332621385, 51.206903273),
-(5, '98,7', 4.333847893, 51.207365803),
-(5, '98,8', 4.335069763, 51.207836217),
-(5, '98,9', 4.33632575, 51.208253726),
-(5, '99', 4.337553364, 51.208719233),
-(5, '99,1', null, null),
-(5, '99,2', 4.339981276, 51.209665144),
-(5, '99,3', 4.341177989, 51.210137579),
-(5, '99,4', 4.342450905, 51.210617261),
-(5, '99,5', 4.343698357, 51.211096301),
-(5, '99,6', 4.344912352, 51.211562324),
-(5, '99,7', 4.346056406, 51.212002346),
-(5, '99,8', 4.347164286, 51.212417272),
-(5, '99,9', 4.348414296, 51.212822325),
-(5, '100', 4.349612402, 51.21317028),
-(5, '100,1', 4.350855347, 51.213442277),
-(5, '100,3', 4.35345709, 51.213755359),
-(5, '100,4', 4.354812973, 51.213797094),
-(5, '100,5', null, null),
-(6, '97,4', 4.318720218, 51.200668215),
-(6, '97,5', 4.319741326, 51.201289067),
-(6, '97,6', 4.320773833, 51.201884134),
-(6, '97,7', 4.321808682, 51.202551382),
-(6, '97,8', 4.322921291, 51.203092193),
-(6, '97,9', 4.324040197, 51.203662213),
-(6, '98', 4.325178316, 51.204218207),
-(6, '98,1', 4.326331214, 51.204758196),
-(6, '98,2', 4.327500313, 51.205291258),
-(6, '98,3', 4.328676328, 51.205800222),
-(6, '98,4', 4.329871266, 51.206296236),
-(6, '98,5', 4.331088275, 51.206780291),
-(6, '98,6', 4.332305318, 51.207253277),
-(6, '98,7', 4.333495331, 51.207739276),
-(6, '98,8', 4.334705266, 51.20821628),
-(6, '98,9', 4.335938408, 51.20869229),
-(6, '99', 4.337140384, 51.209161267),
-(6, '99,1', 4.338412392, 51.209578297),
-(6, '99,2', 4.339635313, 51.210039254),
-(6, '99,3', 4.340805406, 51.210584318),
-(6, '99,4', 4.342093367, 51.211006254),
-(6, '99,5', 4.343331396, 51.211452346),
-(6, '99,6', 4.344573303, 51.211918289),
-(6, '99,7', 4.34572533, 51.212452334),
-(6, '99,8', 4.346776313, 51.213066347),
-(6, '99,9', 4.347854345, 51.213742285),
-(6, '100', null, null),
-(6, '100,1', null, null),
-(6, '100,2', null, null),
-(6, '100,3', null, null),
-(6, '100,4', null, null),
-(6, '100,5', null, null),
-(12, '9,5', 4.574846612, 51.201586204),
-(12, '9,6', 4.576206567, 51.201113269),
-(12, '9,7', 4.577496651, 51.200539233),
-(12, '9,8', 4.578667645, 51.199896272),
-(12, '9,9', 4.579659577, 51.199273215),
-(12, '10', 4.580958649, 51.198557195),
-(12, '10,1', 4.582309556, 51.198047263),
-(12, '10,2', 4.583781647, 51.197700235),
-(12, '10,3', 4.585308593, 51.197525219),
-(12, '10,4', 4.586871546, 51.1975262),
-(12, '10,5', 4.58844765, 51.197706187),
-(12, '10,6', 4.589920542, 51.198051197),
-(12, '10,7', 4.591245641, 51.198569226),
-(12, '10,8', 4.59241664, 51.199226226),
-(12, '10,9', 4.593421627, 51.199984202),
-(12, '11', 4.594396578, 51.200737193),
-(12, '11,1', 4.595551561, 51.20143428),
-(12, '11,2', 4.596692641, 51.201973276),
-(12, '11,3', 4.597906543, 51.20244821),
-(12, '11,4', 4.599147661, 51.202895215),
-(12, '11,5', 4.600400622, 51.203331217),
-(12, '11,6', 4.601660593, 51.203762248),
-(12, '11,7', 4.602896555, 51.204194213),
-(12, '11,8', 4.604132528, 51.204652231),
-(12, '11,9', 4.60542344, 51.205061536),
-(12, '12', 4.606653529, 51.20552121),
-(12, '12,1', 4.607853587, 51.205965239),
-(12, '12,2', 4.609068266, 51.206388614),
-(12, '12,3', 4.61030565, 51.206813246),
-(12, '12,4', 4.611559638, 51.207241218),
-(12, '12,5', 4.612812537, 51.207675291),
-(12, '12,6', 4.614082687, 51.208076611),
-(12, '12,7', 4.615353721, 51.208511608),
-(12, '12,8', 4.616593663, 51.208944215),
-(12, '12,9', 4.617828667, 51.209386272),
-(12, '13', 4.619192627, 51.209828222),
-(12, '13,1', null, null),
-(12, '13,2', 4.621637563, 51.210711244),
-(12, '13,3', 4.622880642, 51.211147208),
-(12, '13,4', 4.624176557, 51.211584214),
-(12, '13,5', 4.625423591, 51.212028232),
-(12, '13,6', 4.62666966, 51.212474218),
-(12, '13,7', 4.627914646, 51.212927292),
-(12, '13,8', 4.629197539, 51.213347283),
-(12, '13,9', 4.630409573, 51.213836269),
-(12, '14', 4.63163867, 51.214326283),
-(12, '14,1', 4.632819664, 51.214834278),
-(12, '14,2', 4.633964556, 51.215381264),
-(11, '10', 4.579793903, 51.200983079),
-(11, '10,1', 4.581193702, 51.200758686),
-(11, '10,2', 4.582575716, 51.200616754),
-(11, '10,3', 4.583989038, 51.20052879),
-(11, '10,4', 4.585402404, 51.20050065),
-(11, '10,5', 4.586819671, 51.200534618),
-(11, '10,6', 4.588246949, 51.200628594),
-(11, '10,7', 4.58964014, 51.200778498),
-(11, '10,8', 4.591030161, 51.200981528),
-(11, '10,9', 4.592407531, 51.20122924),
-(11, '11', 4.593744552, 51.201555224),
-(11, '11,1', 4.595062594, 51.201946217),
-(11, '11,2', 4.596306652, 51.202359269),
-(11, '11,3', 4.597556597, 51.202801239),
-(11, '11,4', 4.598679586, 51.203171267),
-(11, '11,5', 4.600096602, 51.203681197),
-(11, '11,6', 4.60135659, 51.204114209),
-(11, '11,7', 4.60260659, 51.204548216),
-(11, '11,8', 4.603875764, 51.204955945),
-(11, '11,9', 4.605131857, 51.205383922),
-(11, '12', 4.606392626, 51.205846221),
-(11, '12,1', 4.607602608, 51.206243223),
-(11, '12,2', 4.608837439, 51.206653382),
-(11, '12,3', 4.610070585, 51.207095247),
-(11, '12,4', 4.611318574, 51.207524223),
-(11, '12,5', 4.61255253, 51.207974247),
-(2, '0,6', 4.384766276, 51.203152303),
-(2, '0,7', 4.383683262, 51.202564337),
-(2, '0,8', 4.382751343, 51.20191531),
-(2, '0,9', 4.381911269, 51.201152292),
-(2, '1', 4.381240321, 51.200354283),
-(2, '1,1', 4.380857233, 51.19950231),
-(2, '1,2', null, null),
-(2, '1,3', 4.381416271, 51.197766306),
-(2, '1,4', 4.382556199, 51.197017896),
-(2, '1,5', 4.383464471, 51.196572709),
-(2, '1,6', 4.384707232, 51.196067336),
-(2, '1,7', 4.385364738, 51.195298404),
-(2, '1,8', 4.386149734, 51.194583244),
-(2, '1,9', 4.386810244, 51.193774331),
-(2, '2', 4.387243326, 51.192903277),
-(2, '2,1', 4.387649265, 51.192109366),
-(2, '2,2', 4.388124211, 51.191245294),
-(2, '2,3', 4.388448827, 51.190369557),
-(2, '2,4', 4.388779822, 51.189511619),
-(2, '2,5', 4.389120911, 51.188640005),
-(2, '2,6', 4.389453322, 51.187772985),
-(2, '2,7', 4.389792457, 51.186907073),
-(2, '2,8', 4.390052218, 51.186050962),
-(2, '2,9', 4.390258707, 51.185150585),
-(2, '3', 4.390456499, 51.184272261),
-(2, '3,1', 4.390531248, 51.183377314),
-(2, '3,2', 4.39033537, 51.182500661),
-(1, '1,8', 4.386752302, 51.194778768),
-(1, '1,9', 4.387080209, 51.193849341),
-(1, '2', 4.387829928, 51.193009489),
-(1, '2,1', 4.387933197, 51.192128356),
-(1, '2,2', 4.388329809, 51.191446722),
-(1, '2,3', 4.388676437, 51.190465505),
-(1, '2,4', 4.389012311, 51.189601025),
-(1, '2,5', 4.389347775, 51.188728131),
-(1, '2,6', 4.389687157, 51.187863424),
-(1, '2,7', 4.390025706, 51.186991181),
-(1, '2,8', 4.390295753, 51.186115862),
-(1, '2,9', 4.390507659, 51.185234009),
-(1, '3', 4.390704076, 51.184355767),
-(1, '3,1', 4.390811095, 51.183461758),
-(1, '3,2', 4.390611098, 51.182537122),
-(17, '2,8', 4.425856369, 51.24067341),
-(17, '2,9', 4.425899358, 51.239775366),
-(17, '3', 4.426115335, 51.238892427),
-(17, '3,1', 4.426565318, 51.238048381),
-(17, '3,2', 4.427248314, 51.237259405),
-(17, '3,3', 4.428161366, 51.236573405),
-(17, '3,4', 4.429270281, 51.236011425),
-(17, '3,5', 4.430479368, 51.235537377),
-(17, '3,6', 4.431720256, 51.235093411),
-(17, '3,7', 4.432943338, 51.234628408),
-(17, '3,8', 4.434120369, 51.234116411),
-(17, '3,9', 4.435225287, 51.233553387),
-(17, '4', 4.436261371, 51.232932419),
-(17, '4,1', 4.437237261, 51.232287387),
-(17, '4,2', 4.438207391, 51.231637407),
-(17, '4,3', 4.439168309, 51.230973403),
-(17, '4,4', 4.440138366, 51.230311363),
-(17, '4,5', 4.441109256, 51.229651381),
-(17, '4,6', 4.442142031, 51.228955987),
-(17, '4,7', 4.442999556, 51.228336319),
-(17, '4,8', 4.443984258, 51.227671412),
-(17, '4,9', 4.444939298, 51.227014374),
-(17, '5', 4.4458141, 51.226308747),
-(17, '5,1', 4.446769638, 51.225609952),
-(17, '5,2', 4.44762437, 51.224903386),
-(17, '5,3', 4.448405386, 51.224165362),
-(17, '5,4', 4.449088311, 51.22341841),
-(17, '5,5', 4.449676332, 51.222600333),
-(17, '5,6', 4.45012437, 51.221796371),
-(17, '5,7', 4.450411272, 51.220937331),
-(17, '5,8', 4.450524348, 51.220071761),
-(17, '5,9', 4.450692635, 51.219214278),
-(17, '6', 4.450614344, 51.218331363),
-(17, '6,1', 4.450366361, 51.217469369),
-(17, '6,2', 4.449955659, 51.21662426),
-(17, '6,3', null, null),
-(17, '6,4', 4.448783349, 51.215026332),
-(17, '6,5', 4.448354368, 51.214489387),
-(17, '6,6', 4.447460434, 51.213452368),
-(17, '6,7', 4.446727397, 51.212672394),
-(17, '6,8', 4.445917321, 51.211934352),
-(17, '6,9', 4.445135571, 51.211138259),
-(17, '7', 4.444550871, 51.210328911),
-(17, '7,1', 4.443814389, 51.209556391),
-(17, '7,2', 4.442941425, 51.208802369),
-(17, '7,3', 4.442288048, 51.208020535),
-(17, '7,4', 4.441548954, 51.207254231),
-(17, '7,5', 4.440848336, 51.206494458),
-(17, '7,6', 4.440111343, 51.205695386),
-(17, '7,7', 4.43926037, 51.20491939),
-(17, '7,8', 4.438661778, 51.204092922),
-(17, '7,9', 4.438097458, 51.203253357),
-(17, '8', 4.437443361, 51.202427434),
-(17, '8,1', 4.436984421, 51.201588361),
-(17, '8,2', 4.436561492, 51.200709445),
-(17, '8,3', 4.435984478, 51.199819381),
-(17, '8,4', 4.435570858, 51.198997523),
-(17, '8,5', 4.435084204, 51.198173917),
-(17, '8,6', 4.434595521, 51.197350078),
-(17, '8,7', 4.433983378, 51.196575407),
-(17, '8,8', 4.433269444, 51.19580639),
-(17, '9', 4.431481428, 51.194467361),
-(17, '9,1', 4.430379492, 51.193925402),
-(17, '9,2', 4.429224419, 51.19342337),
-(17, '9,3', null, null),
-(17, '9,4', 4.426873352, 51.192464413),
-(17, '9,5', 4.425587184, 51.192115031),
-(17, '9,6', 4.424260402, 51.19180539),
-(17, '9,7', 4.422838274, 51.191478561),
-(17, '9,8', 4.421348088, 51.191270641),
-(17, '9,9', 4.420218133, 51.191123969),
-(17, '10', 4.41883652, 51.190855251),
-(17, '10,1', 4.417438147, 51.190745693),
-(17, '10,2', 4.416024575, 51.190684278),
-(17, '10,3', 4.414609358, 51.190670473),
-(17, '10,4', 4.413186153, 51.190703923),
-(17, '10,5', null, null),
-(17, '10,6', 4.410227587, 51.19097226),
-(17, '10,7', 4.409016206, 51.191115076),
-(17, '10,8', 4.407643187, 51.191325458),
-(17, '10,9', 4.406296791, 51.191579337),
-(17, '11', 4.404965928, 51.191881805),
-(17, '11,1', 4.403501386, 51.192233383),
-(17, '11,2', 4.402352595, 51.192567351),
-(17, '11,3', null, null),
-(17, '11,4', null, null),
-(17, '11,5', 4.39856223, 51.193826352),
-(17, '11,6', 4.397311283, 51.194319327),
-(17, '11,7', 4.396095321, 51.194752326),
-(17, '11,8', 4.394908283, 51.195270339),
-(17, '11,9', 4.393736333, 51.19569836),
-(17, '12', 4.392452232, 51.196179336),
-(17, '12,1', 4.391129461, 51.196628558),
-(17, '12,2', 4.38988133, 51.197042373),
-(17, '12,3', null, null),
-(17, '12,4', 4.387147304, 51.197708352),
-(17, '12,5', null, null),
-(17, '12,6', 4.384388034, 51.198223204),
-(17, '12,7', 4.383008349, 51.198480339),
-(17, '12,8', 4.38164332, 51.198782336),
-(17, '12,9', 4.380390306, 51.199130327),
-(17, '13', 4.37919324, 51.199589306),
-(17, '13,1', 4.378261283, 51.200173281),
-(17, '13,2', 4.377265556, 51.200752964),
-(17, '13,3', 4.376339235, 51.20146732),
-(17, '13,4', 4.375456301, 51.202187263),
-(17, '13,5', 4.374750305, 51.202751331),
-(17, '13,6', 4.373838104, 51.203608542),
-(17, '13,7', 4.373058619, 51.20434855),
-(17, '13,8', 4.372285633, 51.205083957),
-(17, '13,9', 4.371510313, 51.205818395),
-(17, '14', 4.370726917, 51.206562013),
-(17, '14,1', 4.369960003, 51.207294743),
-(17, '14,2', 4.36917156, 51.208038354),
-(17, '14,3', 4.368349359, 51.208770358),
-(17, '14,4', 4.367617275, 51.209554329),
-(17, '14,5', 4.366834366, 51.210293351),
-(17, '14,6', 4.366047283, 51.211029312),
-(17, '14,7', 4.365231268, 51.211760324),
-(17, '14,8', 4.364410362, 51.212494296),
-(17, '14,9', 4.363484394, 51.213166327),
-(17, '15', 4.362560404, 51.213825318),
-(17, '15,1', 4.361338306, 51.214331303),
-(17, '15,2', 4.360157398, 51.214837367),
-(17, '15,3', 4.358884394, 51.215242077),
-(17, '15,4', 4.357544293, 51.215547783),
-(17, '15,5', 4.356297692, 51.215954803),
-(17, '15,6', 4.355139874, 51.216461326),
-(17, '15,7', 4.354084118, 51.217052837),
-(17, '15,8', 4.353159803, 51.217707295),
-(17, '15,9', 4.352518317, 51.218497316),
-(17, '16', 4.352232344, 51.219363309),
-(17, '16,1', 4.352204417, 51.220257381),
-(17, '16,2', null, null),
-(17, '16,3', 4.352215402, 51.222046341),
-(17, '16,4', 4.35220637, 51.222934302),
-(17, '16,5', 4.352188469, 51.223824212),
-(17, '16,6', 4.352216352, 51.224727304),
-(17, '16,7', null, null),
-(18, '1,9', 4.426593319, 51.248715423),
-(18, '2', 4.426648329, 51.247815398),
-(18, '2,1', 4.426769388, 51.246939429),
-(18, '2,2', 4.426162332, 51.246039371),
-(18, '2,3', 4.426192287, 51.245139357),
-(18, '2,4', 4.42622237, 51.244229367),
-(18, '2,5', 4.426209261, 51.243364428),
-(18, '2,6', 4.426226327, 51.242466398),
-(18, '2,7', 4.426763659, 51.24154554),
-(18, '2,8', 4.42666827, 51.240668426),
-(18, '2,9', 4.426637393, 51.239799361),
-(18, '3', 4.426729276, 51.238966368),
-(18, '3,1', 4.427110158, 51.238181088),
-(18, '3,2', 4.427735387, 51.237455376),
-(18, '3,3', 4.428575345, 51.236826395),
-(18, '3,4', 4.429612287, 51.236299413),
-(18, '3,5', 4.430831086, 51.235894548),
-(18, '3,6', 4.432069058, 51.235444775),
-(18, '3,7', 4.433305848, 51.234964258),
-(18, '3,8', 4.434512023, 51.23442162),
-(18, '3,9', 4.435632546, 51.233827366),
-(18, '4', 4.436684305, 51.233199997),
-(18, '4,1', 4.437675501, 51.232534842),
-(18, '4,2', 4.438637384, 51.231870399),
-(18, '4,3', 4.439599317, 51.23121538),
-(18, '4,4', 4.440569377, 51.230556392),
-(18, '4,5', 4.441537265, 51.229899375),
-(18, '4,6', 4.442507275, 51.229243337),
-(18, '4,7', 4.443473283, 51.228608416),
-(18, '4,8', 4.444488347, 51.227960422),
-(18, '4,9', 4.445536293, 51.227304398),
-(18, '5', 4.446453316, 51.226616364),
-(18, '5,1', 4.447326289, 51.22596736),
-(18, '5,2', 4.448248281, 51.225202368),
-(18, '5,3', null, null),
-(18, '5,4', 4.449809273, 51.223642354),
-(18, '5,5', 4.450463374, 51.222801396),
-(18, '5,6', 4.45095937, 51.221927378),
-(18, '5,7', 4.451300299, 51.221033333),
-(18, '5,8', 4.451488306, 51.220114408),
-(18, '5,9', 4.451571279, 51.219211374),
-(18, '6', 4.451315399, 51.218267414),
-(18, '6,1', 4.451005331, 51.21726839),
-(18, '6,2', 4.450625363, 51.216471385),
-(18, '6,3', 4.450091329, 51.215626397),
-(18, '6,4', 4.449435426, 51.214806388),
-(18, '6,5', 4.448980303, 51.21421742),
-(18, '6,6', 4.448028363, 51.213241386),
-(18, '6,7', 4.447327348, 51.212445395),
-(18, '6,8', 4.446590457, 51.211660388),
-(18, '6,9', 4.445866341, 51.210884357),
-(18, '7', 4.445135376, 51.210105359),
-(18, '7,1', 4.444468388, 51.209319395),
-(18, '7,2', 4.443729443, 51.208531405),
-(18, '7,3', 4.442999419, 51.207758415),
-(18, '7,4', 4.442223345, 51.206986348),
-(18, '7,5', 4.44149337, 51.206213438),
-(18, '7,6', 4.440915412, 51.205372388),
-(18, '7,7', 4.44015936, 51.204638406),
-(18, '7,8', 4.439484483, 51.203827428),
-(18, '7,9', null, null),
-(18, '8', 4.438267442, 51.202212393),
-(18, '8,1', 4.437774442, 51.201376399),
-(18, '8,2', 4.43717952, 51.200506081),
-(18, '8,3', 4.436802491, 51.199687407),
-(18, '8,4', null, null),
-(18, '8,5', 4.435839437, 51.19796838),
-(18, '8,6', 4.435248396, 51.197139441),
-(18, '8,7', 4.434619476, 51.196317441),
-(18, '8,8', 4.433877467, 51.19552741),
-(18, '8,9', 4.432982431, 51.194644428),
-(18, '9', 4.432088391, 51.194046372),
-(18, '9,1', 4.430953444, 51.193421384),
-(18, '9,2', 4.429784487, 51.192907409),
-(18, '9,3', 4.428549371, 51.192428422),
-(18, '9,4', 4.42731242, 51.191949423),
-(18, '9,5', 4.425916349, 51.191634439),
-(18, '9,6', 4.424488345, 51.19127541),
-(18, '9,7', 4.423135388, 51.190976372),
-(18, '9,8', 4.421652449, 51.1906994),
-(18, '9,9', null, null),
-(18, '10', 4.41892933, 51.190379355),
-(18, '10,1', 4.417490777, 51.190272702),
-(18, '10,2', 4.416018441, 51.190200353),
-(18, '10,3', 4.414607332, 51.19016739),
-(18, '10,4', 4.413127825, 51.190269745),
-(18, '10,5', 4.411664311, 51.190317362),
-(18, '10,6', 4.41008132, 51.190500402),
-(18, '10,7', null, null),
-(18, '10,8', 4.40727885, 51.190825291),
-(18, '10,9', 4.405923972, 51.191103393),
-(18, '11', 4.40461363, 51.1914172),
-(18, '11,1', 4.403206259, 51.19182036),
-(18, '11,2', 4.402031263, 51.192162356),
-(18, '11,3', 4.40067532, 51.192539356),
-(18, '11,4', 4.399422241, 51.192968355),
-(18, '11,5', 4.398168295, 51.193420353),
-(18, '11,6', 4.396935355, 51.19387431),
-(18, '11,7', 4.395688387, 51.194344369),
-(18, '11,8', 4.394455494, 51.194810991),
-(18, '11,9', 4.39324441, 51.195240434),
-(18, '12', 4.392005204, 51.195748686),
-(18, '12,1', 4.39078234, 51.196203309),
-(18, '12,2', 4.389538218, 51.196611349),
-(18, '12,3', 4.38823124, 51.196949365),
-(18, '12,4', null, null),
-(18, '12,5', null, null),
-(18, '12,6', null, null),
-(18, '12,7', 4.382832263, 51.198110305),
-(18, '12,8', 4.381444208, 51.198402326),
-(18, '12,9', 4.380115221, 51.198793442),
-(18, '13', 4.378874271, 51.19928229),
-(18, '13,1', 4.377709885, 51.199838503),
-(18, '13,2', 4.376677904, 51.200481589),
-(18, '13,3', 4.375661468, 51.201202452),
-(18, '13,4', 4.374874265, 51.201933491),
-(18, '13,5', 4.374297311, 51.202655269),
-(18, '13,6', 4.373478167, 51.203369334),
-(18, '13,7', 4.372685088, 51.204114745),
-(18, '13,8', 4.371895135, 51.204861467),
-(18, '13,9', 4.371104762, 51.205609844),
-(18, '14', 4.370328391, 51.206347967),
-(18, '14,1', 4.369531181, 51.207105602),
-(18, '14,2', 4.368751187, 51.207857127),
-(18, '14,3', 4.367978313, 51.208607309),
-(18, '14,4', 4.367133322, 51.209343278),
-(18, '14,5', 4.366320359, 51.210077353),
-(18, '14,6', 4.365431384, 51.210782299),
-(18, '14,7', 4.364427332, 51.211417304),
-(18, '14,8', 4.363365978, 51.211986838),
-(18, '14,9', 4.362226407, 51.212489354),
-(18, '15', 4.360893298, 51.212925309),
-(18, '15,1', 4.35958737, 51.213280355),
-(18, '15,2', 4.358211206, 51.213542929),
-(18, '15,3', null, null),
-(18, '15,4', null, null),
-(18, '15,5', null, null),
-(18, '15,6', null, null),
-(18, '15,7', null, null),
-(18, '15,8', null, null),
-(18, '15,9', null, null),
-(18, '16', null, null),
-(18, '16,1', 4.351661375, 51.220267374),
-(18, '16,2', 4.351660344, 51.221163336),
-(18, '16,3', 4.351619874, 51.222051403),
-(18, '16,4', 4.35162223, 51.2229515),
-(18, '16,5', null, null),
-(18, '16,6', 4.351655731, 51.22471737),
-(16, '77,6', null, null),
-(16, '77,7', null, null),
-(16, '77,8', null, null),
-(16, '77,9', null, null),
-(16, '78', 4.24605475031, 51.2420941438),
-(16, '78,1', 4.24705856706, 51.24274006),
-(16, '78,2', 4.24804741903, 51.2433748695),
-(16, '78,3', 4.24904231861, 51.2440184767),
-(16, '78,4', 4.25004138075, 51.2446576298),
-(16, '78,5', 4.25103597337, 51.245296698),
-(16, '78,6', 4.2520342857, 51.2459370467),
-(16, '78,7', 4.25299889568, 51.2465031104),
-(16, '78,8', 4.25394269811, 51.2471017293),
-(16, '78,9', 4.25506002105, 51.2478103606),
-(16, '79', 4.25608868833, 51.2484692285),
-(16, '79,1', 4.25705670618, 51.2490902163),
-(16, '79,2', 4.25808911848, 51.2497581208),
-(16, '79,3', 4.2590607638, 51.2503882541),
-(16, '79,4', 4.26000183071, 51.2510604615),
-(16, '79,5', 4.26094794542, 51.2517352545),
-(16, '79,7', 4.26276866161, 51.2531144424),
-(16, '79,8', 4.26360712391, 51.2538442428),
-(15, '77,6', null, null),
-(15, '77,7', null, null),
-(15, '77,8', null, null),
-(15, '77,9', null, null),
-(15, '78', null, null),
-(15, '78,1', null, null),
-(15, '78,2', 4.2477856804, 51.2435390903),
-(15, '78,4', 4.24976699333, 51.2448907463),
-(15, '78,5', 4.25070453426, 51.2454726303),
-(15, '78,6', 4.25171823948, 51.246119235),
-(15, '78,7', 4.25265979273, 51.2467197761),
-(15, '78,8', 4.25351430641, 51.2472754637),
-(15, '78,9', 4.25466260406, 51.2480139431),
-(15, '79', 4.25575074164, 51.248723007),
-(15, '79,1', 4.25669736718, 51.2493184241),
-(15, '79,2', 4.25770516538, 51.2499595144),
-(14, '0', null, null),
-(14, '0,1', null, null),
-(14, '0,2', null, null),
-(14, '0,3', null, null),
-(14, '0,4', null, null),
-(14, '0,5', null, null),
-(14, '0,6', null, null),
-(14, '0,7', null, null),
-(14, '0,8', null, null),
-(14, '0,9', null, null),
-(14, '1', null, null),
-(14, '1,1', null, null),
-(14, '1,2', null, null),
-(14, '1,3', null, null),
-(14, '1,4', null, null),
-(14, '1,5', null, null),
-(14, '1,6', null, null),
-(14, '1,7', null, null),
-(14, '1,8', null, null),
-(14, '1,9', null, null),
-(14, '2', null, null),
-(14, '2,1', null, null),
-(14, '2,2', null, null),
-(14, '2,3', null, null),
-(14, '2,4', null, null),
-(14, '2,5', null, null),
-(14, '2,6', null, null),
-(14, '2,7', null, null),
-(14, '2,8', null, null),
-(14, '2,9', null, null),
-(14, '3', null, null),
-(14, '3,1', null, null),
-(14, '3,2', null, null),
-(14, '3,3', null, null),
-(14, '3,4', null, null),
-(14, '3,5', null, null),
-(14, '3,6', null, null),
-(14, '3,7', null, null),
-(14, '3,8', null, null),
-(14, '3,9', null, null),
-(14, '4', null, null),
-(14, '4,1', null, null),
-(14, '4,2', null, null),
-(14, '4,3', null, null),
-(14, '4,4', null, null),
-(14, '4,5', null, null),
-(14, '4,6', null, null),
-(14, '4,7', null, null),
-(14, '4,8', null, null),
-(14, '4,9', null, null),
-(14, '5', null, null),
-(14, '5,1', null, null),
-(14, '5,2', null, null),
-(14, '5,3', null, null),
-(14, '5,4', null, null),
-(14, '5,5', null, null),
-(14, '5,6', null, null),
-(14, '5,7', null, null),
-(14, '5,8', null, null),
-(14, '5,9', null, null),
-(14, '6', null, null),
-(14, '6,1', null, null),
-(14, '6,2', null, null),
-(14, '6,3', null, null),
-(14, '6,4', null, null),
-(14, '6,5', null, null),
-(14, '6,6', null, null),
-(14, '6,7', null, null),
-(14, '6,8', null, null),
-(14, '6,9', null, null),
-(14, '7', null, null),
-(14, '7,1', null, null),
-(14, '7,2', null, null),
-(14, '7,3', null, null),
-(14, '7,4', null, null),
-(14, '7,5', null, null),
-(14, '7,6', null, null),
-(14, '7,7', null, null),
-(14, '7,8', null, null),
-(14, '7,9', null, null),
-(14, '8', null, null),
-(14, '8,1', null, null),
-(13, '0', null, null),
-(13, '0,1', null, null),
-(13, '0,2', null, null),
-(13, '0,3', null, null),
-(13, '0,4', null, null),
-(13, '0,5', null, null),
-(13, '0,6', null, null),
-(13, '0,7', null, null),
-(13, '0,8', null, null),
-(13, '0,9', null, null),
-(13, '1', null, null),
-(13, '1,1', null, null),
-(13, '1,2', null, null),
-(13, '1,3', null, null),
-(13, '1,4', null, null),
-(13, '1,5', null, null),
-(13, '1,6', null, null),
-(13, '1,7', null, null),
-(13, '1,8', null, null),
-(13, '1,9', null, null),
-(13, '2', null, null),
-(13, '2,1', null, null),
-(13, '2,2', null, null),
-(13, '2,3', null, null),
-(13, '2,4', null, null),
-(13, '2,5', null, null),
-(13, '2,6', null, null),
-(13, '2,7', null, null),
-(13, '2,8', null, null),
-(13, '2,9', null, null),
-(13, '3', null, null),
-(13, '3,1', null, null),
-(13, '3,2', null, null),
-(13, '3,3', null, null),
-(13, '3,4', null, null),
-(13, '3,5', null, null),
-(13, '3,6', null, null),
-(13, '3,7', null, null),
-(13, '3,8', null, null),
-(13, '3,9', null, null),
-(13, '4', null, null),
-(13, '4,1', null, null),
-(13, '4,2', null, null),
-(13, '4,3', null, null),
-(13, '4,4', null, null),
-(13, '4,5', null, null),
-(13, '4,6', null, null),
-(13, '4,7', null, null),
-(13, '4,8', null, null),
-(13, '4,9', null, null),
-(13, '5', null, null),
-(13, '5,1', null, null),
-(13, '5,2', null, null),
-(13, '5,3', null, null),
-(13, '5,4', null, null),
-(13, '5,5', null, null),
-(13, '5,6', null, null),
-(13, '5,7', null, null),
-(13, '5,8', null, null),
-(13, '5,9', null, null),
-(13, '6', null, null),
-(13, '6,1', null, null),
-(13, '6,2', null, null),
-(13, '6,3', null, null),
-(13, '6,4', null, null),
-(13, '6,5', null, null),
-(13, '6,6', null, null),
-(13, '6,7', null, null),
-(13, '6,8', null, null),
-(13, '6,9', null, null),
-(13, '7', null, null),
-(13, '7,1', null, null),
-(13, '7,2', null, null),
-(13, '7,3', null, null),
-(13, '7,4', null, null),
-(13, '7,5', null, null),
-(13, '7,6', null, null),
-(13, '7,7', null, null),
-(13, '7,8', null, null),
-(13, '7,9', null, null),
-(13, '8', null, null),
-(13, '8,1', null, null),
-(3, '29,3', null, null),
-(3, '29,4', null, null),
-(3, '29,5', null, null),
-(3, '29,6', null, null),
-(3, '29,7', null, null),
-(3, '29,8', null, null),
-(3, '29,9', null, null),
-(3, '30', null, null),
-(3, '30,1', null, null),
-(3, '30,2', null, null),
-(3, '30,3', null, null),
-(3, '30,4', null, null),
-(3, '30,5', null, null),
-(3, '30,6', null, null),
-(3, '30,7', null, null),
-(3, '30,8', null, null),
-(3, '30,9', null, null),
-(3, '31', null, null),
-(3, '31,1', null, null),
-(3, '31,2', null, null),
-(3, '31,3', null, null),
-(3, '31,4', null, null),
-(3, '31,5', null, null),
-(3, '31,6', null, null),
-(3, '31,7', null, null),
-(3, '31,8', null, null),
-(3, '31,9', null, null),
-(3, '32', null, null),
-(3, '32,1', null, null),
-(3, '32,2', null, null),
-(3, '32,3', null, null),
-(3, '32,4', null, null),
-(3, '32,5', null, null),
-(3, '32,6', null, null),
-(3, '32,7', null, null),
-(3, '32,8', null, null),
-(3, '32,9', null, null),
-(3, '33', null, null),
-(3, '33,1', null, null),
-(3, '33,2', null, null),
-(3, '33,3', null, null),
-(3, '33,4', null, null),
-(3, '33,5', null, null),
-(3, '33,6', null, null),
-(3, '33,7', null, null),
-(3, '33,8', null, null),
-(3, '33,9', null, null),
-(3, '34', null, null),
-(3, '34,1', null, null),
-(3, '34,2', null, null),
-(3, '34,3', null, null),
-(3, '34,4', null, null),
-(3, '34,5', null, null),
-(3, '34,6', null, null),
-(3, '34,7', null, null),
-(3, '34,8', null, null),
-(3, '34,9', null, null),
-(3, '35', null, null),
-(3, '35,1', null, null),
-(3, '35,2', null, null),
-(3, '35,3', null, null),
-(3, '35,4', null, null),
-(3, '35,5', null, null),
-(3, '35,6', null, null),
-(3, '35,7', null, null),
-(4, '29,3', null, null),
-(4, '29,4', null, null),
-(4, '29,5', null, null),
-(4, '29,6', null, null),
-(4, '29,7', null, null),
-(4, '29,8', null, null),
-(4, '29,9', null, null),
-(4, '30', null, null),
-(4, '30,1', null, null),
-(4, '30,2', null, null),
-(4, '30,3', null, null),
-(4, '30,4', null, null),
-(4, '30,5', null, null),
-(4, '30,6', null, null),
-(4, '30,7', null, null),
-(4, '30,8', null, null),
-(4, '30,9', null, null),
-(4, '31', null, null),
-(4, '31,1', null, null),
-(4, '31,2', null, null),
-(4, '31,3', null, null),
-(4, '31,4', null, null),
-(4, '31,5', null, null),
-(4, '31,6', null, null),
-(4, '31,7', null, null),
-(4, '31,8', null, null),
-(4, '31,9', null, null),
-(4, '32', null, null),
-(4, '32,1', null, null),
-(4, '32,2', null, null),
-(4, '32,3', null, null),
-(4, '32,4', null, null),
-(4, '32,5', null, null),
-(4, '32,6', null, null),
-(4, '32,7', null, null),
-(4, '32,8', null, null),
-(4, '32,9', null, null),
-(4, '33', null, null),
-(4, '33,1', null, null),
-(4, '33,2', null, null),
-(4, '33,3', null, null),
-(4, '33,4', null, null),
-(4, '33,5', null, null),
-(4, '33,6', null, null),
-(4, '33,7', null, null),
-(4, '33,8', null, null),
-(4, '33,9', null, null),
-(4, '34', null, null),
-(4, '34,1', null, null),
-(4, '34,2', null, null),
-(4, '34,3', null, null),
-(4, '34,4', null, null),
-(4, '34,5', null, null),
-(4, '34,6', null, null),
-(4, '34,7', null, null),
-(4, '34,8', null, null),
-(4, '34,9', null, null),
-(4, '35', null, null),
-(4, '35,1', null, null),
-(4, '35,2', null, null),
-(4, '35,3', null, null),
-(4, '35,4', null, null),
-(4, '35,5', null, null),
-(4, '35,6', null, null),
-(4, '35,7', null, null);
 
-INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS` (`allotment_directions_id`, `name`) VALUES
-
-(23, 'Oprit 1 (Merksem 2 - Mc Donalds)'),
-(23, 'Oprit 1 (Merksem 1 ) '),
-(21, 'Oprit 1 (Merksem)'),
-(19, 'Afrit 1 (Merksem 1)'),
-(19, 'Afrit 1 (Merksem 2 - Haven 1-199)'),
-(21, 'Viaduct Merksem'),
-(19, 'Viaduct Merksem'),
-(21, 'Viaduct Sportpaleis'),
-(19, 'Viaduct Sportpaleis'),
-(19, 'Dienstparking Deurne'),
-(21, 'Oprit 2 (Deurne)'),
-(19, 'Afrit 2 (Deurne)'),
-(21, 'KNPT Antwerpen Oost'),
-(21, 'Aansluiting Ring > E34 - E313'),
-(19, 'Aansluiting E34 - E313 > Ring'),
-(25, '70 Bocht'),
-(26, 'Aansluiting Ring > E34 - E313'),
-(21, 'Afrit 3 (Borgerhout)'),
-(21, 'Aansluiting E34 - E313 > Ring'),
-(19, 'Oprit 3 (Borgerhout)'),
-(19, 'Dienstparking Borgerhout'),
-(19, 'Afrit 3 (Borgerhout)'),
-(21, 'Oprit 3 (Borgerhout)'),
-(21, 'Afrit 4 (Berchem)'),
-(19, 'Oprit 4 (Berchem)'),
-(21, 'Aansluiting Ring > A12 - E19'),
-(21, 'Visput'),
-(19, 'Aansluiting E19 > Ring'),
-(19, 'Aansluiting A12 -> Ring'),
-(21, 'Aansluiting E19 > Ring'),
-(19, 'Aansluiting Ring > E19'),
-(19, 'Afrit 5 (Berchem - Wilrijk)'),
-(21, 'Oprit 5 (Berchem - Wilrijk)'),
-(19, 'Oprit 5 (Berchem - Wilrijk)'),
-(19, 'Kolonel Silvertop'),
-(21, 'Afrit 5a (Antwerpen-Centrum)'),
-(19, 'Oprit 5a (Bolivar A112)'),
-(21, 'Aansluiting Bolivar A112 - A12 > Ring'),
-(21, 'Dienstparking Kennedy-tunnel'),
-(21, 'Regie'),
-(19, 'Afrit 5a (Antwerpen-Centrum)'),
-(19, 'Aansluiting Ring > A12'),
-(21, 'Kennedy-tunnel'),
-(19, 'Kennedy-tunnel'),
-(19, 'Oprit 6 (Linkeroever)'),
-(21, 'Afrit 6 (Linkeroever-Gazet van Antwerpen)'),
-(21, 'Aansluiting Ring > E34 - N49 - Expressweg'),
-(19, 'Aansluiting E34 - N49 - Expressweg > Ring'),
-(19, 'Aansluiting E34 - N49 - Expressweg > E17'),
-(27, 'Aansluiting E17 >  E34 - N49 - Expressweg'),
-(19, 'Pechhaven PP 9128'),
-(20, 'Oprit 7 (Linkeroever - Charles de Coster)'),
-(28, 'Afrit 7 (Linkeroever - Charles de Coster)'),
-(28, 'Oprit 7 (Linkeroever - Charles de Coster)'),
-(20, 'Afrit 7 (Linkeroever - Charles de Coster)'),
-(28, 'LO-bocht'),
-(28, 'LO-bocht'),
-(20, 'Flyover - Oprit 8 '),
-(20, 'Oprit 8 (Waaslandhaven-Oost)'),
-(28, 'Afrit 8 (Waaslandhaven-Oost)'),
-(20, 'Oprit 9 (Beveren)'),
-(28, 'Afrit 9 (Beveren)'),
-(20, 'Afrit 9 (Beveren)'),
-(28, 'Oprit 9 (Beveren)'),
-(28, 'Aansluiting E34 - N49 - Expressweg > R2 (Rotterdam)'),
-(28, 'Aansluiting R2 > E34 - N49 - Expressweg'),
-(20, 'Aansluiting R2 > E34 - N49 - Expressweg'),
-(20, 'Aansluiting E34 - N49 - Expressweg > R2 (Rotterdam)'),
-(16, 'Afrit 10 (Waaslandhaven-Zuid)'),
-(15, 'Oprit 10 (Waaslandhaven-Zuid)'),
-(6, 'Afrit 17 (Zwijndrecht)'),
-(6, 'Oprit 17 (Zwijndrecht)'),
-(5, 'Oprit 17 (Zwijndrecht)'),
-(5, 'Afrit 17 (Zwijndrecht)'),
-(6, 'Afrit 16 (Kruibeke)'),
-(5, 'Oprit 16 (Kruibeke)'),
-(6, 'Oprit 16 (Kruibeke)'),
-(5, 'Afrit 16 (Kruibeke)'),
-(6, 'Dienstparking Kruibeke'),
-(5, 'Dienstparking Kruibeke'),
-(4, 'Kruising Kontichsteenweg - Mc Donalds'),
-(3, 'Afslag n177 - Mortsel'),
-(4, 'Afslag Aartselaar'),
-(4, 'Kruising Atomiumlaan'),
-(3, 'Kruising Atomiumlaan'),
-(4, 'Kruising Terbekehofdreef'),
-(3, 'Kruising Terbekehofdreef'),
-(3, 'Afslag Boomsteenweg - Ikea'),
-(3, 'Oprit begin Viaduct'),
-(4, 'Afrit einde viaduct - n177 - Brantano'),
-(3, 'Viaduct Wilrijk'),
-(4, 'Viaduct Wilrijk'),
-(3, 'Oprit bevrijdingstunnel'),
-(4, 'Oprit begin Viaduct'),
-(3, 'Bevrijdingstunnel'),
-(4, 'Bevrijdingstunnel'),
-(3, 'Dienstweg populierenlaan'),
-(4, 'Dienstweg Sparrenstraat'),
-(3, 'Oprit Dikke Mee - Vogelzang'),
-(4, 'Afrit Wilrijk - Vogelzang'),
-(29, 'Oprit 13 (Antwerpen-Zuid - Hoboken)'),
-(2, 'Afrit 13 (Antwerpen-Zuid - Hoboken)'),
-(2, 'Jan de Vostunnel'),
-(29, 'Jan de Vostunnel'),
-(29, 'Afrit Antwerpen Wilrijk'),
-(2, 'Oprit Antwerpen Wilrijk'),
-(29, 'Afrit Hoboken '),
-(31, 'Oprit Kolonel Silvertop'),
-(7, 'Oprit 7 (Kontich - Boom - Aartselaar)'),
-(8, 'Afrit 7 (Kontich - Boom - Aartselaar)'),
-(7, 'Dienstuitrit 6a UZA'),
-(8, 'Dienstoprit 6a UZA'),
-(7, 'Dienstoprit 6a UZA'),
-(8, 'Dienstuitrit 6a UZA'),
-(7, 'Afrit 6 (Hoboken - Wilrijk - Mortsel)'),
-(8, 'Oprit 6 (Wilrijk)'),
-(7, 'Craeybeckxtunnel'),
-(8, 'Craeybeckxtunnel'),
-(7, 'Afrit 5a (Antwerpen-Centrum - Berchem)'),
-(8, 'Oprit 5a (Antwerpen-Centrum - Berchem)'),
-(7, 'Dienstparking Kontich'),
-(8, 'Dienstparking Kontich'),
-(32, 'Drietand'),
-(32, 'Afrit 17 (Antwerpen-Centrum - Borgerhout)'),
-(33, 'Oprit 17 (Antwerpen-Centrum - Borgerhout)'),
-(33, 'Spitsstrook'),
-(33, 'Afrit 18 (Wommelgem)'),
-(33, 'Oprit 18 (Wommelgem)'),
-(32, 'Oprit 18 (Wommelgem)'),
-(32, 'Afrit 18 (Wommelgem)'),
-(33, 'Q8'),
-(32, 'Q8'),
-(33, 'Splitsing E313 - E34'),
-(32, 'Aansluiting E313 - E34'),
-(32, 'Busstrook'),
-(10, 'Afrit 19 (Lier - Nijlen - Zandhoven)'),
-(10, 'Oprit 19 (Zandhoven)'),
-(9, 'Afrit 19 (Lier - Zoersel - Zandhoven)'),
-(9, 'Oprit 19 (Zandhoven)'),
-(12, 'Brug Albertkanaal'),
-(11, 'Brug Albertkanaal'),
-(12, 'Afrit 19 (Oelegem)'),
-(12, 'Oprit 19 (Oelegem)'),
-(11, 'Afrit 19 (Schilde - Ranst)'),
-(11, 'Oprit 19 (Oelegem - Ranst)'),
-(34, 'Doorsteek'),
-(21, 'Pechhaven PP 335'),
-(21, 'Pechhaven PP 313'),
-(21, 'Pechhaven PP 333'),
-(21, 'Pechhaven PP 311'),
-(21, 'Pechhaven PP 309'),
-(21, 'Pechhaven '),
-(21, 'Pechhaven'),
-(21, 'Pechhaven'),
-(21, 'Pechhaven'),
-(21, 'Pechhaven'),
-(21, 'Pechhaven'),
-(22, 'Pechhaven PP 9111'),
-(22, 'Pechhaven PP 336'),
-(22, 'Pechhaven PP 312'),
-(22, 'Pechhaven PP 314'),
-(22, 'Pechhaven'),
-(22, 'Pechhaven PP 310'),
-(22, 'Pechhaven'),
-(22, 'Pechhaven'),
-(33, 'Pechhaven PP 322'),
-(33, 'Pechhaven PP 324'),
-(33, 'Pechhaven'),
-(9, 'Pechhaven PP 9102'),
-(9, 'Pechhaven PP 703'),
-(9, 'Pechhaven PP 9101'),
-(9, 'Pechhaven PP 701'),
-(32, 'Pechhaven PP 9125'),
-(32, 'Pechhaven PP 9124'),
-(32, 'Pechhaven PP 9123'),
-(32, 'Pechhaven PP 9122'),
-(32, 'Pechhaven PP 9121'),
-(32, 'Pechhaven PP 9120'),
-(4, 'Pechhaven PP 382'),
-(4, 'Pechhaven PP 384'),
-(4, 'Pechhaven '),
-(4, 'Pechhaven (links)'),
-(4, 'Pechhaven'),
-(4, 'Pechhaven'),
-(3, 'Pechhaven PP 381'),
-(3, 'Pechhaven PP 383'),
-(3, 'Pechhaven (links)'),
-(3, 'Pechhaven'),
-(3, 'Pechhaven'),
-(8, 'Pechhaven PP 2518 (Groeninghe)'),
-(8, 'Pechhaven PP 2522 (na UZA)'),
-(7, 'Pechhaven PP 2517 (Groeninghe)'),
-(7, 'Pechhaven PP 2521 (voor UZA)');
 
 INSERT INTO `P_ALLOTMENT_MAP` (`allotment_id`, `direction_id`, `indicator_id`) 
 SELECT 1, adi.allotment_directions_id, adi.id
