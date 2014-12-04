@@ -202,8 +202,11 @@ END $$
 
 CREATE PROCEDURE R_CREATE_TOWING_VOUCHER(IN p_dossier_id BIGINT, IN p_token VARCHAR(255))
 BEGIN
-	DECLARE v_company_id, v_dossier_id BIGINT;
+	DECLARE v_company_id, v_dossier_id, v_timeframe_id BIGINT;
+	DECLARE v_nr_of_vouchers INT;
 	DECLARE v_user_id VARCHAR(36);
+	DECLARE v_taf_id BIGINT;
+	DECLARE v_fee_incl_vat, v_fee_excl_vat DOUBLE(10,2);
 
 	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
 
@@ -211,15 +214,35 @@ BEGIN
 		CALL R_NOT_AUTHORIZED;
 	ELSE
 		-- TODO: check link with company
-		SELECT 	`id` INTO v_dossier_id
-		FROM 	T_DOSSIERS
-		WHERE	`id` = p_dossier_id;
+		SELECT 	d.id, d.timeframe_id, count(dossier_id) INTO v_dossier_id, v_timeframe_id, v_nr_of_vouchers
+		FROM 	T_DOSSIERS d, T_TOWING_VOUCHERS tv
+		WHERE	d.id = p_dossier_id
+				AND d.id = tv.dossier_id
+		GROUP BY 1, 2;
 
 		IF v_dossier_id IS NULL THEN
 			CALL R_NOT_FOUND;
 		ELSE
 			INSERT INTO `T_TOWING_VOUCHERS` (`dossier_id`, `voucher_number`, `cd`, `cd_by`) 
 			VALUES (v_dossier_id, F_NEXT_TOWING_VOUCHER_NUMBER(), now(), F_RESOLVE_LOGIN(v_user_id, p_token));
+
+			SELECT 	taf.id as activity_id, taf.fee_excl_vat, taf.fee_incl_vat INTO v_taf_id, v_fee_excl_vat, v_fee_incl_vat
+			FROM 	`P_TIMEFRAME_ACTIVITY_FEE` taf, `P_TIMEFRAME_ACTIVITIES` ta
+			WHERE 	taf.timeframe_activity_id = ta.id AND taf.timeframe_id = v_timeframe_id
+					AND `code` = 'SIGNALISATIE'
+					AND current_date BETWEEN taf.valid_from AND taf.valid_until;
+
+
+			INSERT INTO T_TOWING_ACTIVITIES(towing_voucher_id, activity_id, amount, cal_fee_excl_vat, cal_fee_incl_vat)
+			SELECT 	LAST_INSERT_ID(), v_taf_id, ROUND(1.0/(v_nr_of_vouchers+1), 2), v_fee_excl_vat, v_fee_incl_vat;
+			
+
+			UPDATE 	T_TOWING_ACTIVITIES ta, T_TOWING_VOUCHERS tv
+			SET 	amount = ROUND(1.0/(v_nr_of_vouchers+1), 2)
+			WHERE 	tv.id = ta.towing_voucher_id
+					AND tv.dossier_id = v_dossier_id
+					AND ta.activity_id = v_taf_id;
+		
 		END IF;
 	END IF;
 END $$
@@ -1373,6 +1396,38 @@ BEGIN
 
 	-- prefill the causer
 	INSERT INTO `T_TOWING_INCIDENT_CAUSERS` (`voucher_id`, `cd`, `cd_by`) VALUES (NEW.id, now(), NEW.cd_by);
+END $$
+
+CREATE TRIGGER `TRG_BU_TOWING_ACTIVITY` BEFORE UPDATE ON `T_TOWING_ACTIVITIES`
+FOR EACH ROW
+BEGIN
+	DECLARE v_incl_vat, v_excl_vat DOUBLE;
+	
+	SELECT 	sum(amount * fee_excl_vat), sum(amount * fee_incl_vat) INTO v_excl_vat, v_incl_vat
+	FROM 	T_TOWING_ACTIVITIES ta, P_TIMEFRAME_ACTIVITY_FEE taf
+	WHERE 	ta.activity_id = taf.id AND ta.towing_voucher_id = OLD.towing_voucher_id;
+
+	SET NEW.cal_fee_excl_vat = v_excl_vat;
+	SET NEW.cal_fee_incl_vat = v_incl_vat;
+END $$
+
+CREATE TRIGGER `TRG_AU_TOWING_ACTIVITY` AFTER UPDATE ON `T_TOWING_ACTIVITIES`
+FOR EACH ROW
+BEGIN
+	DECLARE v_incl_vat, v_excl_vat DOUBLE;
+	
+	SELECT 	sum(amount * fee_excl_vat), sum(amount * fee_incl_vat) INTO v_excl_vat, v_incl_vat
+	FROM 	T_TOWING_ACTIVITIES ta, P_TIMEFRAME_ACTIVITY_FEE taf
+	WHERE 	ta.activity_id = taf.id AND ta.towing_voucher_id = NEW.towing_voucher_id;
+
+
+	UPDATE `T_TOWING_VOUCHER_PAYMENTS` 
+	SET 	`amount_customer` = v_incl_vat, 
+			`cal_amount_paid` = 0, 
+			`cal_amount_unpaid` = v_incl_vat, 
+			`ud` = now(), `ud_by` = (SELECT ud_by FROM T_TOWING_ACTIVITIES WHERE id = NEW.towing_voucher_id LIMIT 0,1)
+	WHERE 	towing_voucher_id = NEW.towing_voucher_id
+	LIMIT	1;
 END $$
 
 CREATE TRIGGER `TRG_AI_TOWING_ACTIVITY` AFTER INSERT ON `T_TOWING_ACTIVITIES`

@@ -220,12 +220,15 @@ INSERT INTO `P_POLICE_TRAFFIC_POSTS` (`id`, `allotment_id`, `name`, `code`, `add
 
 
 INSERT INTO `P_INCIDENT_TYPES` (`name`, `code`) VALUES 
-	('Panne', 					'PANNE'),
-	('Ongeval', 				'ONGEVAL'),
-	('Achtergelaten voertuig', 	'ACHTERGELATEN_VOERTUIG'),
-	('Enkel signalisatie', 		'SIGNALISATIE'),
-	('Verloren voorwerp', 		'VERLOREN_VOORWERP'),
-	('Botsabsorbeerder', 		'BOTSABSORBEERDER');
+	('Panne', 														'PANNE'),
+	('Ongeval', 													'ONGEVAL'),
+	('Achtergelaten voertuig', 										'ACHTERGELATEN_VOERTUIG'),
+	('Enkel signalisatie ifv PANNE', 								'SIGNALISATIE'),
+	('Enkel signalisatie ifv ONGEVAL', 								'SIGNALISATIE'),
+	('Enkel signalisatie ifv AFSLUITEN OP/AFRIT OR RIJSTROOK', 		'SIGNALISATIE'),
+	('Enkel signalisatie ifv BRANDWEER', 							'SIGNALISATIE'),
+	('Verloren voorwerp', 											'VERLOREN_VOORWERP'),
+	('Botsabsorbeerder', 											'BOTSABSORBEERDER');
 
 
 INSERT INTO `P_HOLIDAYS` (`id`, `name`, `year`, `holiday`, `cd`, `cd_by`)  VALUES 
