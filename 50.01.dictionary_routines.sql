@@ -39,7 +39,7 @@ BEGIN
 	CALL R_CREATE_AUDIT_LOG('P_DICTIONARY', p_id);
 END $$
 
-CREATE PROCEDURE R_ADD_DICTIONARY(IN p_category ENUM('INSURANCE', 'COLLECTOR'), IN p_name VARCHAR(255), IN p_user VARCHAR(255))
+CREATE PROCEDURE R_ADD_DICTIONARY(IN p_category ENUM('COLLECTOR'), IN p_name VARCHAR(255), IN p_user VARCHAR(255))
 BEGIN
 	DECLARE v_id BIGINT;
 
@@ -53,7 +53,7 @@ BEGIN
 	SELECT * FROM P_DICTIONARY WHERE id = v_id;
 END $$
 
-CREATE PROCEDURE R_UPDATE_DICTIONARY(IN p_id BIGINT, IN p_category ENUM('INSURANCE', 'COLLECTOR'), IN p_name VARCHAR(255), IN p_user VARCHAR(255))
+CREATE PROCEDURE R_UPDATE_DICTIONARY(IN p_id BIGINT, IN p_category ENUM('COLLECTOR'), IN p_name VARCHAR(255), IN p_user VARCHAR(255))
 BEGIN
 	UPDATE 	P_DICTIONARY
 	SET 	category = p_category, 
@@ -67,7 +67,7 @@ BEGIN
 	SELECT * FROM P_DICTIONARY WHERE id = p_id;
 END $$
 
-CREATE PROCEDURE R_DELETE_DICTIONARY(IN p_id BIGINT, IN p_category ENUM('INSURANCE', 'COLLECTOR'), IN p_user VARCHAR(255))
+CREATE PROCEDURE R_DELETE_DICTIONARY(IN p_id BIGINT, IN p_category ENUM('COLLECTOR'), IN p_user VARCHAR(255))
 BEGIN
 	UPDATE 	P_DICTIONARY
 	SET 	dd = now(), 
@@ -80,7 +80,9 @@ BEGIN
 	SELECT "OK" as result;
 END $$
 
-CREATE PROCEDURE R_ADD_INSURANCE(IN p_name VARCHAR(255), IN p_token VARCHAR(255))
+CREATE PROCEDURE R_ADD_INSURANCE(IN p_name VARCHAR(255), IN p_vat VARCHAR(45), 
+								 IN p_street VARCHAR(255), IN p_street_number VARCHAR(45), IN p_street_pobox VARCHAR(45), IN p_zip VARCHAR(45), IN p_city VARCHAR(45),
+								 IN p_token VARCHAR(255))
 BEGIN
 	DECLARE v_company_id BIGINT;
 	DECLARE v_user_id, v_guid VARCHAR(36);
@@ -91,10 +93,13 @@ BEGIN
 	IF v_user_id IS NULL OR v_company_id IS NULL THEN
 		CALL R_NOT_AUTHORIZED;
 	ELSE
-		SELECT id INTO v_id FROM P_DICTIONARY WHERE category = 'INSURANCE' AND `name` = p_name AND dd IS NULL;
+		SELECT id INTO v_id FROM T_INSURANCES WHERE `name` = p_name AND dd IS NULL;
 
 		IF v_id IS NULL THEN
-			CALL R_ADD_DICTIONARY('INSURANCE', p_name, F_RESOLVE_LOGIN(v_user_id, p_token));
+			INSERT INTO T_INSURANCES(name, vat, street, street_number, street_pobox, zip, city, cd, cd_by)
+			VALUES(p_name, p_vat, p_street, p_street_number, p_street_pobox, p_zip, p_city, now(), F_RESOLVE_LOGIN(v_user_id, p_token));
+
+			SELECT * FROM T_INSURANCES WHERE id = LAST_INSERT_ID();
 		ELSE
 			SELECT 'INSURANCE_ALREADY_EXISTS' as error, 409 as statusCode;
 		END IF;
@@ -115,7 +120,9 @@ BEGIN
 	END IF;
 END $$
 
-CREATE PROCEDURE R_UPDATE_INSURANCE(IN p_id BIGINT, IN p_name VARCHAR(255), IN p_token VARCHAR(255))
+CREATE PROCEDURE R_UPDATE_INSURANCE(IN p_id BIGINT, IN p_name VARCHAR(255), IN p_vat VARCHAR(45), 
+								    IN p_street VARCHAR(255), IN p_street_number VARCHAR(45), IN p_street_pobox VARCHAR(45), IN p_zip VARCHAR(45), IN p_city VARCHAR(45),
+								    IN p_token VARCHAR(255))
 BEGIN
 	DECLARE v_company_id BIGINT;
 	DECLARE v_user_id, v_guid VARCHAR(36);
@@ -125,7 +132,20 @@ BEGIN
 	IF v_user_id IS NULL OR v_company_id IS NULL THEN
 		CALL R_NOT_AUTHORIZED;
 	ELSE
-		CALL R_UPDATE_DICTIONARY(p_id, 'INSURANCE', p_name, F_RESOLVE_LOGIN(v_user_id, p_token));
+		UPDATE T_INSURANCES 
+		SET 	`name` = p_name,
+				vat = p_vat,
+				street = p_street,
+				street_number = p_street_number,
+				street_pobox = p_street_pobox,
+				zip = p_zip,
+				city = p_city,
+				ud = now(),
+				ud_by = F_RESOLVE_LOGIN(v_user_id, p_token)
+		WHERE id = p_id
+		LIMIT 1;
+
+		SELECT * FROM T_INSURANCES WHERE id = p_id;
 	END IF;
 END $$
 
@@ -153,7 +173,11 @@ BEGIN
 	IF v_user_id IS NULL OR v_company_id IS NULL THEN
 		CALL R_NOT_AUTHORIZED;
 	ELSE
-		CALL R_DELETE_DICTIONARY(p_id, 'INSURANCE', F_RESOLVE_LOGIN(v_user_id, p_token));
+		UPDATE 	T_INSURANCES
+		SET 	dd = now(), 
+				dd_by = F_RESOLVE_LOGIN(v_user_id, p_token)
+		WHERE 	id = p_id 
+		LIMIT 	1;
 	END IF;
 END $$
 
@@ -181,9 +205,9 @@ BEGIN
 	IF v_user_id IS NULL OR v_company_id IS NULL THEN
 		CALL R_NOT_AUTHORIZED;
 	ELSE
-		SELECT 	id, `name`
-		FROM 	P_DICTIONARY
-		WHERE	dd IS NULL AND category = 'INSURANCE'
+		SELECT 	id, `name`, vat, street, street_number, street_pobox, zip, city
+		FROM 	T_INSURANCES
+		WHERE	dd IS NULL
 		ORDER BY `name`;		
 	END IF;
 END $$
@@ -334,11 +358,11 @@ BEGIN
 	IF v_user_id IS NULL OR v_company_id IS NULL THEN
 		CALL R_NOT_AUTHORIZED;
 	ELSE
-		SELECT 	`id`, `name`
-		FROM 	P_DICTIONARY
+		SELECT 	`id`, `name`, vat, street, street_number, street_pobox, zip, city
+		FROM 	T_INSURANCES
 		WHERE 	id = p_id
-				AND category = 'INSURANCE'
-				AND dd IS NULL;
+				AND dd IS NULL
+		LIMIT 	0,1;
 	END IF;
 END $$
 

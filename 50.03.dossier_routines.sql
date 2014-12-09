@@ -44,6 +44,7 @@ DROP PROCEDURE IF EXISTS R_FETCH_ALL_AVAILABLE_ACTIVITIES $$
 DROP PROCEDURE IF EXISTS R_FETCH_ALL_ALLOTMENTS_BY_DIRECTION $$
 DROP PROCEDURE IF EXISTS R_FETCH_ALL_COMPANIES_BY_ALLOTMENT $$
 DROP PROCEDURE IF EXISTS R_FETCH_ALL_TRAFFIC_POSTS_BY_ALLOTMENT $$
+DROP PROCEDURE IF EXISTS R_FETCH_ALL_DOSSIER_TRAFFIC_LANES $$
 
 DROP PROCEDURE IF EXISTS R_ADD_BLOB_TO_VOUCHER $$
 DROP PROCEDURE IF EXISTS R_ADD_COLLECTOR_SIGNATURE $$
@@ -72,6 +73,9 @@ DROP PROCEDURE IF EXISTS R_CREATE_DOSSIER_COMM_RECIPIENT $$
 
 DROP PROCEDURE IF EXISTS R_SEARCH_TOWING_VOUCHER $$
 DROP PROCEDURE IF EXISTS R_SEARCH_TOWING_VOUCHER_BY_NUMBER $$
+
+DROP PROCEDURE IF EXISTS R_PURGE_DOSSIER_TRAFFIC_LANES $$
+DROP PROCEDURE IF EXISTS R_CREATE_DOSSIER_TRAFFIC_LANES $$
 
 DROP FUNCTION IF EXISTS F_NEXT_DOSSIER_NUMBER $$
 DROP FUNCTION IF EXISTS F_NEXT_TOWING_VOUCHER_NUMBER $$
@@ -168,7 +172,7 @@ END $$
 
 CREATE PROCEDURE R_UPDATE_DOSSIER(IN p_dossier_id BIGINT, IN p_call_number VARCHAR(45), IN p_company_id BIGINT, 
                                   IN p_incident_type_id INT, IN p_allotment_id INT, IN p_direction_id INT, 
-                                  IN p_direction_indicator_id INT, IN p_traffic_lane_id INT, IN p_police_traffic_post_id INT,
+                                  IN p_direction_indicator_id INT, IN p_police_traffic_post_id INT,
 								  IN p_token VARCHAR(255))
 BEGIN
 	DECLARE v_company_id, v_dossier_id BIGINT;
@@ -186,7 +190,6 @@ BEGIN
 			allotment_id 			= p_allotment_id,
 			allotment_direction_id 	= p_direction_id,
 			allotment_direction_indicator_id = p_direction_indicator_id,
-			traffic_lane_id 		= p_traffic_lane_id,
 			police_traffic_post_id  = p_police_traffic_post_id,
 			company_id 				= p_company_id,
 			ud						= now(),
@@ -327,11 +330,14 @@ BEGIN
 						(SELECT `phone` FROM `P_POLICE_TRAFFIC_POSTS` WHERE id = d.`police_traffic_post_id`) as `traffic_post_phone`,
 					`incident_type_id`, it.code as `incident_type_code`, it.name `incident_type_name`,
 					`timeframe_id`, (SELECT `name` FROM P_TIMEFRAMES WHERE id = d.timeframe_id) as "timeframe_name",
-					`traffic_lane_id`, (SELECT `name` FROM P_DICTIONARY WHERE id = d.`traffic_lane_id`) as `traffic_lane_name`,
 					`allotment_id`, (SELECT `name` FROM P_ALLOTMENT WHERE id = d.`allotment_id`) as `allotment_name`,
 					`allotment_direction_indicator_id`, (SELECT `name` FROM P_ALLOTMENT_DIRECTION_INDICATORS WHERE id = d.`allotment_direction_indicator_id`) as `indicator_name`,
 					`allotment_direction_id`, (SELECT `name` FROM P_ALLOTMENT_DIRECTIONS WHERE id = d.`allotment_direction_id`) as `direction_name`,
-					`company_id`, (SELECT `name` FROM T_COMPANIES WHERE id = d.`company_id`) as `company_name`
+					`company_id`, (SELECT `name` FROM T_COMPANIES WHERE id = d.`company_id`) as `company_name`,
+					(SELECT GROUP_CONCAT(DISTINCT name ORDER BY name SEPARATOR ', ')
+						FROM P_DICTIONARY d, T_INCIDENT_TRAFFIC_LANES itl
+						WHERE d.id = itl.traffic_lane_id
+						and itl.dossier_id = v_dossier_id) AS traffic_lane_name 
 			FROM 	T_DOSSIERS d LEFT JOIN P_INCIDENT_TYPES it ON d.incident_type_id = it.id
 			WHERE	d.`id` = v_dossier_id
 			LIMIT	0, 1;
@@ -412,7 +418,7 @@ BEGIN
 					`ud`,
 					`ud_by`, 
 					(SELECT `name` FROM P_DICTIONARY WHERE id = tv.`collector_id`) as `collector_name`,
-					(SELECT `name` FROM P_DICTIONARY WHERE id = tv.`insurance_id`) as `insurance_name`
+					(SELECT `name` FROM T_INSURANCES WHERE id = tv.`insurance_id`) as `insurance_name`
 			FROM 	T_TOWING_VOUCHERS tv
 			WHERE	`dossier_id` = v_dossier_id;
 		END IF;
@@ -934,7 +940,30 @@ BEGIN
 		WHERE 	`allotment_id` = p_allotment_id
 		ORDER BY `code`;
 	END IF;
+END $$
 
+CREATE PROCEDURE R_FETCH_ALL_DOSSIER_TRAFFIC_LANES(IN p_dossier_id BIGINT, IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id, v_dossier_id BIGINT;
+	DECLARE v_user_id VARCHAR(36);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		SELECT 	d.id, d.name, true as selected 
+		FROM 	P_DICTIONARY d, T_INCIDENT_TRAFFIC_LANES itl
+		WHERE 	category='TRAFFIC_LANE'
+				AND d.id = itl.traffic_lane_id
+				AND itl.dossier_id = p_dossier_id
+		UNION
+		SELECT 	d.id, d.name, false as selected 
+		FROM 	P_DICTIONARY d
+		WHERE 	category='TRAFFIC_LANE'
+				AND d.id NOT IN (SELECT traffic_lane_id FROM T_INCIDENT_TRAFFIC_LANES WHERE dossier_id=p_dossier_id)
+		ORDER BY name;
+	END IF;
 END $$
 
 CREATE PROCEDURE R_FETCH_TOWING_CUSTOMER(IN p_voucher_id BIGINT, IN p_token VARCHAR(255))
@@ -1331,9 +1360,42 @@ BEGIN
 	END IF;
 END $$
 
+CREATE PROCEDURE R_PURGE_DOSSIER_TRAFFIC_LANES(IN p_dossier_id BIGINT, IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id BIGINT;
+	DECLARE v_user_id VARCHAR(36);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		DELETE FROM T_INCIDENT_TRAFFIC_LANES WHERE dossier_id = p_dossier_id;
+
+		SELECT 'OK' as result;
+	END IF;
+END $$
+
+CREATE PROCEDURE R_CREATE_DOSSIER_TRAFFIC_LANES(IN p_dossier_id BIGINT, IN p_traffic_lane_id BIGINT, IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id BIGINT;
+	DECLARE v_user_id VARCHAR(36);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		INSERT INTO T_INCIDENT_TRAFFIC_LANES(dossier_id, traffic_lane_id)
+		VALUES(p_dossier_id, p_traffic_lane_id);
+
+		CALL R_FETCH_ALL_DOSSIER_TRAFFIC_LANES(p_dossier_id, p_token);
+	END IF;
+END $$
 
 
--- ----------------------------------------------------------------
+
+-- ---------------------------------------------------------------
 -- TRIGGERS
 -- ----------------------------------------------------------------
 

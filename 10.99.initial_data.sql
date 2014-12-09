@@ -184,6 +184,16 @@ INSERT INTO `P_DICTIONARY` ( `category`, `name`, `cd`, `cd_by`) VALUES ('COUNTRY
 INSERT INTO `P_DICTIONARY` ( `category`, `name`, `cd`, `cd_by`) VALUES ('COUNTRY_LICENCE_PLATE', 'ZW',  now(), 'ADMIN');
 
 
+INSERT INTO `P_DICTIONARY`(`category`, `name`, `cd`, `cd_by`)
+VALUES	('TRAFFIC_LANE', 'Pechstrook', now(), 'SYSTEM'),
+		('TRAFFIC_LANE', '1', now(), 'SYSTEM'),
+		('TRAFFIC_LANE', '2', now(), 'SYSTEM'),
+		('TRAFFIC_LANE', '3', now(), 'SYSTEM'),
+		('TRAFFIC_LANE', '4', now(), 'SYSTEM'),
+		('TRAFFIC_LANE', '5', now(), 'SYSTEM'),
+		('TRAFFIC_LANE', '6', now(), 'SYSTEM'),
+		('TRAFFIC_LANE', '7', now(), 'SYSTEM');
+
 INSERT INTO `P_ALLOTMENT` (`id`, `name`) VALUES (1, 'Perceel 1: Ring');
 
 INSERT INTO `P_ROLES` (`id`, `code`, `name`) VALUES 

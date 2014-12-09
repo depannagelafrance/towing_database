@@ -43,12 +43,7 @@ VALUES (1,1,'DEPOT LA FRANCE','Street','123',null,'2000','Antwerpen');
 
 INSERT INTO `P_DICTIONARY`(`category`, `name`, `cd`, `cd_by`)
 VALUES	('COLLECTOR', 'Klant', now(), 'SYSTEM'),
-		('COLLECTOR', 'Verzekering', now(), 'SYSTEM'),
-		('INSURANCE', 'AXA', now(), 'SYSTEM'),
-		('INSURANCE', 'Baloise', now(), 'SYSTEM'),
-		('TRAFFIC_LANE', 'Pechstrook', now(), 'SYSTEM'),
-		('TRAFFIC_LANE', '1°', now(), 'SYSTEM'),
-		('TRAFFIC_LANE', '2°', now(), 'SYSTEM');
+		('COLLECTOR', 'Verzekering', now(), 'SYSTEM');
 
 
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
