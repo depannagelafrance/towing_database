@@ -84,7 +84,10 @@ DROP FUNCTION IF EXISTS F_RESOLVE_TIMEFRAME_CATEGORY $$
 DROP TRIGGER IF EXISTS TRG_AI_DOSSIER $$
 DROP TRIGGER IF EXISTS TRG_AU_DOSSIER $$
 DROP TRIGGER IF EXISTS TRG_AI_TOWING_VOUCHER $$
+DROP TRIGGER IF EXISTS TRG_BU_TOWING_VOUCHER $$
 DROP TRIGGER IF EXISTS TRG_AI_TOWING_ACTIVITY $$
+DROP TRIGGER IF EXISTS TRG_BU_TOWING_ACTIVITY $$
+DROP TRIGGER IF EXISTS TRG_AU_TOWING_ACTIVITY $$
 
 DROP EVENT IF EXISTS E_UPDATE_TOWING_STORAGE_COST $$
 DROP EVENT IF EXISTS E_UPDATE_SIGNA_EXTRA_TIME $$
@@ -161,8 +164,8 @@ BEGIN
 				AND tv.category = v_timeframe_category;
 
 		-- create a new dossier
-		INSERT INTO `T_DOSSIERS` (`dossier_number`, `status`, `call_date`, `call_date_is_holiday`, `timeframe_id`, `cd`, `cd_by`) 
-		VALUES (F_NEXT_DOSSIER_NUMBER(), 'NEW', CURRENT_TIMESTAMP, (v_timeframe_category = 'HOLIDAY'), v_timeframe_id, CURRENT_TIMESTAMP, F_RESOLVE_LOGIN(v_user_id, p_token));
+		INSERT INTO `T_DOSSIERS` (`dossier_number`, `call_date`, `call_date_is_holiday`, `timeframe_id`, `cd`, `cd_by`) 
+		VALUES (F_NEXT_DOSSIER_NUMBER(), CURRENT_TIMESTAMP, (v_timeframe_category = 'HOLIDAY'), v_timeframe_id, CURRENT_TIMESTAMP, F_RESOLVE_LOGIN(v_user_id, p_token));
 
 		SET v_dossier_id = LAST_INSERT_ID();
 
@@ -282,14 +285,14 @@ BEGIN
 			vehicule_licenceplate 	= p_vehicule_licence_plate, 
 			vehicule_country 		= p_vehicule_country,
 			vehicule_collected 		= p_vehicule_collected, 
-			towing_id				= p_towing_id,
+			towing_id				= IF(TRIM(p_towing_id) = '', null, p_towing_id),
 			towed_by 				= p_towed_by, 
 			towed_by_vehicle 		= p_towed_by_vehicule, 	
 			towing_called 			= p_towing_called, 
 			towing_arrival 			= p_towing_arrival, 
 			towing_start 			= p_towing_start, 
 			towing_completed 		= p_towing_end, 
-			signa_id				= p_signa_id,
+			signa_id				= IF(TRIM(p_signa_id) = '', null, p_signa_id),
 			signa_by 				= p_signa_by, 
 			signa_by_vehicle 		= p_signa_by_vehicule, 
 			signa_arrival 			= p_signa_arrival, 
@@ -324,7 +327,7 @@ BEGIN
 		IF v_dossier_id IS NULL THEN
 			CALL R_NOT_FOUND;
 		ELSE
-			SELECT	d.`id`, `dossier_number`, `status`, `call_date`, `call_date_is_holiday`, `call_number`, 
+			SELECT	d.`id`, `dossier_number`, `call_date`, `call_date_is_holiday`, `call_number`, 
 					`police_traffic_post_id`, 
 						(SELECT `name` FROM `P_POLICE_TRAFFIC_POSTS` WHERE id = d.`police_traffic_post_id`) as `traffic_post_name`,
 						(SELECT `phone` FROM `P_POLICE_TRAFFIC_POSTS` WHERE id = d.`police_traffic_post_id`) as `traffic_post_phone`,
@@ -412,6 +415,7 @@ BEGIN
 					`signa_by_vehicle`,
 					unix_timestamp(`signa_arrival`) as signa_arrival,
 					`cic`,
+					`status`,
 					`additional_info`,
 					`cd`,
 					`cd_by`,
@@ -796,7 +800,7 @@ BEGIN
 				AND d.incident_type_id = ip.id
 				AND d.allotment_direction_id = ad.id
 				AND d.allotment_direction_indicator_id = adi.id
-				AND d.status = p_filter
+				AND t.status = p_filter
 		ORDER BY call_date DESC; 	
 	END IF;
 END $$
@@ -825,7 +829,7 @@ BEGIN
 				AND d.allotment_direction_id = ad.id
 				AND d.allotment_direction_indicator_id = adi.id
 				AND t.signa_id = v_user_id
-				AND d.status = p_filter
+				AND t.status = p_filter
 		ORDER BY call_date DESC; 	
 	END IF;
 END $$
@@ -854,7 +858,7 @@ BEGIN
 				AND d.incident_type_id = ip.id
 				AND d.allotment_direction_id = ad.id
 				AND d.allotment_direction_indicator_id = adi.id
-				AND d.status = p_filter
+				AND t.status = p_filter
 		ORDER BY d.call_date DESC;
 	END IF;
 END $$
@@ -1460,6 +1464,78 @@ BEGIN
 
 	-- prefill the causer
 	INSERT INTO `T_TOWING_INCIDENT_CAUSERS` (`voucher_id`, `cd`, `cd_by`) VALUES (NEW.id, now(), NEW.cd_by);
+END $$
+
+CREATE TRIGGER `TRG_BU_TOWING_VOUCHER` BEFORE UPDATE ON `T_TOWING_VOUCHERS`
+FOR EACH ROW
+BEGIN
+	DECLARE v_first_name, v_last_name, v_company, v_company_vat VARCHAR(255);
+	DECLARE v_score, v_count INT;
+
+	SET v_score = 0;
+
+	IF OLD.towing_completed IS NULL AND NEW.towing_completed IS NOT NULL THEN
+		--
+		-- CHECK IF CUSTOMER IS SET
+		-- 
+		SELECT first_name, last_name, company_name, company_vat
+		INTO v_firsT_name, v_last_name, v_company, v_company_vat
+		FROM T_TOWING_CUSTOMERS WHERE voucher_id = OLD.id;
+
+		IF TRIM(IFNULL(v_company, "")) != "" THEN
+			IF TRIM(IFNULL(v_company_vat, "")) = "" THEN
+				SET v_score = v_score + 1;				
+			END IF;
+		ELSE
+			IF TRIM(IFNULL(v_company, "")) = "" AND TRIM(IFNULL(v_first_name, "")) = "" AND TRIM(IFNULL(v_last_name, "")) = "" THEN
+				SET v_score = v_score + 1;
+			END IF;
+		END IF;
+
+		--
+		-- CHECK IF CAUSER IS SET
+		-- 
+		SELECT first_name, last_name, company_name, company_vat
+		INTO v_firsT_name, v_last_name, v_company, v_company_vat
+		FROM T_TOWING_INCIDENT_CAUSERS WHERE voucher_id = OLD.id;
+
+		IF TRIM(IFNULL(v_company, "")) != "" THEN
+			IF TRIM(IFNULL(v_company_vat, "")) = "" THEN
+				SET v_score = v_score + 1;				
+			END IF;
+		ELSE
+			IF TRIM(IFNULL(v_company, "")) = "" AND TRIM(IFNULL(v_first_name, "")) = "" AND TRIM(IFNULL(v_last_name, "")) = "" THEN
+				SET v_score = v_score + 1;
+			END IF;
+		END IF;
+
+		--
+		-- CHECK IF CUSTOMER SIGNATURE IS SET
+		-- 
+		SELECT count(*) INTO v_count
+		FROM T_TOWING_VOUCHER_ATTS
+		WHERE towing_voucher_id = OLD.id;
+
+		IF v_count = 0 THEN
+			SET v_score = v_score + 1;
+		END IF;
+
+		--
+		-- CHECK IF VEHICLE IS COLLECTED
+		-- 
+		IF NEW.vehicule_collected IS NULL THEN
+			SET v_score = v_score + 1;
+		END IF;
+
+		-- 
+		-- CHECK SCORE, IF > 0 THEN CHANGE STATUS
+		--
+		IF v_score > 0 THEN
+			SET NEW.status = 'TO CHECK';
+		ELSE
+			SET NEW.status = 'READY FOR INVOICE';
+		END IF;
+	END IF;
 END $$
 
 CREATE TRIGGER `TRG_BU_TOWING_ACTIVITY` BEFORE UPDATE ON `T_TOWING_ACTIVITIES`

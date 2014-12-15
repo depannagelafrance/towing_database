@@ -186,6 +186,8 @@ INSERT INTO `P_DICTIONARY` ( `category`, `name`, `cd`, `cd_by`) VALUES ('COUNTRY
 
 INSERT INTO `P_DICTIONARY`(`category`, `name`, `cd`, `cd_by`)
 VALUES	('TRAFFIC_LANE', 'Pechstrook', now(), 'SYSTEM'),
+		('TRAFFIC_LANE', 'Spitsstrook', now(), 'SYSTEM'),
+		('TRAFFIC_LANE', 'Busstrook', now(), 'SYSTEM'),
 		('TRAFFIC_LANE', '1', now(), 'SYSTEM'),
 		('TRAFFIC_LANE', '2', now(), 'SYSTEM'),
 		('TRAFFIC_LANE', '3', now(), 'SYSTEM'),
@@ -235,7 +237,7 @@ INSERT INTO `P_INCIDENT_TYPES` (`name`, `code`) VALUES
 	('Achtergelaten voertuig', 										'ACHTERGELATEN_VOERTUIG'),
 	('Enkel signalisatie ifv PANNE', 								'SIGNALISATIE'),
 	('Enkel signalisatie ifv ONGEVAL', 								'SIGNALISATIE'),
-	('Enkel signalisatie ifv AFSLUITEN OP/AFRIT OR RIJSTROOK', 		'SIGNALISATIE'),
+	('Enkel signalisatie ifv AFSLUITEN OP/AFRIT OF RIJSTROOK', 		'SIGNALISATIE'),
 	('Enkel signalisatie ifv BRANDWEER', 							'SIGNALISATIE'),
 	('Verloren voorwerp', 											'VERLOREN_VOORWERP'),
 	('Botsabsorbeerder', 											'BOTSABSORBEERDER');
