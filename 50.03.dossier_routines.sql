@@ -21,6 +21,7 @@ DROP PROCEDURE IF EXISTS R_UPDATE_TOWING_DEPOT 		$$
 DROP PROCEDURE IF EXISTS R_UPDATE_TOWING_CUSTOMER 	$$
 DROP PROCEDURE IF EXISTS R_UPDATE_TOWING_CAUSER		$$
 
+DROP PROCEDURE IF EXISTS R_CREATE_DEFAULT_TOWING_VOUCHER_ACTIVITIES $$
 DROP PROCEDURE IF EXISTS R_UPDATE_TOWING_VOUCHER_ACTIVITY $$
 DROP PROCEDURE IF EXISTS R_REMOVE_TOWING_VOUCHER_ACTIVITY $$
 
@@ -208,10 +209,10 @@ END $$
 
 CREATE PROCEDURE R_CREATE_TOWING_VOUCHER(IN p_dossier_id BIGINT, IN p_token VARCHAR(255))
 BEGIN
-	DECLARE v_company_id, v_dossier_id, v_timeframe_id BIGINT;
+	DECLARE v_company_id, v_dossier_id, v_timeframe_id, v_taf_id, v_voucher_id BIGINT;
 	DECLARE v_nr_of_vouchers INT;
 	DECLARE v_user_id VARCHAR(36);
-	DECLARE v_taf_id BIGINT;
+	DECLARE v_incident_type_code VARCHAR(255);
 	DECLARE v_fee_incl_vat, v_fee_excl_vat DOUBLE(10,2);
 
 	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
@@ -229,28 +230,92 @@ BEGIN
 		IF v_dossier_id IS NULL THEN
 			CALL R_NOT_FOUND;
 		ELSE
+			SELECT 	`code`, d.timeframe_id INTO v_incident_type_code, v_timeframe_id
+			FROM	`P_INCIDENT_TYPES` it, T_DOSSIERS d
+			WHERE 	d.incident_type_id = it.id AND d.id = v_dossier_id
+			LIMIT	0,1;
+
+SELECT v_incident_type_code, v_timeframe_id;
+
 			INSERT INTO `T_TOWING_VOUCHERS` (`dossier_id`, `voucher_number`, `cd`, `cd_by`) 
 			VALUES (v_dossier_id, F_NEXT_TOWING_VOUCHER_NUMBER(), now(), F_RESOLVE_LOGIN(v_user_id, p_token));
+			
+			SET v_voucher_id = LAST_INSERT_ID();
 
+SELECT "Voucher created";
+
+			-- create a copy of the base activities
+			INSERT INTO T_TOWING_ACTIVITIES(towing_voucher_id, activity_id, amount, cal_fee_excl_vat, cal_fee_incl_vat)
+			SELECT 	id, t.activity_id, 1.00, t.fee_excl_vat, t.fee_incl_vat 
+			FROM 	T_TOWING_VOUCHERS tv,
+					(SELECT taf.id as activity_id, taf.fee_excl_vat, taf.fee_incl_vat
+					 FROM 	`P_TIMEFRAME_ACTIVITY_FEE` taf, `P_TIMEFRAME_ACTIVITIES` ta
+					 WHERE 	taf.timeframe_activity_id = ta.id 
+							AND taf.timeframe_id = v_timeframe_id
+							AND `code` = v_incident_type_code
+							AND current_date BETWEEN taf.valid_from AND taf.valid_until) t
+			WHERE tv.dossier_id = v_dossier_id
+					AND tv.id = v_voucher_id;
+
+SELECT "Activity copied"; 
+
+			-- create new signa activity
 			SELECT 	taf.id as activity_id, taf.fee_excl_vat, taf.fee_incl_vat INTO v_taf_id, v_fee_excl_vat, v_fee_incl_vat
 			FROM 	`P_TIMEFRAME_ACTIVITY_FEE` taf, `P_TIMEFRAME_ACTIVITIES` ta
 			WHERE 	taf.timeframe_activity_id = ta.id AND taf.timeframe_id = v_timeframe_id
 					AND `code` = 'SIGNALISATIE'
 					AND current_date BETWEEN taf.valid_from AND taf.valid_until;
 
-
-			INSERT INTO T_TOWING_ACTIVITIES(towing_voucher_id, activity_id, amount, cal_fee_excl_vat, cal_fee_incl_vat)
-			SELECT 	LAST_INSERT_ID(), v_taf_id, ROUND(1.0/(v_nr_of_vouchers+1), 2), v_fee_excl_vat, v_fee_incl_vat;
-			
-
-			UPDATE 	T_TOWING_ACTIVITIES ta, T_TOWING_VOUCHERS tv
-			SET 	amount = ROUND(1.0/(v_nr_of_vouchers+1), 2)
-			WHERE 	tv.id = ta.towing_voucher_id
-					AND tv.dossier_id = v_dossier_id
-					AND ta.activity_id = v_taf_id;
-		
+			IF v_taf_id IS NOT NULL THEN
+				INSERT INTO T_TOWING_ACTIVITIES(towing_voucher_id, activity_id, amount, cal_fee_excl_vat, cal_fee_incl_vat)
+				SELECT 	LAST_INSERT_ID(), v_taf_id, ROUND(1.0/(v_nr_of_vouchers+1), 2), v_fee_excl_vat, v_fee_incl_vat;
+				
+				-- update to split
+				UPDATE 	T_TOWING_ACTIVITIES ta, T_TOWING_VOUCHERS tv
+				SET 	amount = ROUND(1.0/(v_nr_of_vouchers+1), 2)
+				WHERE 	tv.id = ta.towing_voucher_id
+						AND tv.dossier_id = v_dossier_id
+						AND ta.activity_id = v_taf_id;
+			END IF;
 		END IF;
 	END IF;
+END $$
+
+
+CREATE PROCEDURE R_CREATE_DEFAULT_TOWING_VOUCHER_ACTIVITIES(IN p_dossier_id BIGINT, IN p_incident_type_id BIGINT, IN p_timeframe_id BIGINT)
+BEGIN
+		DECLARE v_incident_type_code VARCHAR(255);
+
+		-- attach default activities based on selected timeframe
+		SELECT 	`code` INTO v_incident_type_code
+		FROM	`P_INCIDENT_TYPES`
+		WHERE 	id = p_incident_type_id
+		LIMIT	0,1;
+
+		CASE 
+			WHEN v_incident_type_code = 'PANNE' OR v_incident_type_code = 'ONGEVAL' OR v_incident_type_code = 'ACHTERGELATEN_VOERTUIG' THEN
+				INSERT INTO T_TOWING_ACTIVITIES(towing_voucher_id, activity_id, amount, cal_fee_excl_vat, cal_fee_incl_vat)
+				SELECT 	id, t.activity_id, 1.00, t.fee_excl_vat, t.fee_incl_vat 
+				FROM 	T_TOWING_VOUCHERS tv,
+						(SELECT taf.id as activity_id, taf.fee_excl_vat, taf.fee_incl_vat
+						 FROM 	`P_TIMEFRAME_ACTIVITY_FEE` taf, `P_TIMEFRAME_ACTIVITIES` ta
+						 WHERE 	taf.timeframe_activity_id = ta.id 
+								AND taf.timeframe_id = p_timeframe_id
+								AND `code` IN (v_incident_type_code, 'SIGNALISATIE')
+								AND current_date BETWEEN taf.valid_from AND taf.valid_until) t
+				WHERE tv.dossier_id = p_dossier_id;
+			ELSE
+				INSERT INTO T_TOWING_ACTIVITIES(towing_voucher_id, activity_id, amount, cal_fee_excl_vat, cal_fee_incl_vat)
+				SELECT 	id, t.activity_id, 1.00, t.fee_excl_vat, t.fee_incl_vat 
+				FROM 	T_TOWING_VOUCHERS tv,
+						(SELECT taf.id as activity_id, taf.fee_excl_vat, taf.fee_incl_vat
+						 FROM 	`P_TIMEFRAME_ACTIVITY_FEE` taf, `P_TIMEFRAME_ACTIVITIES` ta
+						 WHERE 	taf.timeframe_activity_id = ta.id 
+								AND taf.timeframe_id = p_timeframe_id
+								AND `code` IN (v_incident_type_code)
+								AND current_date BETWEEN taf.valid_from AND taf.valid_until) t
+				WHERE tv.dossier_id = p_dossier_id;	
+		END CASE;
 END $$
 
 CREATE PROCEDURE  R_UPDATE_TOWING_VOUCHER(IN p_dossier_id BIGINT, IN p_voucher_id BIGINT,
@@ -1417,34 +1482,7 @@ BEGIN
 	DECLARE v_incident_type_code VARCHAR(45);
 
 	IF OLD.incident_type_id IS NULL AND NEW.incident_type_id IS NOT NULL THEN
-		-- attach default activities based on selected timeframe
-		SELECT 	`code` INTO v_incident_type_code
-		FROM	`P_INCIDENT_TYPES`
-		WHERE 	id = NEW.incident_type_id
-		LIMIT	0,1;
-
-		CASE 
-			WHEN v_incident_type_code = 'PANNE' OR v_incident_type_code = 'ONGEVAL' OR v_incident_type_code = 'ACHTERGELATEN_VOERTUIG' THEN
-				INSERT INTO T_TOWING_ACTIVITIES(towing_voucher_id, activity_id, amount, cal_fee_excl_vat, cal_fee_incl_vat)
-				SELECT 	id, t.activity_id, 1.00, t.fee_excl_vat, t.fee_incl_vat 
-				FROM 	T_TOWING_VOUCHERS tv,
-						(SELECT taf.id as activity_id, taf.fee_excl_vat, taf.fee_incl_vat
-						 FROM 	`P_TIMEFRAME_ACTIVITY_FEE` taf, `P_TIMEFRAME_ACTIVITIES` ta
-						 WHERE 	taf.timeframe_activity_id = ta.id AND taf.timeframe_id = NEW.timeframe_id
-								AND `code` IN (v_incident_type_code, 'SIGNALISATIE')
-								AND current_date BETWEEN taf.valid_from AND taf.valid_until) t
-				WHERE tv.dossier_id = OLD.id;
-			ELSE
-				INSERT INTO T_TOWING_ACTIVITIES(towing_voucher_id, activity_id, amount, cal_fee_excl_vat, cal_fee_incl_vat)
-				SELECT 	id, t.activity_id, 1.00, t.fee_excl_vat, t.fee_incl_vat 
-				FROM 	T_TOWING_VOUCHERS tv,
-						(SELECT taf.id as activity_id, taf.fee_excl_vat, taf.fee_incl_vat
-						 FROM 	`P_TIMEFRAME_ACTIVITY_FEE` taf, `P_TIMEFRAME_ACTIVITIES` ta
-						 WHERE 	taf.timeframe_activity_id = ta.id AND taf.timeframe_id = NEW.timeframe_id
-								AND `code` IN (v_incident_type_code)
-								AND current_date BETWEEN taf.valid_from AND taf.valid_until) t
-				WHERE tv.dossier_id = OLD.id;		
-		END CASE;
+		CALL R_CREATE_DEFAULT_TOWING_VOUCHER_ACTIVITIES(OLD.id, NEW.incident_type_id, NEW.timeframe_id);
 	END IF;
 END $$
 
