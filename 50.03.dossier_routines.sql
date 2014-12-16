@@ -235,14 +235,12 @@ BEGIN
 			WHERE 	d.incident_type_id = it.id AND d.id = v_dossier_id
 			LIMIT	0,1;
 
-SELECT v_incident_type_code, v_timeframe_id;
 
 			INSERT INTO `T_TOWING_VOUCHERS` (`dossier_id`, `voucher_number`, `cd`, `cd_by`) 
 			VALUES (v_dossier_id, F_NEXT_TOWING_VOUCHER_NUMBER(), now(), F_RESOLVE_LOGIN(v_user_id, p_token));
 			
 			SET v_voucher_id = LAST_INSERT_ID();
 
-SELECT "Voucher created";
 
 			-- create a copy of the base activities
 			INSERT INTO T_TOWING_ACTIVITIES(towing_voucher_id, activity_id, amount, cal_fee_excl_vat, cal_fee_incl_vat)
@@ -257,7 +255,6 @@ SELECT "Voucher created";
 			WHERE tv.dossier_id = v_dossier_id
 					AND tv.id = v_voucher_id;
 
-SELECT "Activity copied"; 
 
 			-- create new signa activity
 			SELECT 	taf.id as activity_id, taf.fee_excl_vat, taf.fee_incl_vat INTO v_taf_id, v_fee_excl_vat, v_fee_incl_vat
@@ -1581,9 +1578,11 @@ FOR EACH ROW
 BEGIN
 	DECLARE v_incl_vat, v_excl_vat DOUBLE;
 	
-	SELECT 	sum(amount * fee_excl_vat), sum(amount * fee_incl_vat) INTO v_excl_vat, v_incl_vat
+	SELECT 	sum(NEW.amount * fee_excl_vat), sum(NEW.amount * fee_incl_vat) INTO v_excl_vat, v_incl_vat
 	FROM 	T_TOWING_ACTIVITIES ta, P_TIMEFRAME_ACTIVITY_FEE taf
-	WHERE 	ta.activity_id = taf.id AND ta.towing_voucher_id = OLD.towing_voucher_id;
+	WHERE 	ta.activity_id = taf.id 
+			AND ta.towing_voucher_id = OLD.towing_voucher_id 
+			AND ta.activity_id = OLD.activity_id;
 
 	SET NEW.cal_fee_excl_vat = v_excl_vat;
 	SET NEW.cal_fee_incl_vat = v_incl_vat;
