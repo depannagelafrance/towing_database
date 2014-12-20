@@ -956,30 +956,7 @@ END $$
 
 CREATE PROCEDURE R_FETCH_ALL_TOWING_ACTIVITIES(IN p_dossier_id BIGINT, IN p_voucher_id BIGINT, IN p_token VARCHAR(255))
 BEGIN
-	DECLARE v_company_id, v_dossier_id BIGINT;
-	DECLARE v_user_id VARCHAR(36);
-	DECLARE v_call_date DATE;
-
-	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
-
-	IF v_user_id IS NULL OR v_company_id IS NULL THEN
-		CALL R_NOT_AUTHORIZED;
-	ELSE
-		SELECT 	call_date INTO v_call_date
-		FROM 	T_DOSSIERS
-		WHERE 	id = p_dossier_id
-		LIMIT 	0,1;
-
-		SELECT 	taf.id, ta.name, ta.code, ta.default_value, ta.is_modifiable,
-				format(taf.fee_excl_vat, 2) as fee_excl_vat,
-				format(fee_incl_vat, 2) as fee_incl_vat
-		FROM 	`P_TIMEFRAME_ACTIVITIES` ta, `P_TIMEFRAME_ACTIVITY_FEE` taf, T_TOWING_ACTIVITIES tac
-		WHERE 	ta.id = taf.timeframe_activity_id
-				AND taf.timeframe_id = (SELECT timeframe_id FROM T_DOSSIERS WHERE id = p_dossier_id)
-				AND taf.id = tac.activity_id
-				AND tac.towing_voucher_id = p_voucher_id
-				AND v_call_date BETWEEN taf.valid_from AND taf.valid_until;	
-	END IF;
+	CALL R_FETCH_TOWING_ACTIVITIES_BY_VOUCHER(p_dossier_id, p_voucher_id, p_token);
 END $$
 
 CREATE PROCEDURE R_FETCH_ALL_ALLOTMENTS_BY_DIRECTION(IN p_direction_id BIGINT, IN p_indicator_id BIGINT, IN p_token VARCHAR(255))
