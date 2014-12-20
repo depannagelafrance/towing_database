@@ -503,11 +503,18 @@ BEGIN
 	IF v_user_id IS NULL OR v_company_id IS NULL THEN
 		CALL R_NOT_AUTHORIZED;
 	ELSE
-		-- TODO: check link with company
-		SELECT 	DISTINCT d.id INTO v_dossier_id
-		FROM 	T_DOSSIERS d, T_TOWING_VOUCHERS tv
-		WHERE	d.id = p_dossier_id
-				AND d.id = tv.dossier_id;
+		IF p_dossier_id IS NULL THEN
+			SELECT 	dossier_id INTO v_dossier_id
+			FROM 	T_TOWING_VOUCHERS
+			WHERE 	id = p_voucher_id 
+			LIMIT 	0,1;
+		ELSE
+			-- TODO: check link with company
+			SELECT 	DISTINCT d.id INTO v_dossier_id
+			FROM 	T_DOSSIERS d, T_TOWING_VOUCHERS tv
+			WHERE	d.id = p_dossier_id
+					AND d.id = tv.dossier_id;
+		END IF; 
 
 		IF v_dossier_id IS NULL THEN
 			CALL R_NOT_FOUND;
