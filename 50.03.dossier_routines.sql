@@ -519,7 +519,7 @@ BEGIN
 					AND ta.activity_id = taf.id
 					AND taf.timeframe_activity_id = tia.id;
 
-			SELECT ta.towing_voucher_id, ta.activity_id, tia.code, tia.name, tia.id as timeframe_activity_id,
+			SELECT ta.towing_voucher_id, ta.activity_id, tia.code, tia.name, tia.id as timeframe_activity_id, tia.default_value, tia.is_modifiable,
 				   taf.fee_incl_vat, -- format(taf.fee_incl_vat, 2) as fee_incl_vat, 
 				   taf.fee_excl_vat, -- format(taf.fee_excl_vat, 2) as fee_excl_vat, 
 				   ta.amount, 
@@ -943,7 +943,7 @@ BEGIN
 		WHERE 	id = p_dossier_id
 		LIMIT 	0,1;
 
-		SELECT 	taf.id, ta.name, ta.code, 
+		SELECT 	taf.id, ta.name, ta.code, ta.default_value, ta.is_modifiable,
 				format(taf.fee_excl_vat, 2) as fee_excl_vat,
 				format(fee_incl_vat, 2) as fee_incl_vat
 		FROM 	`P_TIMEFRAME_ACTIVITIES` ta, `P_TIMEFRAME_ACTIVITY_FEE` taf
@@ -970,7 +970,7 @@ BEGIN
 		WHERE 	id = p_dossier_id
 		LIMIT 	0,1;
 
-		SELECT 	taf.id, ta.name, ta.code, 
+		SELECT 	taf.id, ta.name, ta.code, ta.default_value, ta.is_modifiable,
 				format(taf.fee_excl_vat, 2) as fee_excl_vat,
 				format(fee_incl_vat, 2) as fee_incl_vat
 		FROM 	`P_TIMEFRAME_ACTIVITIES` ta, `P_TIMEFRAME_ACTIVITY_FEE` taf, T_TOWING_ACTIVITIES tac

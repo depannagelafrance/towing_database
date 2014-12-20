@@ -265,17 +265,17 @@ INSERT INTO `P_TIMEFRAME_VALIDITY` (`id`, `timeframe_id`, `category`, `from`, `t
 	(7, 3, 'HOLIDAY', 	'00:00:00', '23:59:59'); -- Tarief II, valid on holidays from 00 - 24:00
 
 
-INSERT INTO `P_TIMEFRAME_ACTIVITIES` (`id`, `name`, `code`) VALUES 
-	(1, 'Type I (Panne)', 				'PANNE'),
-	(2, 'Type II (Achterg)', 			'ACHTERGELATEN_VOERTUIG'),
-	(3, 'Type III (Ongeval)', 			'ONGEVAL'),
-	(4, 'Signalisatie', 				'SIGNALISATIE'),
-	(5, 'Extra tijd Type III (15 min)', 'EXTRA_ONGEVAL'),
-	(6, 'Extra tijd Signal (15 min)', 	'EXTRA_SIGNALISATIE'),
-	(7, 'Verloren voorwerp', 			'VERLOREN_VOORWERP'),
-	(8, 'Loze rit', 					'LOZE_RIT'),
-	(9, 'Botsabsorbeerder (uur)', 		'BOTSABSORBEERDER'),
-	(10, 'Stallingskost (per dag)',		'STALLING');
+INSERT INTO `P_TIMEFRAME_ACTIVITIES` (`id`, `name`, `code`, `default_value`, `is_modifiable`) VALUES 
+	(1, 'Type I (Panne)', 				'PANNE', 					1, TRUE),
+	(2, 'Type II (Achterg)', 			'ACHTERGELATEN_VOERTUIG', 	1, TRUE),
+	(3, 'Type III (Ongeval)', 			'ONGEVAL', 					1, TRUE),
+	(4, 'Signalisatie', 				'SIGNALISATIE',				1, TRUE),
+	(5, 'Extra tijd Type III (15 min)', 'EXTRA_ONGEVAL', 			1, TRUE),
+	(6, 'Extra tijd Signal (15 min)', 	'EXTRA_SIGNALISATIE', 		1, TRUE),
+	(7, 'Verloren voorwerp', 			'VERLOREN_VOORWERP', 		1, FALSE),
+	(8, 'Loze rit', 					'LOZE_RIT', 				1, FALSE),
+	(9, 'Botsabsorbeerder (uur)', 		'BOTSABSORBEERDER', 		1, TRUE),
+	(10, 'Stallingskost (per dag)',		'STALLING', 				1, FALSE);
 
 
 INSERT INTO `P_TIMEFRAME_ACTIVITY_FEE` (`id`, `timeframe_id`, `timeframe_activity_id`, `fee_incl_vat`, `fee_excl_vat`, `valid_from`, `valid_until`) VALUES 
