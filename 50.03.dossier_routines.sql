@@ -245,9 +245,9 @@ BEGIN
 
 			-- create a copy of the base activities
 			INSERT INTO T_TOWING_ACTIVITIES(towing_voucher_id, activity_id, amount, cal_fee_excl_vat, cal_fee_incl_vat)
-			SELECT 	id, t.activity_id, 1.00, t.fee_excl_vat, t.fee_incl_vat 
+			SELECT 	id, t.activity_id, t.default_value, t.fee_excl_vat, t.fee_incl_vat 
 			FROM 	T_TOWING_VOUCHERS tv,
-					(SELECT taf.id as activity_id, taf.fee_excl_vat, taf.fee_incl_vat
+					(SELECT taf.id as activity_id, taf.fee_excl_vat, taf.fee_incl_vat, ta.default_value
 					 FROM 	`P_TIMEFRAME_ACTIVITY_FEE` taf, `P_TIMEFRAME_ACTIVITIES` ta
 					 WHERE 	taf.timeframe_activity_id = ta.id 
 							AND taf.timeframe_id = v_timeframe_id
@@ -293,9 +293,9 @@ BEGIN
 		CASE 
 			WHEN v_incident_type_code = 'PANNE' OR v_incident_type_code = 'ONGEVAL' OR v_incident_type_code = 'ACHTERGELATEN_VOERTUIG' THEN
 				INSERT INTO T_TOWING_ACTIVITIES(towing_voucher_id, activity_id, amount, cal_fee_excl_vat, cal_fee_incl_vat)
-				SELECT 	id, t.activity_id, 1.00, t.fee_excl_vat, t.fee_incl_vat 
+				SELECT 	id, t.activity_id, t.default_value, t.fee_excl_vat, t.fee_incl_vat 
 				FROM 	T_TOWING_VOUCHERS tv,
-						(SELECT taf.id as activity_id, taf.fee_excl_vat, taf.fee_incl_vat
+						(SELECT taf.id as activity_id, taf.fee_excl_vat, taf.fee_incl_vat, ta.default_value
 						 FROM 	`P_TIMEFRAME_ACTIVITY_FEE` taf, `P_TIMEFRAME_ACTIVITIES` ta
 						 WHERE 	taf.timeframe_activity_id = ta.id 
 								AND taf.timeframe_id = p_timeframe_id
@@ -304,9 +304,9 @@ BEGIN
 				WHERE tv.dossier_id = p_dossier_id;
 			ELSE
 				INSERT INTO T_TOWING_ACTIVITIES(towing_voucher_id, activity_id, amount, cal_fee_excl_vat, cal_fee_incl_vat)
-				SELECT 	id, t.activity_id, 1.00, t.fee_excl_vat, t.fee_incl_vat 
+				SELECT 	id, t.activity_id, t.default_value, t.fee_excl_vat, t.fee_incl_vat 
 				FROM 	T_TOWING_VOUCHERS tv,
-						(SELECT taf.id as activity_id, taf.fee_excl_vat, taf.fee_incl_vat
+						(SELECT taf.id as activity_id, taf.fee_excl_vat, taf.fee_incl_vat, ta.default_value
 						 FROM 	`P_TIMEFRAME_ACTIVITY_FEE` taf, `P_TIMEFRAME_ACTIVITIES` ta
 						 WHERE 	taf.timeframe_activity_id = ta.id 
 								AND taf.timeframe_id = p_timeframe_id
