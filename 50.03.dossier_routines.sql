@@ -771,7 +771,7 @@ BEGIN
 		FROM 	T_TOWING_ACTIVITIES
 		WHERE 	towing_voucher_id = p_voucher_id;
 
-		SET v_paid = IFNULL(p_in_cash, 0.0) + IFNULL(p_bank_deposit, 0.0) + IFNULL(p_debit_card, 0.0) + IFNULL(p_credit_card, 0.0);
+		-- SET v_paid = IFNULL(p_in_cash, 0.0) + IFNULL(p_bank_deposit, 0.0) + IFNULL(p_debit_card, 0.0) + IFNULL(p_credit_card, 0.0);
 	
 		UPDATE `T_TOWING_VOUCHER_PAYMENTS`
 		SET
