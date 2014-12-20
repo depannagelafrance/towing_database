@@ -42,6 +42,7 @@ DROP PROCEDURE IF EXISTS R_FETCH_ALL_DOSSIERS_BY_FILTER $$
 DROP PROCEDURE IF EXISTS R_FETCH_ALL_DOSSIERS_ASSIGNED_TO_ME_BY_FILTER $$
 DROP PROCEDURE IF EXISTS R_FETCH_ALL_VOUCHERS_BY_FILTER $$
 DROP PROCEDURE IF EXISTS R_FETCH_ALL_AVAILABLE_ACTIVITIES $$
+DROP PROCEDURE IF EXISTS R_FETCH_ALL_TOWING_ACTIVITIES $$
 DROP PROCEDURE IF EXISTS R_FETCH_ALL_ALLOTMENTS_BY_DIRECTION $$
 DROP PROCEDURE IF EXISTS R_FETCH_ALL_COMPANIES_BY_ALLOTMENT $$
 DROP PROCEDURE IF EXISTS R_FETCH_ALL_TRAFFIC_POSTS_BY_ALLOTMENT $$
@@ -930,12 +931,18 @@ CREATE PROCEDURE R_FETCH_ALL_AVAILABLE_ACTIVITIES(IN p_dossier_id BIGINT, IN p_v
 BEGIN
 	DECLARE v_company_id, v_dossier_id BIGINT;
 	DECLARE v_user_id VARCHAR(36);
+	DECLARE v_call_date DATE;
 
 	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
 
 	IF v_user_id IS NULL OR v_company_id IS NULL THEN
 		CALL R_NOT_AUTHORIZED;
 	ELSE
+		SELECT 	call_date INTO v_call_date
+		FROM 	T_DOSSIERS
+		WHERE 	id = p_dossier_id
+		LIMIT 	0,1;
+
 		SELECT 	taf.id, ta.name, ta.code, 
 				format(taf.fee_excl_vat, 2) as fee_excl_vat,
 				format(fee_incl_vat, 2) as fee_incl_vat
@@ -943,7 +950,35 @@ BEGIN
 		WHERE 	ta.id = taf.timeframe_activity_id
 				AND taf.timeframe_id = (SELECT timeframe_id FROM T_DOSSIERS WHERE id = p_dossier_id)
 				AND taf.id NOT IN (SELECT activity_id FROM T_TOWING_ACTIVITIES WHERE towing_voucher_id = p_voucher_id)
-				AND CURRENT_DATE BETWEEN taf.valid_from AND taf.valid_until;	
+				AND v_call_date BETWEEN taf.valid_from AND taf.valid_until;	
+	END IF;
+END $$
+
+CREATE PROCEDURE R_FETCH_ALL_TOWING_ACTIVITIES(IN p_dossier_id BIGINT, IN p_voucher_id BIGINT, IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id, v_dossier_id BIGINT;
+	DECLARE v_user_id VARCHAR(36);
+	DECLARE v_call_date DATE;
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		SELECT 	call_date INTO v_call_date
+		FROM 	T_DOSSIERS
+		WHERE 	id = p_dossier_id
+		LIMIT 	0,1;
+
+		SELECT 	taf.id, ta.name, ta.code, 
+				format(taf.fee_excl_vat, 2) as fee_excl_vat,
+				format(fee_incl_vat, 2) as fee_incl_vat
+		FROM 	`P_TIMEFRAME_ACTIVITIES` ta, `P_TIMEFRAME_ACTIVITY_FEE` taf, T_TOWING_ACTIVITIES tac
+		WHERE 	ta.id = taf.timeframe_activity_id
+				AND taf.timeframe_id = (SELECT timeframe_id FROM T_DOSSIERS WHERE id = p_dossier_id)
+				AND taf.id = tac.activity_id
+				AND tac.towing_voucher_id = p_voucher_id
+				AND v_call_date BETWEEN taf.valid_from AND taf.valid_until;	
 	END IF;
 END $$
 
