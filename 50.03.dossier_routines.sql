@@ -668,6 +668,7 @@ BEGIN
 			`last_name` = p_lastname,
 			`company_name` = p_company_name,
 			`company_vat` = p_company_vat,
+			`company_vat_foreign_country` = IF(TRIM(IFNULL(p_company_vat, '')) = '', null, UPPER(LEFT(p_company_vat, 2)) = 'BE'),
 			`street` = p_street,
 			`street_number` = p_street_number,
 			`street_pobox` = p_street_pobox,
@@ -708,6 +709,7 @@ BEGIN
 			`last_name` = p_lastname,
 			`company_name` = p_company_name,
 			`company_vat` = p_company_vat,
+			`company_vat_foreign_country` = IF(TRIM(IFNULL(p_company_vat, '')) = '', null, UPPER(LEFT(p_company_vat, 2)) = 'BE'),
 			`street` = p_street,
 			`street_number` = p_street_number,
 			`street_pobox` = p_street_pobox,
@@ -1061,7 +1063,7 @@ BEGIN
 	IF v_user_id IS NULL OR v_company_id IS NULL THEN
 		CALL R_NOT_AUTHORIZED;
 	ELSE
-		SELECT	id, voucher_id, first_name, last_name, company_name, company_vat, street, street_number, street_pobox, zip, city, country, phone, email, invoice_ref
+		SELECT	id, voucher_id, first_name, last_name, company_name, company_vat, company_vat_foreign_country, street, street_number, street_pobox, zip, city, country, phone, email, invoice_ref
 		FROM 	T_TOWING_CUSTOMERS
 		WHERE 	voucher_id = p_voucher_id
 		LIMIT 	0,1;
@@ -1078,7 +1080,7 @@ BEGIN
 	IF v_user_id IS NULL OR v_company_id IS NULL THEN
 		CALL R_NOT_AUTHORIZED;
 	ELSE
-		SELECT	id, voucher_id, first_name, last_name, company_name, company_vat, street, street_number, street_pobox, zip, city, country, phone, email
+		SELECT	id, voucher_id, first_name, last_name, company_name, company_vat, company_vat_foreign_country, street, street_number, street_pobox, zip, city, country, phone, email
 		FROM 	T_TOWING_INCIDENT_CAUSERS
 		WHERE 	voucher_id = p_voucher_id
 		LIMIT 	0,1;
