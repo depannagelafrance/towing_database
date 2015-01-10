@@ -69,6 +69,7 @@ DROP PROCEDURE IF EXISTS R_FETCH_ALL_DOSSIER_COMMUNICATIONS $$
 DROP PROCEDURE IF EXISTS R_FETCH_ALL_INTERNAL_COMMUNICATIONS $$
 DROP PROCEDURE IF EXISTS R_FETCH_ALL_EMAIL_COMMUNICATIONS $$
 DROP PROCEDURE IF EXISTS R_FETCH_ALL_DOSSIER_COMM_RECIPIENTS $$
+DROP PROCEDURE IF EXISTS R_FETCH_ALL_VOUCHER_DOCUMENTS $$
 
 DROP PROCEDURE IF EXISTS R_CREATE_DOSSIER_COMMUNICATION $$
 DROP PROCEDURE IF EXISTS R_CREATE_DOSSIER_COMM_RECIPIENT $$
@@ -1146,6 +1147,14 @@ BEGIN
 	CALL R_ADD_BLOB_TO_VOUCHER(p_voucher_id, 'ASSISTANCE_ATT', p_filename, p_content_type, p_file_size, p_content, p_token);
 END $$
 
+CREATE PROCEDURE  R_ADD_ANY_DOCUMENT(IN p_voucher_id BIGINT, IN p_filename VARCHAR(255), 
+									 IN p_content_type VARCHAR(255), IN p_file_size INT,
+									 IN p_content LONGTEXT,
+									 IN p_token VARCHAR(255))
+BEGIN
+	CALL R_ADD_BLOB_TO_VOUCHER(p_voucher_id, 'ATT', p_filename, p_content_type, p_file_size, p_content, p_token);
+END $$
+
 CREATE PROCEDURE R_FETCH_SIGNATURE_BY_VOUCHER(IN p_voucher_id BIGINT, IN p_category VARCHAR(255), IN p_token VARCHAR(255))
 BEGIN
 	DECLARE v_company_id, v_dossier_id BIGINT;
@@ -1241,6 +1250,25 @@ BEGIN
 				AND db.id = p_id
 		LIMIT 	0,1;
 
+	END IF;
+END $$
+
+CREATE PROCEDURE R_FETCH_ALL_VOUCHER_DOCUMENTS(IN p_voucher_id BIGINT, IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id, v_dossier_id BIGINT;
+	DECLARE v_user_id VARCHAR(36);
+	DECLARE v_doc_id BIGINT;
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		SELECT  d.id, d.name, d.content_type, d.file_size, tva.category
+		FROM 	T_TOWING_VOUCHER_ATTS tva, T_DOCUMENTS d
+		WHERE	tva.towing_voucher_id = p_voucher_id
+				AND tva.document_id = d.id
+				AND tva.category IN ('ASSISTANCE_ATT','ATT');
 	END IF;
 END $$
 
