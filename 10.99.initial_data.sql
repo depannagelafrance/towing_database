@@ -275,7 +275,7 @@ INSERT INTO `P_TIMEFRAME_ACTIVITIES` (`id`, `name`, `code`, `default_value`, `is
 	(7, 'Verloren voorwerp', 			'VERLOREN_VOORWERP', 		1, FALSE),
 	(8, 'Loze rit', 					'LOZE_RIT', 				1, FALSE),
 	(9, 'Botsabsorbeerder (uur)', 		'BOTSABSORBEERDER', 		1, TRUE),
-	(10, 'Stallingskost (per dag)',		'STALLING', 				1, FALSE);
+	(10, 'Stallingskost (per dag)',		'STALLING', 				1, TRUE);
 
 
 INSERT INTO `P_TIMEFRAME_ACTIVITY_FEE` (`id`, `timeframe_id`, `timeframe_activity_id`, `fee_incl_vat`, `fee_excl_vat`, `valid_from`, `valid_until`) VALUES 

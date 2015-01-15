@@ -53,6 +53,7 @@ DROP PROCEDURE IF EXISTS R_ADD_COLLECTOR_SIGNATURE $$
 DROP PROCEDURE IF EXISTS R_ADD_CAUSER_SIGNATURE $$
 DROP PROCEDURE IF EXISTS R_ADD_POLICE_SIGNATURE $$
 DROP PROCEDURE IF EXISTS R_ADD_INSURANCE_DOCUMENT $$
+DROP PROCEDURE IF EXISTS R_ADD_ANY_DOCUMENT $$
 
 DROP PROCEDURE IF EXISTS R_FETCH_SIGNATURE_BY_VOUCHER $$
 DROP PROCEDURE IF EXISTS R_FETCH_CAUSER_SIGNATURE_BY_VOUCHER $$
@@ -83,6 +84,7 @@ DROP PROCEDURE IF EXISTS R_CREATE_DOSSIER_TRAFFIC_LANES $$
 DROP FUNCTION IF EXISTS F_NEXT_DOSSIER_NUMBER $$
 DROP FUNCTION IF EXISTS F_NEXT_TOWING_VOUCHER_NUMBER $$
 DROP FUNCTION IF EXISTS F_RESOLVE_TIMEFRAME_CATEGORY $$
+DROP FUNCTION IF EXISTS F_FETCH_USER_LICENCE_PLATE $$
 
 DROP TRIGGER IF EXISTS TRG_AI_DOSSIER $$
 DROP TRIGGER IF EXISTS TRG_AU_DOSSIER $$
@@ -317,6 +319,15 @@ BEGIN
 		END CASE;
 END $$
 
+CREATE FUNCTION F_FETCH_USER_LICENCE_PLATE(p_user_id VARCHAR(36)) RETURNS VARCHAR(45)
+BEGIN
+	DECLARE v_lp VARCHAR(45);
+
+	SELECT licence_plate INTO v_lp FROM T_USERS WHERE id = p_user_id LIMIT 0,1;
+
+	RETURN v_lp;
+END $$
+
 CREATE PROCEDURE  R_UPDATE_TOWING_VOUCHER(IN p_dossier_id BIGINT, IN p_voucher_id BIGINT,
 										  IN p_insurance_id BIGINT, IN p_insurance_dossier_nr VARCHAR(45), IN p_warranty_holder VARCHAR(255),
 										  IN p_collector_id BIGINT,
@@ -350,15 +361,15 @@ BEGIN
 			vehicule_country 		= p_vehicule_country,
 			vehicule_collected 		= p_vehicule_collected, 
 			towing_id				= IF(TRIM(p_towing_id) = '', null, p_towing_id),
-			towed_by 				= p_towed_by, 
-			towed_by_vehicle 		= p_towed_by_vehicule, 	
+			-- towed_by 				= p_towed_by, 
+			towed_by_vehicle 		= F_FETCH_USER_LICENCE_PLATE(p_towing_id), 	
 			towing_called 			= p_towing_called, 
 			towing_arrival 			= p_towing_arrival, 
 			towing_start 			= p_towing_start, 
 			towing_completed 		= p_towing_end, 
 			signa_id				= IF(TRIM(p_signa_id) = '', null, p_signa_id),
-			signa_by 				= p_signa_by, 
-			signa_by_vehicle 		= p_signa_by_vehicule, 
+			-- signa_by 				= p_signa_by, 
+			signa_by_vehicle 		= F_FETCH_USER_LICENCE_PLATE(p_signa_id), 
 			signa_arrival 			= p_signa_arrival, 
 			cic 					= p_cic, 
 			additional_info 		= p_additional_info, 
@@ -1558,6 +1569,15 @@ BEGIN
 
 	SET v_score = 0;
 
+	IF NEW.signa_id IS NOT NULL THEN
+		SET NEW.signa_by_vehicle = F_FETCH_USER_LICENCE_PLATE(NEW.signa_id);
+	END IF;
+
+	IF NEW.towing_id IS NOT NULL THEN
+		SET NEW.towed_by_vehicle = F_FETCH_USER_LICENCE_PLATE(NEW.towing_id);
+	END IF;
+
+
 	IF OLD.towing_completed IS NULL AND NEW.towing_completed IS NOT NULL THEN
 		--
 		-- CHECK IF CUSTOMER IS SET
@@ -1580,7 +1600,7 @@ BEGIN
 		-- CHECK IF CAUSER IS SET
 		-- 
 		SELECT first_name, last_name, company_name, company_vat
-		INTO v_firsT_name, v_last_name, v_company, v_company_vat
+		INTO v_first_name, v_last_name, v_company, v_company_vat
 		FROM T_TOWING_INCIDENT_CAUSERS WHERE voucher_id = OLD.id;
 
 		IF TRIM(IFNULL(v_company, "")) != "" THEN

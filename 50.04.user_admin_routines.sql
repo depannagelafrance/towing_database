@@ -98,7 +98,9 @@ BEGIN
 		IF v_guid IS NULL THEN
 			CALL R_NOT_AUTHORIZED;
 		ELSE
-			SELECT 	`id`, `login`, `first_name`, `last_name`, `email`, `is_active`, `is_locked`, `locked_ts`
+			SELECT 	`id`, `login`, `first_name`, `last_name`, `email`, 
+					`is_active`, `is_signa`, `is_towing`, `is_locked`, `locked_ts`, 
+					`mobile_device_id`, `licence_plate`
 			FROM 	T_USERS
 			WHERE 	id = p_id 
 					AND company_id = v_company_id;
@@ -442,7 +444,7 @@ BEGIN
 		CALL R_NOT_AUTHORIZED;
 	ELSE
 		UPDATE 	T_USERS
-		SET 	is_signa=p_is_signa, is_towing=p_is_towing, licence_plate=p_licence_plate, mobile_device_id=p_registration_id
+		SET 	is_signa=p_is_signa, is_towing=p_is_towing, licence_plate=UPPER(p_licence_plate), mobile_device_id=p_registration_id
 		WHERE 	id = v_user_id
 		LIMIT 	1;
 
