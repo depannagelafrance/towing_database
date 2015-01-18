@@ -366,7 +366,8 @@ BEGIN
 		SELECT 	`id`,
 				`name`, `code`,
 				`street`, `street_number`, `street_pobox`, `zip`, `city`,
-				`phone`, `fax`, `email`, `website`, `vat`
+				`phone`, `fax`, `email`, `website`, `vat`,
+				`mobile_device_id`
 		FROM 	`T_COMPANIES` 
 		WHERE 	id = v_company_id;
 	END IF;
