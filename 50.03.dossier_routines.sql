@@ -680,7 +680,7 @@ BEGIN
 			`last_name` = p_lastname,
 			`company_name` = p_company_name,
 			`company_vat` = p_company_vat,
-			`company_vat_foreign_country` = IF(TRIM(IFNULL(p_company_vat, '')) = '', null, UPPER(LEFT(p_company_vat, 2)) = 'BE'),
+			`company_vat_foreign_country` = IF(TRIM(IFNULL(p_company_vat, '')) = '', null, UPPER(LEFT(p_company_vat, 2)) != 'BE'),
 			`street` = p_street,
 			`street_number` = p_street_number,
 			`street_pobox` = p_street_pobox,
@@ -721,7 +721,7 @@ BEGIN
 			`last_name` = p_lastname,
 			`company_name` = p_company_name,
 			`company_vat` = p_company_vat,
-			`company_vat_foreign_country` = IF(TRIM(IFNULL(p_company_vat, '')) = '', null, UPPER(LEFT(p_company_vat, 2)) = 'BE'),
+			`company_vat_foreign_country` = IF(TRIM(IFNULL(p_company_vat, '')) = '', null, UPPER(LEFT(p_company_vat, 2)) != 'BE'),
 			`street` = p_street,
 			`street_number` = p_street_number,
 			`street_pobox` = p_street_pobox,
@@ -769,12 +769,18 @@ BEGIN
 	DECLARE v_user_id VARCHAR(36);
 	DECLARE v_fee_excl_vat, v_fee_incl_vat DOUBLE;
 	DECLARE v_cal_fee_excl_vat, v_cal_fee_incl_vat, v_paid DOUBLE(10,2);
+	DECLARE v_foreign_vat BOOL;
 
 	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
 
 	IF v_user_id IS NULL OR v_company_id IS NULL THEN
 		CALL R_NOT_AUTHORIZED;
 	ELSE
+		SELECT (IFNULL(company_vat_foreign_country, 0) = 1) INTO v_foreign_vat
+		FROM `T_TOWING_CUSTOMERS`
+		WHERE voucher_id = p_voucher_id 
+		LIMIT 0,1;
+
 		DELETE 
 		FROM 	T_TOWING_ACTIVITIES 
 		WHERE 	towing_voucher_id = p_voucher_id 
@@ -789,7 +795,7 @@ BEGIN
 	
 		UPDATE `T_TOWING_VOUCHER_PAYMENTS`
 		SET
-			`amount_customer` = v_cal_fee_incl_vat - IFNULL(`amount_guaranteed_by_insurance`, 0.0),
+			`amount_customer` = IF(v_foreign_vat, v_cal_fee_excl_vat, v_cal_fee_incl_vat) - IFNULL(`amount_guaranteed_by_insurance`, 0.0),
 			`ud` = now(),
 			`ud_by` = F_RESOLVE_LOGIN(v_user_id, p_token)
 		WHERE `towing_voucher_id` = p_voucher_id;
@@ -807,12 +813,18 @@ BEGIN
 	DECLARE v_company_id BIGINT;
 	DECLARE v_user_id VARCHAR(36);
 	DECLARE v_cal_fee_excl_vat, v_cal_fee_incl_vat, v_paid DOUBLE(10,2);
+	DECLARE v_foreign_vat BOOL;
 
 	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
 
 	IF v_user_id IS NULL OR v_company_id IS NULL THEN
 		CALL R_NOT_AUTHORIZED;
 	ELSE
+		SELECT (IFNULL(company_vat_foreign_country, 0) = 1) INTO v_foreign_vat
+		FROM `T_TOWING_CUSTOMERS`
+		WHERE voucher_id = p_voucher_id 
+		LIMIT 0,1;
+
 		SELECT 	sum(cal_fee_excl_vat), sum(cal_fee_incl_vat) INTO v_cal_fee_excl_vat, v_cal_fee_incl_vat
 		FROM 	T_TOWING_ACTIVITIES
 		WHERE 	towing_voucher_id = p_voucher_id;
@@ -822,13 +834,13 @@ BEGIN
 		UPDATE `T_TOWING_VOUCHER_PAYMENTS`
 		SET
 			`amount_guaranteed_by_insurance` = p_guarantee_insurance,
-			`amount_customer` = v_cal_fee_incl_vat - IFNULL(p_guarantee_insurance, 0.0),
+			`amount_customer` = IF(v_foreign_vat, v_cal_fee_excl_vat, v_cal_fee_incl_vat) - IFNULL(p_guarantee_insurance, 0.0),
 			`paid_in_cash` = p_in_cash,
 			`paid_by_bank_deposit` = p_bank_deposit,
 			`paid_by_debit_card` = p_debit_card,
 			`paid_by_credit_card` = p_credit_card,
 			`cal_amount_paid` = v_paid,
-			`cal_amount_unpaid` = v_cal_fee_incl_vat - IFNULL(p_guarantee_insurance, 0.0) - v_paid,
+			`cal_amount_unpaid` = IF(v_foreign_vat, v_cal_fee_excl_vat, v_cal_fee_incl_vat) - IFNULL(p_guarantee_insurance, 0.0) - v_paid,
 			`ud` = now(),
 			`ud_by` = F_RESOLVE_LOGIN(v_user_id, p_token)
 		WHERE `towing_voucher_id` = p_voucher_id;
@@ -1661,16 +1673,23 @@ CREATE TRIGGER `TRG_AU_TOWING_ACTIVITY` AFTER UPDATE ON `T_TOWING_ACTIVITIES`
 FOR EACH ROW
 BEGIN
 	DECLARE v_incl_vat, v_excl_vat DOUBLE;
+	DECLARE v_foreign_vat BOOL;
 	
 	SELECT 	sum(amount * fee_excl_vat), sum(amount * fee_incl_vat) INTO v_excl_vat, v_incl_vat
 	FROM 	T_TOWING_ACTIVITIES ta, P_TIMEFRAME_ACTIVITY_FEE taf
 	WHERE 	ta.activity_id = taf.id AND ta.towing_voucher_id = NEW.towing_voucher_id;
 
+	SELECT (IFNULL(company_vat_foreign_country, 0) = 1) INTO v_foreign_vat
+	FROM `T_TOWING_CUSTOMERS`
+	WHERE voucher_id = OLD.voucher_id 
+	LIMIT 0,1;
+
+
 
 	UPDATE `T_TOWING_VOUCHER_PAYMENTS` 
-	SET 	`amount_customer` = v_incl_vat, 
+	SET 	`amount_customer` = IF(v_foreign_vat, v_excl_vat, v_incl_vat), 
 			`cal_amount_paid` = 0, 
-			`cal_amount_unpaid` = v_incl_vat, 
+			`cal_amount_unpaid` = IF(v_foreign_vat, v_excl_vat, v_incl_vat), 
 			`ud` = now(), `ud_by` = (SELECT ud_by FROM T_TOWING_ACTIVITIES WHERE id = NEW.towing_voucher_id LIMIT 0,1)
 	WHERE 	towing_voucher_id = NEW.towing_voucher_id
 	LIMIT	1;
@@ -1680,16 +1699,22 @@ CREATE TRIGGER `TRG_AI_TOWING_ACTIVITY` AFTER INSERT ON `T_TOWING_ACTIVITIES`
 FOR EACH ROW
 BEGIN
 	DECLARE v_incl_vat, v_excl_vat DOUBLE;
-	
+	DECLARE v_foreign_vat BOOL;
+
 	SELECT 	sum(amount * fee_excl_vat), sum(amount * fee_incl_vat) INTO v_excl_vat, v_incl_vat
 	FROM 	T_TOWING_ACTIVITIES ta, P_TIMEFRAME_ACTIVITY_FEE taf
 	WHERE 	ta.activity_id = taf.id AND ta.towing_voucher_id = NEW.towing_voucher_id;
 
+	SELECT (IFNULL(company_vat_foreign_country, 0) = 1) INTO v_foreign_vat
+	FROM `T_TOWING_CUSTOMERS`
+	WHERE voucher_id = OLD.voucher_id 
+	LIMIT 0,1;
+
 
 	UPDATE `T_TOWING_VOUCHER_PAYMENTS` 
-	SET 	`amount_customer` = v_incl_vat, 
+	SET 	`amount_customer` = IF(v_foreign_vat, v_excl_vat, v_incl_vat), 
 			`cal_amount_paid` = 0, 
-			`cal_amount_unpaid` = v_incl_vat, 
+			`cal_amount_unpaid` = IF(v_foreign_vat, v_excl_vat, v_incl_vat), 
 			`ud` = now(), `ud_by` = (SELECT ud_by FROM T_TOWING_ACTIVITIES WHERE id = NEW.towing_voucher_id LIMIT 0,1)
 	WHERE 	towing_voucher_id = NEW.towing_voucher_id
 	LIMIT	1;
