@@ -1681,7 +1681,7 @@ BEGIN
 
 	SELECT (IFNULL(company_vat_foreign_country, 0) = 1) INTO v_foreign_vat
 	FROM `T_TOWING_CUSTOMERS`
-	WHERE voucher_id = OLD.voucher_id 
+	WHERE voucher_id = NEW.towing_voucher_id 
 	LIMIT 0,1;
 
 
@@ -1707,7 +1707,7 @@ BEGIN
 
 	SELECT (IFNULL(company_vat_foreign_country, 0) = 1) INTO v_foreign_vat
 	FROM `T_TOWING_CUSTOMERS`
-	WHERE voucher_id = OLD.voucher_id 
+	WHERE voucher_id = NEW.towing_voucher_id 
 	LIMIT 0,1;
 
 
