@@ -28,6 +28,7 @@ DROP PROCEDURE IF EXISTS R_REMOVE_TOWING_VOUCHER_ACTIVITY $$
 DROP PROCEDURE IF EXISTS R_UPDATE_TOWING_VOUCHER_PAYMENTS $$
 
 DROP PROCEDURE IF EXISTS R_UPDATE_TOWING_STORAGE_COST $$
+DROP PROCEDURE IF EXISTS R_UPDATE_TOWING_STORAGE_COST_FOR_VOUCHER $$
 DROP PROCEDURE IF EXISTS R_UPDATE_EXTRA_TIME_SIGNA $$
 DROP PROCEDURE IF EXISTS R_UPDATE_EXTRA_TIME_ACCIDENT $$
 
@@ -479,14 +480,14 @@ BEGIN
 					`vehicule_country`,
 					`vehicule_collected`,
 					`towing_id`,
-					`towed_by`,
+					(SELECT concat_ws(' ', first_name, last_name) FROM `T_USERS` WHERE id = `towing_id`) AS `towed_by`,
 					`towed_by_vehicle`,
 					unix_timestamp(`towing_called`) as towing_called,
 					unix_timestamp(`towing_arrival`) as towing_arrival,
 					unix_timestamp(`towing_start`) as towing_start,
 					unix_timestamp(`towing_completed`) as towing_completed,
 					`signa_id`,
-					`signa_by`,
+					(SELECT concat_ws(' ', first_name, last_name) FROM `T_USERS` WHERE id = `signa_id`) AS`signa_by`,
 					`signa_by_vehicle`,
 					unix_timestamp(`signa_arrival`) as signa_arrival,
 					`cic`,
@@ -1159,7 +1160,21 @@ CREATE PROCEDURE R_ADD_POLICE_SIGNATURE(IN p_voucher_id BIGINT, IN p_content_typ
 										IN p_content LONGTEXT,
 									    IN p_token VARCHAR(255))
 BEGIN
+	DECLARE v_dossier_id, v_timeframe_id BIGINT;
+
 	CALL R_ADD_BLOB_TO_VOUCHER(p_voucher_id, 'SIGNATURE_POLICE', 'signature_police.png', p_content_type, p_file_size, p_content, p_token);
+
+	UPDATE 	`T_TOWING_VOUCHERS` 
+	SET 	`police_signature_dt` = now() 
+	WHERE 	id = p_voucher_id 
+	LIMIT 	1;
+
+	SELECT 	dossier_id, timeframe_id INTO v_dossier_id, v_timeframe_id
+	FROM 	`T_TOWING_VOUCHERS` tv, `T_DOSSIERS` d
+	WHERE 	tv.id = p_voucher_id AND tv.dossier_id = d.id
+	LIMIT 	0,1;
+
+	CALL R_UPDATE_TOWING_STORAGE_COST_FOR_VOUCHER(p_voucher_id, v_dossier_id, v_timeframe_id);
 END $$
 
 CREATE PROCEDURE  R_ADD_INSURANCE_DOCUMENT(IN p_voucher_id BIGINT, IN p_filename VARCHAR(255), 
@@ -1728,7 +1743,28 @@ END $$
 -- EVENTS
 -- ----------------------------------------------------------------
 
+CREATE PROCEDURE R_UPDATE_TOWING_STORAGE_COST_FOR_VOUCHER(IN p_voucher_id BIGINT, IN p_dossier_id BIGINT, IN p_timeframe_id BIGINT)
+BEGIN
+	DECLARE v_voucher_id, v_dossier_id, v_timeframe_id BIGINT DEFAULT NULL;
 
+	SET v_voucher_id = p_voucher_id;
+	SET v_dossier_id = p_dossier_id;
+	SET v_timeframe_id = p_timeframe_id;
+
+	INSERT INTO T_TOWING_ACTIVITIES(towing_voucher_id, activity_id, amount, cal_fee_excl_vat, cal_fee_incl_vat)
+	SELECT 	tv.id, t.activity_id, datediff(now(), call_date), t.fee_excl_vat, t.fee_incl_vat 
+	FROM 	T_DOSSIERS d, T_TOWING_VOUCHERS tv,
+			(SELECT taf.id as activity_id, taf.fee_excl_vat, taf.fee_incl_vat
+			 FROM 	`P_TIMEFRAME_ACTIVITY_FEE` taf, `P_TIMEFRAME_ACTIVITIES` ta
+			 WHERE 	taf.timeframe_activity_id = ta.id AND taf.timeframe_id = v_timeframe_id
+					AND `code` = 'STALLING'
+					AND current_date BETWEEN taf.valid_from AND taf.valid_until) t
+	WHERE d.id = v_dossier_id
+		AND tv.dossier_id = d.id
+	ON DUPLICATE KEY UPDATE amount = datediff(now(), call_date), 
+							cal_fee_excl_vat = (amount * t.fee_excl_vat), 
+							cal_fee_incl_vat = (amount * t.fee_incl_vat);
+END $$
 
 CREATE PROCEDURE R_UPDATE_TOWING_STORAGE_COST()
 BEGIN
@@ -1748,19 +1784,7 @@ BEGIN
 	REPEAT
 		FETCH c INTO v_voucher_id, v_dossier_id, v_timeframe_id;
 		
-		INSERT INTO T_TOWING_ACTIVITIES(towing_voucher_id, activity_id, amount, cal_fee_excl_vat, cal_fee_incl_vat)
-		SELECT 	tv.id, t.activity_id, datediff(now(), call_date), t.fee_excl_vat, t.fee_incl_vat 
-		FROM 	T_DOSSIERS d, T_TOWING_VOUCHERS tv,
-				(SELECT taf.id as activity_id, taf.fee_excl_vat, taf.fee_incl_vat
-				 FROM 	`P_TIMEFRAME_ACTIVITY_FEE` taf, `P_TIMEFRAME_ACTIVITIES` ta
-				 WHERE 	taf.timeframe_activity_id = ta.id AND taf.timeframe_id = v_timeframe_id
-						AND `code` = 'STALLING'
-						AND current_date BETWEEN taf.valid_from AND taf.valid_until) t
-		WHERE d.id = v_dossier_id
-			AND tv.dossier_id = d.id
-		ON DUPLICATE KEY UPDATE amount = datediff(now(), call_date), 
-								cal_fee_excl_vat = (amount * t.fee_excl_vat), 
-								cal_fee_incl_vat = (amount * t.fee_incl_vat);
+		CALL R_UPDATE_TOWING_STORAGE_COST_FOR_VOUCHER(v_voucher_id, v_dossier_id, v_timeframe_id);
 			
 	UNTIL no_rows_found END REPEAT;	
 END $$
