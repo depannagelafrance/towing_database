@@ -28,6 +28,8 @@ DROP PROCEDURE IF EXISTS R_ADD_SIGNATURE_TO_USER_PROFILE $$
 
 DROP PROCEDURE IF EXISTS R_UPDATE_USER_PROFILE $$
 
+DROP EVENT IF EXISTS E_AUTO_UNLOCK_USERS $$
+
 -- ---------------------------------------------------------------------
 -- CREATE ROUTINES
 -- ---------------------------------------------------------------------
@@ -453,5 +455,18 @@ BEGIN
 	END IF;
 END $$
 
+
+-- ----------------------------------------------------
+-- RECALCULATE EXTRA TIME ACCIDENT EVERY 15 MINUTES
+-- ----------------------------------------------------
+CREATE EVENT E_AUTO_UNLOCK_USERS
+ON SCHEDULE EVERY 15 MINUTE STARTS '2014-01-01 01:00:00'
+DO
+BEGIN
+	UPDATE 	T_USERS
+	SET 	locked_ts = null, is_locked = 0
+	WHERE 	locked_ts IS NOT NULL
+			AND timestampdiff(minute, locked_ts, current_timestamp) >= 15;	
+END $$
 
 DELIMITER ;
