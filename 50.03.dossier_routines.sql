@@ -91,6 +91,7 @@ DROP TRIGGER IF EXISTS TRG_AI_DOSSIER $$
 DROP TRIGGER IF EXISTS TRG_AU_DOSSIER $$
 DROP TRIGGER IF EXISTS TRG_AI_TOWING_VOUCHER $$
 DROP TRIGGER IF EXISTS TRG_BU_TOWING_VOUCHER $$
+DROP TRIGGER IF EXISTS TRG_AU_TOWING_VOUCHER $$
 DROP TRIGGER IF EXISTS TRG_AI_TOWING_ACTIVITY $$
 DROP TRIGGER IF EXISTS TRG_BU_TOWING_ACTIVITY $$
 DROP TRIGGER IF EXISTS TRG_AU_TOWING_ACTIVITY $$
@@ -1669,6 +1670,23 @@ BEGIN
 	END IF;
 END $$
 
+CREATE TRIGGER `TRG_AU_TOWING_VOUCHER` AFTER UPDATE ON `T_TOWING_VOUCHERS`
+FOR EACH ROW
+BEGIN
+	DECLARE v_timeframe_id BIGINT;
+
+	SELECT 	timeframe_id INTO v_timeframe_id
+	FROM 	T_DOSSIERS
+	WHERE 	id = NEW.dossier_id 
+	LIMIT 	0,1;
+
+	IF (OLD.vehicule_collected IS NULL AND NEW.vehicule_collected IS NOT NULL) 
+		OR (OLD.vehicule_collected != NEW.vehicule_collected) 
+	THEN
+			CALL R_UPDATE_TOWING_STORAGE_COST_FOR_VOUCHER(NEW.id, NEW.dossier_id, v_timeframe_id);
+	END IF;
+END $$
+
 CREATE TRIGGER `TRG_BU_TOWING_ACTIVITY` BEFORE UPDATE ON `T_TOWING_ACTIVITIES`
 FOR EACH ROW
 BEGIN
@@ -1752,7 +1770,7 @@ BEGIN
 	SET v_timeframe_id = p_timeframe_id;
 
 	INSERT INTO T_TOWING_ACTIVITIES(towing_voucher_id, activity_id, amount, cal_fee_excl_vat, cal_fee_incl_vat)
-	SELECT 	tv.id, t.activity_id, datediff(now(), call_date), t.fee_excl_vat, t.fee_incl_vat 
+	SELECT 	tv.id, t.activity_id, datediff(IFNULL(tv.vehicule_collected, now()), call_date), t.fee_excl_vat, t.fee_incl_vat 
 	FROM 	T_DOSSIERS d, T_TOWING_VOUCHERS tv,
 			(SELECT taf.id as activity_id, taf.fee_excl_vat, taf.fee_incl_vat
 			 FROM 	`P_TIMEFRAME_ACTIVITY_FEE` taf, `P_TIMEFRAME_ACTIVITIES` ta
@@ -1761,7 +1779,7 @@ BEGIN
 					AND current_date BETWEEN taf.valid_from AND taf.valid_until) t
 	WHERE d.id = v_dossier_id
 		AND tv.dossier_id = d.id
-	ON DUPLICATE KEY UPDATE amount = datediff(now(), call_date), 
+	ON DUPLICATE KEY UPDATE amount = datediff(IFNULL(tv.vehicule_collected, now()), call_date), 
 							cal_fee_excl_vat = (amount * t.fee_excl_vat), 
 							cal_fee_incl_vat = (amount * t.fee_incl_vat);
 END $$
