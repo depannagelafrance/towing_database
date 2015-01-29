@@ -225,6 +225,7 @@ INSERT INTO `P_COMPANY_MODULES` (`module_id`, `company_id`, `cd`, `cd_by`, `dd`,
 SELECT id, 1, now(), 'SYSTEM', null, null FROM P_MODULES;
 
 INSERT INTO `P_POLICE_TRAFFIC_POSTS` (`id`, `allotment_id`, `name`, `code`, `address`, `phone`) VALUES
+	(-1,1,'- Geen ploeg aanwezig -','GNPLG', '', ''),
 	(1,1,'Antwerpen','A', 'd\'Herbouvillekaai 9, 2020 Antwerpen', '+32 (0)3 829 70 89'),
 	(2,1,'Brecht','B', 'Bethovenstraat 65, 2960 Brecht', '+32 (0)3 829 70 89'),
 	(3,1,'Grobbendonk','G', 'Herentalsesteenweg 42, 2280 Grobbendonk', '+32 (0)3 829 70 89'),

@@ -491,7 +491,7 @@ BEGIN
 					(SELECT concat_ws(' ', first_name, last_name) FROM `T_USERS` WHERE id = `signa_id`) AS`signa_by`,
 					`signa_by_vehicle`,
 					unix_timestamp(`signa_arrival`) as signa_arrival,
-					`cic`,
+					unix_timestamp(`cic`) as cic,
 					`status`,
 					`additional_info`,
 					`cd`,
