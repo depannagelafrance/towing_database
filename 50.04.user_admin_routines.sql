@@ -33,7 +33,10 @@ DROP EVENT IF EXISTS E_AUTO_UNLOCK_USERS $$
 -- ---------------------------------------------------------------------
 -- CREATE ROUTINES
 -- ---------------------------------------------------------------------
-CREATE PROCEDURE R_CREATE_USER(IN p_login VARCHAR(255), IN p_firstname VARCHAR(255), IN p_lastname VARCHAR(255), IN p_email VARCHAR(255), IN p_is_signa BOOL, IN p_is_towing BOOL, IN p_token VARCHAR(255))
+CREATE PROCEDURE R_CREATE_USER(IN p_login VARCHAR(255), IN p_firstname VARCHAR(255), IN p_lastname VARCHAR(255), IN p_email VARCHAR(255), 
+							   IN p_is_signa BOOL, IN p_is_towing BOOL, 
+							   IN p_vehicule VARCHAR(255), IN p_licence_plate VARCHAR(45),
+							   IN p_token VARCHAR(255))
 BEGIN
 	DECLARE v_company_id BIGINT;
 	DECLARE v_user_id, v_guid, v_pwd VARCHAR(36);
@@ -53,8 +56,8 @@ BEGIN
 
 			SET v_pwd = SUBSTRING(MD5(RAND()) FROM 1 FOR 8);	
 
-			INSERT INTO `T_USERS` (`id`, `company_id`, `login`, `first_name`, `last_name`, `email`, is_towing, is_signa, `is_active`, `is_locked`, `locked_ts`, `cd`, `cd_by`, `dd`, `dd_by`) 
-			VALUES (v_guid, v_company_id, p_login, p_firstname, p_lastname, p_email, p_is_towing, p_is_signa, 1, 0, NULL, now(), F_RESOLVE_LOGIN(v_user_id, p_token),  NULL, NULL);
+			INSERT INTO `T_USERS` (`id`, `company_id`, `login`, `first_name`, `last_name`, `email`, is_towing, is_signa, vehicule, licence_plate, `is_active`, `is_locked`, `locked_ts`, `cd`, `cd_by`, `dd`, `dd_by`) 
+			VALUES (v_guid, v_company_id, p_login, p_firstname, p_lastname, p_email, p_is_towing, p_is_signa, p_vehicule, p_licence_plate, 1, 0, NULL, now(), F_RESOLVE_LOGIN(v_user_id, p_token),  NULL, NULL);
 
 			INSERT INTO `T_USER_PASSWORDS` (user_id, pwd) VALUES (v_guid, PASSWORD(v_pwd));
 
@@ -65,7 +68,10 @@ BEGIN
 	END IF;
 END $$
 
-CREATE PROCEDURE R_UPDATE_USER(IN p_id VARCHAR(36), IN p_firstname VARCHAR(255), IN p_lastname VARCHAR(255), IN p_email VARCHAR(255), IN p_is_signa BOOL, IN p_is_towing BOOL, IN p_token VARCHAR(255))
+CREATE PROCEDURE R_UPDATE_USER(IN p_id VARCHAR(36), IN p_firstname VARCHAR(255), IN p_lastname VARCHAR(255), IN p_email VARCHAR(255), 
+							   IN p_is_signa BOOL, IN p_is_towing BOOL, 
+							   IN p_vehicule VARCHAR(255), IN p_licence_plate VARCHAR(45),
+							   IN p_token VARCHAR(255))
 BEGIN
 	DECLARE v_company_id BIGINT;
 	DECLARE v_user_id, v_guid VARCHAR(36);
@@ -79,6 +85,7 @@ BEGIN
 		SET `first_name` = p_firstname, `last_name` = p_lastname, 
 			`email` = p_email, 
 			is_signa = p_is_signa, is_towing = p_is_towing,
+			vehicule = p_vehicule, licence_plate = p_licence_plate,
 			`ud` = now(), `ud_by` = F_RESOLVE_LOGIN(v_user_id, p_token)
 		WHERE `id` = p_id;
 
@@ -104,7 +111,9 @@ BEGIN
 			CALL R_NOT_AUTHORIZED;
 		ELSE
 			SELECT 	`id`, `login`, `first_name`, `last_name`, `email`, 
-					`is_active`, `is_signa`, `is_towing`, `is_locked`, `locked_ts`, 
+					`is_active`, `is_signa`, `is_towing`, 
+					vehicule, licence_plate, 
+					`is_locked`, `locked_ts`, 
 					`mobile_device_id`, `licence_plate`
 			FROM 	T_USERS
 			WHERE 	id = p_id 
