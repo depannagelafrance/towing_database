@@ -357,7 +357,7 @@ BEGIN
 			insurance_dossiernr 	= p_insurance_dossier_nr, 
 			insurance_warranty_held_by = p_warranty_holder,
 			collector_id 			= p_collector_id, 
-			police_signature_dt 	= p_police_signature,
+			-- police_signature_dt 	= p_police_signature, -- IS SET WHEN SIGNATURE IS SET BY POLICE
 			recipient_signature_dt 	= p_recipient_signature, 
 			vehicule_type 			= p_vehicule_type, 
 			vehicule_licenceplate 	= p_vehicule_licence_plate, 
@@ -903,21 +903,41 @@ BEGIN
 	IF v_user_id IS NULL OR v_company_id IS NULL THEN
 		CALL R_NOT_AUTHORIZED;
 	ELSE
-		SELECT 	d.id, d.id as 'dossier_id', t.id as 'voucher_id', d.call_number, d.call_date, d.dossier_number, t.voucher_number, ad.name 'direction_name', adi.name 'indicator_name', c.code as `towing_service`, ip.name as `incident_type`
-		FROM 	`T_TOWING_VOUCHERS`t, 
-				`T_DOSSIERS` d, 
-				`P_ALLOTMENT_DIRECTIONS` ad, 
-				`P_ALLOTMENT_DIRECTION_INDICATORS` adi,
-				`T_COMPANIES` c,
-				`P_INCIDENT_TYPES` ip
-		WHERE 	d.id = t.dossier_id
-				AND d.company_id = v_company_id
-				AND d.company_id = c.id
-				AND d.incident_type_id = ip.id
-				AND d.allotment_direction_id = ad.id
-				AND d.allotment_direction_indicator_id = adi.id
-				AND t.status = p_filter
-		ORDER BY call_date DESC; 	
+		IF p_filter = 'NOT COLLECTED' THEN
+			SELECT 	d.id, d.id as 'dossier_id', t.id as 'voucher_id', d.call_number, d.call_date, d.dossier_number, t.voucher_number, ad.name 'direction_name', adi.name 'indicator_name', c.code as `towing_service`, ip.name as `incident_type`
+			FROM 	`T_TOWING_VOUCHERS`t, 
+					`T_DOSSIERS` d, 
+					`P_ALLOTMENT_DIRECTIONS` ad, 
+					`P_ALLOTMENT_DIRECTION_INDICATORS` adi,
+					`T_COMPANIES` c,
+					`P_INCIDENT_TYPES` ip
+			WHERE 	d.id = t.dossier_id
+					AND d.company_id = v_company_id
+					AND d.company_id = c.id
+					AND d.incident_type_id = ip.id
+					AND d.allotment_direction_id = ad.id
+					AND d.allotment_direction_indicator_id = adi.id
+					AND t.status NOT IN ('NEW', 'IN PROGRESS')
+					AND vehicule_collected IS NULL
+			ORDER BY call_date DESC; 
+		ELSE
+			SELECT 	d.id, d.id as 'dossier_id', t.id as 'voucher_id', d.call_number, d.call_date, d.dossier_number, t.voucher_number, ad.name 'direction_name', adi.name 'indicator_name', c.code as `towing_service`, ip.name as `incident_type`
+			FROM 	`T_TOWING_VOUCHERS`t, 
+					`T_DOSSIERS` d, 
+					`P_ALLOTMENT_DIRECTIONS` ad, 
+					`P_ALLOTMENT_DIRECTION_INDICATORS` adi,
+					`T_COMPANIES` c,
+					`P_INCIDENT_TYPES` ip
+			WHERE 	d.id = t.dossier_id
+					AND d.company_id = v_company_id
+					AND d.company_id = c.id
+					AND d.incident_type_id = ip.id
+					AND d.allotment_direction_id = ad.id
+					AND d.allotment_direction_indicator_id = adi.id
+					AND t.status = p_filter
+			ORDER BY call_date DESC; 
+		END IF;
+	
 	END IF;
 END $$
 
@@ -1193,7 +1213,7 @@ BEGIN
 	WHERE 	tv.id = p_voucher_id AND tv.dossier_id = d.id
 	LIMIT 	0,1;
 
-	CALL R_UPDATE_TOWING_STORAGE_COST_FOR_VOUCHER(p_voucher_id, v_dossier_id, v_timeframe_id);
+	-- ???? CALL R_UPDATE_TOWING_STORAGE_COST_FOR_VOUCHER(p_voucher_id, v_dossier_id, v_timeframe_id);
 END $$
 
 CREATE PROCEDURE  R_ADD_INSURANCE_DOCUMENT(IN p_voucher_id BIGINT, IN p_filename VARCHAR(255), 
@@ -1701,7 +1721,7 @@ BEGIN
 	IF (OLD.vehicule_collected IS NULL AND NEW.vehicule_collected IS NOT NULL) 
 		OR (OLD.vehicule_collected != NEW.vehicule_collected) 
 	THEN
-			CALL R_UPDATE_TOWING_STORAGE_COST_FOR_VOUCHER(NEW.id, NEW.dossier_id, v_timeframe_id);
+		CALL R_UPDATE_TOWING_STORAGE_COST_FOR_VOUCHER(NEW.id, NEW.dossier_id, v_timeframe_id);
 	END IF;
 END $$
 
@@ -1782,24 +1802,33 @@ END $$
 CREATE PROCEDURE R_UPDATE_TOWING_STORAGE_COST_FOR_VOUCHER(IN p_voucher_id BIGINT, IN p_dossier_id BIGINT, IN p_timeframe_id BIGINT)
 BEGIN
 	DECLARE v_voucher_id, v_dossier_id, v_timeframe_id BIGINT DEFAULT NULL;
+	DECLARE v_day_count INT;
 
 	SET v_voucher_id = p_voucher_id;
 	SET v_dossier_id = p_dossier_id;
 	SET v_timeframe_id = p_timeframe_id;
+	
 
-	INSERT INTO T_TOWING_ACTIVITIES(towing_voucher_id, activity_id, amount, cal_fee_excl_vat, cal_fee_incl_vat)
-	SELECT 	tv.id, t.activity_id, datediff(IFNULL(tv.vehicule_collected, now()), call_date), t.fee_excl_vat, t.fee_incl_vat 
-	FROM 	T_DOSSIERS d, T_TOWING_VOUCHERS tv,
-			(SELECT taf.id as activity_id, taf.fee_excl_vat, taf.fee_incl_vat
-			 FROM 	`P_TIMEFRAME_ACTIVITY_FEE` taf, `P_TIMEFRAME_ACTIVITIES` ta
-			 WHERE 	taf.timeframe_activity_id = ta.id AND taf.timeframe_id = v_timeframe_id
-					AND `code` = 'STALLING'
-					AND current_date BETWEEN taf.valid_from AND taf.valid_until) t
-	WHERE d.id = v_dossier_id
-		AND tv.dossier_id = d.id
-	ON DUPLICATE KEY UPDATE amount = datediff(IFNULL(tv.vehicule_collected, now()), call_date), 
-							cal_fee_excl_vat = (amount * t.fee_excl_vat), 
-							cal_fee_incl_vat = (amount * t.fee_incl_vat);
+	SELECT	datediff(IFNULL(tv.vehicule_collected, now()), call_date) INTO v_day_count
+	FROM 	T_DOSSIERS d, T_TOWING_VOUCHERS tv
+	WHERE 	d.id = v_dossier_id
+			AND tv.dossier_id = d.id;
+
+	IF v_day_count > 3 THEN
+		INSERT INTO T_TOWING_ACTIVITIES(towing_voucher_id, activity_id, amount, cal_fee_excl_vat, cal_fee_incl_vat)
+		SELECT 	tv.id, t.activity_id, datediff(IFNULL(tv.vehicule_collected, now()), call_date) - 3, t.fee_excl_vat, t.fee_incl_vat 
+		FROM 	T_DOSSIERS d, T_TOWING_VOUCHERS tv,
+				(SELECT taf.id as activity_id, taf.fee_excl_vat, taf.fee_incl_vat
+				 FROM 	`P_TIMEFRAME_ACTIVITY_FEE` taf, `P_TIMEFRAME_ACTIVITIES` ta
+				 WHERE 	taf.timeframe_activity_id = ta.id AND taf.timeframe_id = v_timeframe_id
+						AND `code` = 'STALLING'
+						AND current_date BETWEEN taf.valid_from AND taf.valid_until) t
+		WHERE d.id = v_dossier_id
+			AND tv.dossier_id = d.id
+		ON DUPLICATE KEY UPDATE amount = datediff(IFNULL(tv.vehicule_collected, now()), call_date) - 3, 
+								cal_fee_excl_vat = (amount * t.fee_excl_vat), 
+								cal_fee_incl_vat = (amount * t.fee_incl_vat);
+	END IF;
 END $$
 
 CREATE PROCEDURE R_UPDATE_TOWING_STORAGE_COST()
