@@ -250,7 +250,7 @@ BEGIN
 
 
 			-- create a copy of the base activities
-			INSERT INTO T_TOWING_ACTIVITIES(towing_voucher_id, activity_id, amount, cal_fee_excl_vat, cal_fee_incl_vat)
+			INSERT IGNORE INTO T_TOWING_ACTIVITIES(towing_voucher_id, activity_id, amount, cal_fee_excl_vat, cal_fee_incl_vat)
 			SELECT 	id, t.activity_id, t.default_value, t.fee_excl_vat, t.fee_incl_vat 
 			FROM 	T_TOWING_VOUCHERS tv,
 					(SELECT taf.id as activity_id, taf.fee_excl_vat, taf.fee_incl_vat, ta.default_value
@@ -271,7 +271,7 @@ BEGIN
 					AND current_date BETWEEN taf.valid_from AND taf.valid_until;
 
 			IF v_taf_id IS NOT NULL THEN
-				INSERT INTO T_TOWING_ACTIVITIES(towing_voucher_id, activity_id, amount, cal_fee_excl_vat, cal_fee_incl_vat)
+				INSERT IGNORE INTO T_TOWING_ACTIVITIES(towing_voucher_id, activity_id, amount, cal_fee_excl_vat, cal_fee_incl_vat)
 				SELECT 	LAST_INSERT_ID(), v_taf_id, ROUND(1.0/(v_nr_of_vouchers+1), 2), v_fee_excl_vat, v_fee_incl_vat;
 				
 				-- update to split
@@ -1488,7 +1488,7 @@ BEGIN
 		END IF ;
 
 		IF TRIM(IFNULL(p_customer_name, "")) != "" THEN
-			SET @sql = concat(@sql, " AND (cu.first_name LIKE '%", p_customer_name, "%' OR cu.last_name LIKE '%", p_customer_name, "%') ");
+			SET @sql = concat(@sql, " AND (cu.first_name LIKE '%", p_customer_name, "%' OR cu.last_name LIKE '%", p_customer_name, "%' OR cu.company_name LIKE '%", p_customer_name, "%') ");
 		END IF;
 
 		SET @sql = concat(@sql, " ORDER BY d.call_date DESC");
