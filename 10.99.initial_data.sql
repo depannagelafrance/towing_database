@@ -196,7 +196,12 @@ VALUES	('TRAFFIC_LANE', 'Pechstrook', now(), 'SYSTEM'),
 		('TRAFFIC_LANE', '6', now(), 'SYSTEM'),
 		('TRAFFIC_LANE', '7', now(), 'SYSTEM');
 
-INSERT INTO `P_ALLOTMENT` (`id`, `name`) VALUES (1, 'Perceel 1: Ring');
+INSERT INTO `P_ALLOTMENT_AGENCY`(`id`, `company_name`, `company_vat`, `street`, `street_number`, `street_pobox`, `zip`, `city`, `country`, `phone`, `email`, `cd`, `cd_by`)
+VALUES
+	(1,'AW&V - Antwerpen','BE0...','Straat','123',null,'2000','Antwerpen','België','+323...','info@...',now(),'SYSTEM');
+
+
+INSERT INTO `P_ALLOTMENT` (`id`, `name`, `allotment_agency_id`) VALUES (1, 'Perceel 1: Ring', 1);
 
 INSERT INTO `P_ROLES` (`id`, `code`, `name`) VALUES 
 	(1, 'ADMIN', 'Algemeen beheerder'),
