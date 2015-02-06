@@ -638,7 +638,7 @@ BEGIN
 			SET v_display_name = trim(concat(v_display_name, ' ', IFNULL(v_city, '')));
 		END IF;
 
-		SELECT 	id, name, street, street_number, street_pobox, zip, city, v_display_name as display_name 
+		SELECT 	id, name, street, street_number, street_pobox, zip, city, default_depot, v_display_name as display_name 
 		FROM 	T_TOWING_DEPOTS
 		WHERE 	voucher_id = p_voucher_id
 		LIMIT 	0,1;
@@ -650,6 +650,7 @@ CREATE PROCEDURE R_UPDATE_TOWING_DEPOT(IN p_depot_id BIGINT, IN p_voucher_id BIG
                                        IN p_name VARCHAR(255), IN p_street VARCHAR(255), 
 									   IN p_number VARCHAR(45), IN p_pobox VARCHAR(45), IN p_zip VARCHAR(45),
 									   IN p_city VARCHAR(255),
+									   IN p_default_depot BOOL,
 									   IN p_token VARCHAR(255))
 BEGIN
 	DECLARE v_company_id, v_dossier_id BIGINT;
@@ -668,6 +669,7 @@ BEGIN
 			`street_pobox` = p_pobox,
 			`zip` = p_zip,
 			`city` = p_city,
+			`default_depot` = p_default_depot,
 			`ud` = now(),
 			`ud_by` = F_RESOLVE_LOGIN(v_user_id, p_token)
 		WHERE `id` = p_depot_id AND `voucher_id` = p_voucher_id;
@@ -905,13 +907,14 @@ BEGIN
 	ELSE
 		IF p_filter = 'NOT COLLECTED' THEN
 			SELECT 	d.id, d.id as 'dossier_id', t.id as 'voucher_id', d.call_number, d.call_date, d.dossier_number, t.voucher_number, ad.name 'direction_name', adi.name 'indicator_name', c.code as `towing_service`, ip.name as `incident_type`
-			FROM 	`T_TOWING_VOUCHERS`t, 
+			FROM 	`T_TOWING_VOUCHERS`t, T_TOWING_DEPOTS td,
 					`T_DOSSIERS` d, 
 					`P_ALLOTMENT_DIRECTIONS` ad, 
 					`P_ALLOTMENT_DIRECTION_INDICATORS` adi,
 					`T_COMPANIES` c,
 					`P_INCIDENT_TYPES` ip
 			WHERE 	d.id = t.dossier_id
+					AND td.voucher_id = t.id
 					AND d.company_id = v_company_id
 					AND d.company_id = c.id
 					AND d.incident_type_id = ip.id
@@ -919,6 +922,7 @@ BEGIN
 					AND d.allotment_direction_indicator_id = adi.id
 					AND t.status NOT IN ('NEW', 'IN PROGRESS')
 					AND vehicule_collected IS NULL
+					AND td.default_depot = 1
 			ORDER BY call_date DESC; 
 		ELSE
 			SELECT 	d.id, d.id as 'dossier_id', t.id as 'voucher_id', d.call_number, d.call_date, d.dossier_number, t.voucher_number, ad.name 'direction_name', adi.name 'indicator_name', c.code as `towing_service`, ip.name as `incident_type`
