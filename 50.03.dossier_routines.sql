@@ -334,7 +334,8 @@ END $$
 CREATE PROCEDURE  R_UPDATE_TOWING_VOUCHER(IN p_dossier_id BIGINT, IN p_voucher_id BIGINT,
 										  IN p_insurance_id BIGINT, IN p_insurance_dossier_nr VARCHAR(45), IN p_warranty_holder VARCHAR(255),
 										  IN p_collector_id BIGINT,
-										  IN p_vehicule_type VARCHAR(255), IN p_vehicule_licence_plate VARCHAR(15), IN p_vehicule_country VARCHAR(5),
+										  IN p_vehicule VARCHAR(255), IN p_vehicule_type VARCHAR(255), IN p_vehicule_color VARCHAR(255), IN p_keys_present BOOL,
+										  IN p_vehicule_licence_plate VARCHAR(15), IN p_vehicule_country VARCHAR(5),
 										  IN p_signa_id VARCHAR(36), IN p_signa_by VARCHAR(255), IN p_signa_by_vehicule VARCHAR(15), IN p_signa_arrival TIMESTAMP, 
 										  IN p_towing_id VARCHAR(36), IN p_towed_by VARCHAR(255), IN p_towed_by_vehicule VARCHAR(15), 
 										  IN p_towing_called TIMESTAMP, IN p_towing_arrival TIMESTAMP, IN p_towing_start TIMESTAMP, IN p_towing_end TIMESTAMP,
@@ -359,7 +360,10 @@ BEGIN
 			collector_id 			= p_collector_id, 
 			-- police_signature_dt 	= p_police_signature, -- IS SET WHEN SIGNATURE IS SET BY POLICE
 			recipient_signature_dt 	= p_recipient_signature, 
+			vehicule				= p_vehicule,
 			vehicule_type 			= p_vehicule_type, 
+			vehicule_color			= p_vehicule_color,
+			vehicule_keys_present	= p_keys_present,
 			vehicule_licenceplate 	= p_vehicule_licence_plate, 
 			vehicule_country 		= p_vehicule_country,
 			vehicule_collected 		= p_vehicule_collected, 
@@ -389,8 +393,9 @@ END $$
 
 CREATE PROCEDURE R_FETCH_DOSSIER_BY_ID(IN p_dossier_id BIGINT, IN p_token VARCHAR(255)) 
 BEGIN
-	DECLARE v_company_id, v_dossier_id BIGINT;
+	DECLARE v_company_id, v_dossier_id, v_traffic_lanes_count BIGINT;
 	DECLARE v_user_id VARCHAR(36);
+	DECLARE v_traffic_lanes_name VARCHAR(255);
 
 	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
 
@@ -405,6 +410,11 @@ BEGIN
 		IF v_dossier_id IS NULL THEN
 			CALL R_NOT_FOUND;
 		ELSE
+			SELECT 	GROUP_CONCAT(DISTINCT name ORDER BY name SEPARATOR ', '), COUNT(DISTINCT name) INTO v_traffic_lanes_name, v_traffic_lanes_count
+			FROM 	P_DICTIONARY d, T_INCIDENT_TRAFFIC_LANES itl
+			WHERE 	d.id = itl.traffic_lane_id
+					AND itl.dossier_id = v_dossier_id;
+
 			SELECT	d.`id`, `dossier_number`, `call_date`, `call_date_is_holiday`, `call_number`, 
 					`police_traffic_post_id`, 
 						(SELECT `name` FROM `P_POLICE_TRAFFIC_POSTS` WHERE id = d.`police_traffic_post_id`) as `traffic_post_name`,
@@ -415,10 +425,7 @@ BEGIN
 					`allotment_direction_indicator_id`, (SELECT `name` FROM P_ALLOTMENT_DIRECTION_INDICATORS WHERE id = d.`allotment_direction_indicator_id`) as `indicator_name`,
 					`allotment_direction_id`, (SELECT `name` FROM P_ALLOTMENT_DIRECTIONS WHERE id = d.`allotment_direction_id`) as `direction_name`,
 					`company_id`, (SELECT `name` FROM T_COMPANIES WHERE id = d.`company_id`) as `company_name`,
-					(SELECT GROUP_CONCAT(DISTINCT name ORDER BY name SEPARATOR ', ')
-						FROM P_DICTIONARY d, T_INCIDENT_TRAFFIC_LANES itl
-						WHERE d.id = itl.traffic_lane_id
-						and itl.dossier_id = v_dossier_id) AS traffic_lane_name 
+					v_traffic_lanes_name as traffic_lane_name, v_traffic_lanes_count as nr_of_block_lanes
 			FROM 	T_DOSSIERS d LEFT JOIN P_INCIDENT_TYPES it ON d.incident_type_id = it.id
 			WHERE	d.`id` = v_dossier_id
 			LIMIT	0, 1;
@@ -494,6 +501,7 @@ BEGIN
 					unix_timestamp(`recipient_signature_dt`) as recipient_signature_dt,
 					`insurance_dossiernr`,
 					`insurance_warranty_held_by`,
+					`vehicule`, `vehicule_color`, `vehicule_keys_present`,
 					`vehicule_type`,
 					`vehicule_licenceplate`,
 					`vehicule_country`,
@@ -1500,7 +1508,7 @@ BEGIN
 		END IF ;
 
 		IF TRIM(IFNULL(p_type, ""))  != '' THEN
-			SET @sql = concat(@sql, " AND t.vehicule_type LIKE '%", p_type, "%'");
+			SET @sql = concat(@sql, " AND (t.vehicule_type LIKE '%", p_type, "%' OR t.vehicule LIKE '%", p_type, "%'");
 		END IF ;
 
 		IF TRIM(IFNULL(p_licence_plate, ""))  != '' THEN

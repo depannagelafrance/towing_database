@@ -97,6 +97,14 @@ BEGIN
 				SELECT  `id`, `login`, `first_name`, `last_name`, v_token AS `token`
 				FROM	T_USERS u
 				WHERE	id = v_id;
+
+				-- RESET THE LOGIN ATTEMPT COUNTER
+				UPDATE 	T_USERS
+				SET 	login_attempts = 0, 
+						is_locked = 0,
+						locked_ts = null
+				WHERE	id = v_id AND dd IS NULL
+				LIMIT	1; 
 			END IF;
 		ELSE
 			-- FAILED LOGIN, so update the login attempts
