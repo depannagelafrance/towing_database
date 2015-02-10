@@ -395,14 +395,15 @@ BEGIN
 		CALL R_NOT_AUTHORIZED;
 	ELSE
 		IF p_type = 'signa' THEN
-			SELECT 	`id`, CONCAT(IFNULL(last_name, ''), ' ', IFNULL(first_name, ' ')) as `name`, vehicule, UPPER(licence_plate) as licence_plate
-			FROM 	T_USERS
-			WHERE 	company_id = v_company_id
-					AND dd IS NULL
-					AND is_signa=1
+			SELECT 	u.id, CONCAT(IFNULL(last_name, ''), ' ', IFNULL(first_name, ' ')) as `name`, cv.name as vehicle, UPPER(licence_plate) as licence_plate
+			FROM 	T_USERS u, T_COMPANY_VEHICLES cv
+			WHERE 	u.company_id = v_company_id
+					AND u.dd IS NULL
+					AND u.is_signa=1
+					AND u.vehicle_id = cv.id
 			ORDER BY last_name, first_name;
 		ELSE
-			SELECT 	`id`, CONCAT(IFNULL(last_name, ''), ' ', IFNULL(first_name, ' ')) as `name`, vehicule, UPPER(licence_plate) as licence_plate
+			SELECT 	`id`, CONCAT(IFNULL(last_name, ''), ' ', IFNULL(first_name, ' ')) as `name`, '' as vehicule, '' as licence_plate
 			FROM 	T_USERS
 			WHERE 	company_id = v_company_id
 					AND dd IS NULL
