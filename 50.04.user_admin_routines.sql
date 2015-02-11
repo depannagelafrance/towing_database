@@ -448,7 +448,7 @@ BEGIN
 END $$
 
 
-CREATE PROCEDURE R_UPDATE_USER_PROFILE(IN p_is_signa BOOL, IN p_is_towing BOOL, IN p_licence_plate VARCHAR(10), IN p_registration_id VARCHAR(255), IN p_token VARCHAR(255))
+CREATE PROCEDURE R_UPDATE_USER_PROFILE(IN p_registration_id VARCHAR(255), IN p_token VARCHAR(255))
 BEGIN
 	DECLARE v_company_id BIGINT;
 	DECLARE v_user_id VARCHAR(36);
@@ -459,7 +459,7 @@ BEGIN
 		CALL R_NOT_AUTHORIZED;
 	ELSE
 		UPDATE 	T_USERS
-		SET 	is_signa=p_is_signa, is_towing=p_is_towing, licence_plate=UPPER(p_licence_plate), mobile_device_id=p_registration_id
+		SET 	mobile_device_id=p_registration_id
 		WHERE 	id = v_user_id
 		LIMIT 	1;
 
