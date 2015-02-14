@@ -678,6 +678,7 @@ END $$
 
 
 CREATE PROCEDURE R_UPDATE_TOWING_CUSTOMER(IN p_id BIGINT, IN p_voucher_id BIGINT,
+										  IN p_type ENUM('DEFAULT', 'AGENCY'),
 										  IN p_firstname VARCHAR(255), IN p_lastname VARCHAR(255),
 										  IN p_company_name VARCHAR(255), IN p_company_vat VARCHAR(255),
 										  IN p_street VARCHAR(255), IN p_street_number VARCHAR(45), IN p_street_pobox VARCHAR(45),
@@ -696,6 +697,7 @@ BEGIN
 	ELSE
 		UPDATE `T_TOWING_CUSTOMERS`
 		SET
+			`type` = IFNULL(p_type, 'DEFAULT'),
 			`first_name` = p_firstname,
 			`last_name` = p_lastname,
 			`company_name` = p_company_name,
@@ -892,7 +894,6 @@ BEGIN
 	END IF;
 END $$
 
-
 CREATE PROCEDURE R_FETCH_ALL_DOSSIERS_BY_FILTER(IN p_filter VARCHAR(25), IN p_token VARCHAR(255))
 BEGIN
 	DECLARE v_company_id, v_dossier_id BIGINT;
@@ -903,43 +904,80 @@ BEGIN
 	IF v_user_id IS NULL OR v_company_id IS NULL THEN
 		CALL R_NOT_AUTHORIZED;
 	ELSE
-		IF p_filter = 'NOT COLLECTED' THEN
-			SELECT 	d.id, d.id as 'dossier_id', t.id as 'voucher_id', d.call_number, d.call_date, d.dossier_number, t.voucher_number, ad.name 'direction_name', adi.name 'indicator_name', c.code as `towing_service`, ip.name as `incident_type`
-			FROM 	`T_TOWING_VOUCHERS`t, T_TOWING_DEPOTS td,
-					`T_DOSSIERS` d, 
-					`P_ALLOTMENT_DIRECTIONS` ad, 
-					`P_ALLOTMENT_DIRECTION_INDICATORS` adi,
-					`T_COMPANIES` c,
-					`P_INCIDENT_TYPES` ip
-			WHERE 	d.id = t.dossier_id
-					AND td.voucher_id = t.id
-					AND d.company_id = v_company_id
-					AND d.company_id = c.id
-					AND d.incident_type_id = ip.id
-					AND d.allotment_direction_id = ad.id
-					AND d.allotment_direction_indicator_id = adi.id
-					AND t.status NOT IN ('NEW', 'IN PROGRESS')
-					AND vehicule_collected IS NULL
-					AND td.default_depot = 1
-			ORDER BY call_date DESC; 
-		ELSE
-			SELECT 	d.id, d.id as 'dossier_id', t.id as 'voucher_id', d.call_number, d.call_date, d.dossier_number, t.voucher_number, ad.name 'direction_name', adi.name 'indicator_name', c.code as `towing_service`, ip.name as `incident_type`
-			FROM 	`T_TOWING_VOUCHERS`t, 
-					`T_DOSSIERS` d, 
-					`P_ALLOTMENT_DIRECTIONS` ad, 
-					`P_ALLOTMENT_DIRECTION_INDICATORS` adi,
-					`T_COMPANIES` c,
-					`P_INCIDENT_TYPES` ip
-			WHERE 	d.id = t.dossier_id
-					AND d.company_id = v_company_id
-					AND d.company_id = c.id
-					AND d.incident_type_id = ip.id
-					AND d.allotment_direction_id = ad.id
-					AND d.allotment_direction_indicator_id = adi.id
-					AND t.status = p_filter
-			ORDER BY call_date DESC; 
-		END IF;
-	
+		CASE p_filter
+			WHEN 'NOT COLLECTED' THEN
+				SELECT 	d.id, d.id as 'dossier_id', t.id as 'voucher_id', d.call_number, d.call_date, d.dossier_number, t.voucher_number, ad.name 'direction_name', adi.name 'indicator_name', c.code as `towing_service`, ip.name as `incident_type`, 1
+				FROM 	`T_TOWING_VOUCHERS`t, T_TOWING_DEPOTS td,
+						`T_DOSSIERS` d, 
+						`P_ALLOTMENT_DIRECTIONS` ad, 
+						`P_ALLOTMENT_DIRECTION_INDICATORS` adi,
+						`T_COMPANIES` c,
+						`P_INCIDENT_TYPES` ip
+				WHERE 	d.id = t.dossier_id
+						AND td.voucher_id = t.id
+						AND d.company_id = v_company_id
+						AND d.company_id = c.id
+						AND d.incident_type_id = ip.id
+						AND d.allotment_direction_id = ad.id
+						AND d.allotment_direction_indicator_id = adi.id
+						AND t.status NOT IN ('NEW', 'IN PROGRESS')
+						AND vehicule_collected IS NULL
+						AND td.default_depot = 1
+				ORDER BY call_date DESC
+				LIMIT 0,1000; 
+			WHEN 'AGENCY' THEN
+				SELECT 	d.id, d.id as 'dossier_id', t.id as 'voucher_id', d.call_number, d.call_date, d.dossier_number, t.voucher_number, ad.name 'direction_name', adi.name 'indicator_name', c.code as `towing_service`, ip.name as `incident_type`, 2
+				FROM 	`T_TOWING_VOUCHERS`t, 
+						`T_TOWING_CUSTOMERS` tc,
+						`T_DOSSIERS` d, 
+						`P_ALLOTMENT_DIRECTIONS` ad, 
+						`P_ALLOTMENT_DIRECTION_INDICATORS` adi,
+						`T_COMPANIES` c,
+						`P_INCIDENT_TYPES` ip
+				WHERE 	d.id = t.dossier_id
+						AND d.company_id = v_company_id
+						AND d.company_id = c.id
+						AND d.incident_type_id = ip.id
+						AND d.allotment_direction_id = ad.id
+						AND d.allotment_direction_indicator_id = adi.id
+						AND tc.voucher_id = t.id
+						AND tc.type = 'AGENCY'
+				ORDER BY call_date DESC
+				LIMIT 0,1000; 
+			WHEN 'ALL' THEN
+				SELECT 	d.id, d.id as 'dossier_id', t.id as 'voucher_id', d.call_number, d.call_date, d.dossier_number, t.voucher_number, ad.name 'direction_name', adi.name 'indicator_name', c.code as `towing_service`, ip.name as `incident_type`, 3
+				FROM 	`T_TOWING_VOUCHERS`t, 
+						`T_DOSSIERS` d, 
+						`P_ALLOTMENT_DIRECTIONS` ad, 
+						`P_ALLOTMENT_DIRECTION_INDICATORS` adi,
+						`T_COMPANIES` c,
+						`P_INCIDENT_TYPES` ip
+				WHERE 	d.id = t.dossier_id
+						AND d.company_id = v_company_id
+						AND d.company_id = c.id
+						AND d.incident_type_id = ip.id
+						AND d.allotment_direction_id = ad.id
+						AND d.allotment_direction_indicator_id = adi.id
+				ORDER BY call_date DESC
+				LIMIT 0,1000; 
+			ELSE
+				SELECT 	d.id, d.id as 'dossier_id', t.id as 'voucher_id', d.call_number, d.call_date, d.dossier_number, t.voucher_number, ad.name 'direction_name', adi.name 'indicator_name', c.code as `towing_service`, ip.name as `incident_type`, 4
+				FROM 	`T_TOWING_VOUCHERS`t, 
+						`T_DOSSIERS` d, 
+						`P_ALLOTMENT_DIRECTIONS` ad, 
+						`P_ALLOTMENT_DIRECTION_INDICATORS` adi,
+						`T_COMPANIES` c,
+						`P_INCIDENT_TYPES` ip
+				WHERE 	d.id = t.dossier_id
+						AND d.company_id = v_company_id
+						AND d.company_id = c.id
+						AND d.incident_type_id = ip.id
+						AND d.allotment_direction_id = ad.id
+						AND d.allotment_direction_indicator_id = adi.id
+						AND t.status = p_filter
+				ORDER BY call_date DESC
+				LIMIT 0,1000; 
+		END CASE;
 	END IF;
 END $$
 
@@ -1129,7 +1167,7 @@ BEGIN
 	IF v_user_id IS NULL OR v_company_id IS NULL THEN
 		CALL R_NOT_AUTHORIZED;
 	ELSE
-		SELECT	id, voucher_id, first_name, last_name, company_name, company_vat, company_vat_foreign_country, street, street_number, street_pobox, zip, city, country, phone, email, invoice_ref
+		SELECT	id, voucher_id, `type`, first_name, last_name, company_name, company_vat, company_vat_foreign_country, street, street_number, street_pobox, zip, city, country, phone, email, invoice_ref
 		FROM 	T_TOWING_CUSTOMERS
 		WHERE 	voucher_id = p_voucher_id
 		LIMIT 	0,1;
@@ -1623,7 +1661,7 @@ BEGIN
 	VALUES(NEW.id, null, null, null, null, null, null, now(), NEW.cd_by); 
 
 	-- prefill the customer 
-	INSERT INTO `T_TOWING_CUSTOMERS` (`voucher_id`, `cd`, `cd_by`) VALUES (NEW.id, now(), NEW.cd_by);
+	INSERT INTO `T_TOWING_CUSTOMERS` (`voucher_id`, `type`, `cd`, `cd_by`) VALUES (NEW.id, 'DEFAULT', now(), NEW.cd_by);
 
 	-- prefill the causer
 	INSERT INTO `T_TOWING_INCIDENT_CAUSERS` (`voucher_id`, `cd`, `cd_by`) VALUES (NEW.id, now(), NEW.cd_by);
