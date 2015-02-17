@@ -1723,7 +1723,7 @@ BEGIN
 	IF NEW.towing_vehicle_id IS NOT NULL THEN
 		SELECT 	cv.licence_plate INTO v_licence_plate
 		FROM 	T_COMPANY_VEHICLES cv
-		WHERE  	u.vehicle_id = NEW.towing_vehicle_id
+		WHERE  	cv.id = NEW.towing_vehicle_id
 		LIMIT 	0,1;
 
 		SET NEW.towed_by_vehicle = v_licence_plate;
