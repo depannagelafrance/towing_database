@@ -906,7 +906,7 @@ BEGIN
 	ELSE
 		CASE p_filter
 			WHEN 'NOT COLLECTED' THEN
-				SELECT 	d.id, d.id as 'dossier_id', t.id as 'voucher_id', d.call_number, d.call_date, d.dossier_number, t.voucher_number, ad.name 'direction_name', adi.name 'indicator_name', c.code as `towing_service`, ip.name as `incident_type`, 1
+				SELECT 	d.id, d.id as 'dossier_id', t.id as 'voucher_id', d.call_number, d.call_date, d.dossier_number, t.voucher_number, ad.name 'direction_name', adi.name 'indicator_name', c.code as `towing_service`, ip.name as `incident_type`
 				FROM 	`T_TOWING_VOUCHERS`t, T_TOWING_DEPOTS td,
 						`T_DOSSIERS` d, 
 						`P_ALLOTMENT_DIRECTIONS` ad, 
@@ -926,7 +926,7 @@ BEGIN
 				ORDER BY call_date DESC
 				LIMIT 0,1000; 
 			WHEN 'AGENCY' THEN
-				SELECT 	d.id, d.id as 'dossier_id', t.id as 'voucher_id', d.call_number, d.call_date, d.dossier_number, t.voucher_number, ad.name 'direction_name', adi.name 'indicator_name', c.code as `towing_service`, ip.name as `incident_type`, 2
+				SELECT 	d.id, d.id as 'dossier_id', t.id as 'voucher_id', d.call_number, d.call_date, d.dossier_number, t.voucher_number, ad.name 'direction_name', adi.name 'indicator_name', c.code as `towing_service`, ip.name as `incident_type`
 				FROM 	`T_TOWING_VOUCHERS`t, 
 						`T_TOWING_CUSTOMERS` tc,
 						`T_DOSSIERS` d, 
@@ -942,10 +942,44 @@ BEGIN
 						AND d.allotment_direction_indicator_id = adi.id
 						AND tc.voucher_id = t.id
 						AND tc.type = 'AGENCY'
+				UNION DISTINCT
+				SELECT 	d.id, d.id as 'dossier_id', t.id as 'voucher_id', d.call_number, d.call_date, d.dossier_number, t.voucher_number, ad.name 'direction_name', adi.name 'indicator_name', c.code as `towing_service`, ip.name as `incident_type`
+				FROM 	`T_TOWING_VOUCHERS`t, 
+						`T_DOSSIERS` d, 
+						`P_ALLOTMENT_DIRECTIONS` ad, 
+						`P_ALLOTMENT_DIRECTION_INDICATORS` adi,
+						`T_COMPANIES` c,
+						`P_INCIDENT_TYPES` ip
+				WHERE 	d.id = t.dossier_id
+						AND d.company_id = v_company_id
+						AND d.company_id = c.id
+						AND d.incident_type_id = ip.id
+						AND d.allotment_direction_id = ad.id
+						AND d.allotment_direction_indicator_id = adi.id
+						AND ip.code_agency IN ('SIGNA_BRANDWEER', 'VERLOREN_VOORWERP')
+				UNION DISTINCT
+				SELECT 	d.id, d.id as 'dossier_id', t.id as 'voucher_id', d.call_number, d.call_date, d.dossier_number, t.voucher_number, ad.name 'direction_name', adi.name 'indicator_name', c.code as `towing_service`, ip.name as `incident_type`
+				FROM 	`T_TOWING_VOUCHERS`t, T_TOWING_ACTIVITIES ta, P_TIMEFRAME_ACTIVITY_FEE taf, P_TIMEFRAME_ACTIVITIES tac,
+						`T_DOSSIERS` d, 
+						`P_ALLOTMENT_DIRECTIONS` ad, 
+						`P_ALLOTMENT_DIRECTION_INDICATORS` adi,
+						`T_COMPANIES` c,
+						`P_INCIDENT_TYPES` ip
+				WHERE 	d.id = t.dossier_id
+						AND d.company_id = v_company_id
+						AND d.company_id = c.id
+						AND d.incident_type_id = ip.id
+						AND d.allotment_direction_id = ad.id
+						AND d.allotment_direction_indicator_id = adi.id
+						AND t.id = ta.towing_voucher_id 
+						AND ta.activity_id = taf.id 
+						AND taf.timeframe_activity_id = tac.id  
+						AND taf.timeframe_id = d.timeframe_id
+						AND tac.code IN ('VERLOREN_VOORWERP', 'LOZE_RIT')
 				ORDER BY call_date DESC
 				LIMIT 0,1000; 
 			WHEN 'ALL' THEN
-				SELECT 	d.id, d.id as 'dossier_id', t.id as 'voucher_id', d.call_number, d.call_date, d.dossier_number, t.voucher_number, ad.name 'direction_name', adi.name 'indicator_name', c.code as `towing_service`, ip.name as `incident_type`, 3
+				SELECT 	d.id, d.id as 'dossier_id', t.id as 'voucher_id', d.call_number, d.call_date, d.dossier_number, t.voucher_number, ad.name 'direction_name', adi.name 'indicator_name', c.code as `towing_service`, ip.name as `incident_type`
 				FROM 	`T_TOWING_VOUCHERS`t, 
 						`T_DOSSIERS` d, 
 						`P_ALLOTMENT_DIRECTIONS` ad, 
@@ -961,7 +995,7 @@ BEGIN
 				ORDER BY call_date DESC
 				LIMIT 0,1000; 
 			ELSE
-				SELECT 	d.id, d.id as 'dossier_id', t.id as 'voucher_id', d.call_number, d.call_date, d.dossier_number, t.voucher_number, ad.name 'direction_name', adi.name 'indicator_name', c.code as `towing_service`, ip.name as `incident_type`, 4
+				SELECT 	d.id, d.id as 'dossier_id', t.id as 'voucher_id', d.call_number, d.call_date, d.dossier_number, t.voucher_number, ad.name 'direction_name', adi.name 'indicator_name', c.code as `towing_service`, ip.name as `incident_type`
 				FROM 	`T_TOWING_VOUCHERS`t, 
 						`T_DOSSIERS` d, 
 						`P_ALLOTMENT_DIRECTIONS` ad, 

@@ -238,16 +238,16 @@ INSERT INTO `P_POLICE_TRAFFIC_POSTS` (`id`, `allotment_id`, `name`, `code`, `add
 	(4,1,'Turnhout','T', 'Steenweg op Gierle 336, 2300 Turnhout', '+32 (0)3 829 70 89');
 
 
-INSERT INTO `P_INCIDENT_TYPES` (`name`, `code`) VALUES 
-	('Panne', 														'PANNE'),
-	('Ongeval', 													'ONGEVAL'),
-	('Achtergelaten voertuig', 										'ACHTERGELATEN_VOERTUIG'),
-	('Enkel signalisatie ifv PANNE', 								'SIGNALISATIE'),
-	('Enkel signalisatie ifv ONGEVAL', 								'SIGNALISATIE'),
-	('Enkel signalisatie ifv AFSLUITEN OP/AFRIT OF RIJSTROOK', 		'SIGNALISATIE'),
-	('Enkel signalisatie ifv BRANDWEER', 							'SIGNALISATIE'),
-	('Verloren voorwerp', 											'VERLOREN_VOORWERP'),
-	('Botsabsorbeerder', 											'BOTSABSORBEERDER');
+INSERT INTO `P_INCIDENT_TYPES` (`name`, `code`, `code_agency`) VALUES 
+	('Panne', 														'PANNE', 					'PANNE'),
+	('Ongeval', 													'ONGEVAL', 					'ONGEVAL'),
+	('Achtergelaten voertuig', 										'ACHTERGELATEN_VOERTUIG', 	'ACHTERGELATEN_VOERTUIG'),
+	('Enkel signalisatie ifv PANNE', 								'SIGNALISATIE', 			'SIGNA_PANNE'),
+	('Enkel signalisatie ifv ONGEVAL', 								'SIGNALISATIE', 			'SIGNA_ONGEVAL'),
+	('Enkel signalisatie ifv AFSLUITEN OP/AFRIT OF RIJSTROOK', 		'SIGNALISATIE', 			'SIGNA_RIJSTROOK'),
+	('Enkel signalisatie ifv BRANDWEER', 							'SIGNALISATIE', 			'SIGNA_BRANDWEER'),
+	('Verloren voorwerp', 											'VERLOREN_VOORWERP', 		'VERLOREN_VOORWERP'),
+	('Botsabsorbeerder', 											'BOTSABSORBEERDER', 		'BOTSABSORBEERDER');
 
 
 INSERT INTO `P_HOLIDAYS` (`id`, `name`, `year`, `holiday`, `cd`, `cd_by`)  VALUES 
