@@ -55,6 +55,7 @@ DROP PROCEDURE IF EXISTS R_ADD_COLLECTOR_SIGNATURE $$
 DROP PROCEDURE IF EXISTS R_ADD_CAUSER_SIGNATURE $$
 DROP PROCEDURE IF EXISTS R_ADD_POLICE_SIGNATURE $$
 DROP PROCEDURE IF EXISTS R_ADD_INSURANCE_DOCUMENT $$
+DROP PROCEDURE IF EXISTS R_ADD_VEHICLE_DAMAGE_DOCUMENT $$
 DROP PROCEDURE IF EXISTS R_ADD_ANY_DOCUMENT $$
 
 DROP PROCEDURE IF EXISTS R_FETCH_SIGNATURE_BY_VOUCHER $$
@@ -1225,7 +1226,7 @@ BEGIN
 	END IF;
 END $$
 
-CREATE PROCEDURE R_ADD_BLOB_TO_VOUCHER(IN p_voucher_id BIGINT, IN p_category ENUM('SIGNATURE_COLLECTOR', 'SIGNATURE_POLICE', 'SIGNATURE_CAUSER', 'ASSISTANCE_ATT', 'ATT'),
+CREATE PROCEDURE R_ADD_BLOB_TO_VOUCHER(IN p_voucher_id BIGINT, IN p_category ENUM('SIGNATURE_COLLECTOR', 'SIGNATURE_POLICE', 'SIGNATURE_CAUSER', 'ASSISTANCE_ATT', 'ATT', 'VEHICLE_DAMAGE'),
 									   IN p_name VARCHAR(255), IN p_content_type VARCHAR(255), IN p_file_size INT,
 									   IN p_content LONGTEXT,
 									   IN p_token VARCHAR(255))
@@ -1248,8 +1249,20 @@ BEGIN
 
 		SET v_doc_id = LAST_INSERT_ID();
 
-		INSERT INTO `T_TOWING_VOUCHER_ATTS` (`towing_voucher_id`, `document_id`, `category`) 
-		VALUES (p_voucher_id, v_doc_id, p_category);
+		IF p_category = 'VEHICLE_DAMAGE' THEN
+			-- there can only be one vehicle damage report, but keep the others
+			UPDATE `T_TOWING_VOUCHER_ATTS` 
+			SET 
+				dd = now(), 
+				dd_by = F_RESOLVE_LOGIN(v_user_id, p_token) 
+			WHERE 
+				`towing_voucher_id` = p_voucher_id 
+				AND `category` = p_category;
+		END IF;
+		
+		INSERT INTO `T_TOWING_VOUCHER_ATTS` (`towing_voucher_id`, `document_id`, `category`, `cd`, `cd_by`) 
+		VALUES (p_voucher_id, v_doc_id, p_category, now(), F_RESOLVE_LOGIN(v_user_id, p_token));
+		
 
 		SELECT LAST_INSERT_ID() as attachment_id, 'OK' as result;
 	END IF;
@@ -1296,6 +1309,14 @@ CREATE PROCEDURE  R_ADD_INSURANCE_DOCUMENT(IN p_voucher_id BIGINT, IN p_filename
 									       IN p_token VARCHAR(255))
 BEGIN
 	CALL R_ADD_BLOB_TO_VOUCHER(p_voucher_id, 'ASSISTANCE_ATT', p_filename, p_content_type, p_file_size, p_content, p_token);
+END $$
+
+CREATE PROCEDURE  R_ADD_VEHICLE_DAMAGE_DOCUMENT(IN p_voucher_id BIGINT, IN p_filename VARCHAR(255), 
+									 IN p_content_type VARCHAR(255), IN p_file_size INT,
+									 IN p_content LONGTEXT,
+									 IN p_token VARCHAR(255))
+BEGIN
+	CALL R_ADD_BLOB_TO_VOUCHER(p_voucher_id, 'VEHICLE_DAMAGE', p_filename, p_content_type, p_file_size, p_content, p_token);
 END $$
 
 CREATE PROCEDURE  R_ADD_ANY_DOCUMENT(IN p_voucher_id BIGINT, IN p_filename VARCHAR(255), 
@@ -1419,7 +1440,8 @@ BEGIN
 		FROM 	T_TOWING_VOUCHER_ATTS tva, T_DOCUMENTS d
 		WHERE	tva.towing_voucher_id = p_voucher_id
 				AND tva.document_id = d.id
-				AND tva.category IN ('ASSISTANCE_ATT','ATT');
+				AND tva.category IN ('ASSISTANCE_ATT','ATT', 'VEHICLE_DAMAGE')
+				AND tva.dd IS NULL;
 	END IF;
 END $$
 
