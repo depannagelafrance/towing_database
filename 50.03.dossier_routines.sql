@@ -19,6 +19,7 @@ DROP PROCEDURE IF EXISTS R_FETCH_TOWING_CAUSER 		$$
 
 DROP PROCEDURE IF EXISTS R_UPDATE_TOWING_DEPOT 		$$
 DROP PROCEDURE IF EXISTS R_UPDATE_TOWING_CUSTOMER 	$$
+DROP PROCEDURE IF EXISTS R_UPDATE_TOWING_CUSTOMER_TO_AGENCY $$
 DROP PROCEDURE IF EXISTS R_UPDATE_TOWING_CAUSER		$$
 
 DROP PROCEDURE IF EXISTS R_CREATE_DEFAULT_TOWING_VOUCHER_ACTIVITIES $$
@@ -675,6 +676,39 @@ BEGIN
 
 		SELECT p_depot_id as id;
 	END IF; 
+END $$
+
+CREATE PROCEDURE R_UPDATE_TOWING_CUSTOMER_TO_AGENCY(IN p_voucher_id BIGINT, IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id, v_dossier_id BIGINT;
+	DECLARE v_user_id VARCHAR(36);
+
+	DECLARE v_company_name, v_company_vat, v_street, v_city, v_country, v_email VARCHAR(255);
+	DECLARE v_street_number, v_street_pobox, v_zip, v_phone VARCHAR(45);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		SELECT 	aa.company_name, aa.company_vat, aa.street, aa.street_number, aa.street_pobox, aa.zip, aa.city, aa.country, aa.phone, aa.email
+		INTO	v_company_name, v_company_vat, v_street, v_street_number, v_street_pobox, v_zip, v_city, v_country, v_phone, v_email
+		FROM 	P_ALLOTMENT_AGENCY aa, 
+				P_ALLOTMENT a, 
+				T_DOSSIERS d, 
+				T_TOWING_VOUCHERS tv
+		WHERE 	a.allotment_agency_id = aa.id
+				AND a.id = d.allotment_id
+				AND d.id = tv.dossier_id
+				AND tv.id = p_voucher_id
+		LIMIT 0,1;
+
+		CALL R_UPDATE_TOWING_CUSTOMER((SELECT id FROM T_TOWING_CUSTOMERS WHERE voucher_id = p_voucher_id LIMIT 0,1),
+									  p_voucher_id, 'AGENCY', null, null, v_company_name, v_company_vat,
+									  v_street, v_street_number, v_street_pobox, v_zip, v_city, v_country, v_phone, v_email,
+									  null,
+									  p_token);
+	END IF;
 END $$
 
 
