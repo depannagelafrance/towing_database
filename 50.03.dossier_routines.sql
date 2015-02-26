@@ -991,7 +991,7 @@ BEGIN
 						AND d.incident_type_id = ip.id
 						AND d.allotment_direction_id = ad.id
 						AND d.allotment_direction_indicator_id = adi.id
-						AND ip.code_agency IN ('SIGNA_BRANDWEER', 'VERLOREN_VOORWERP')
+						AND ip.code_agency IN ('SIGNA_BRANDWEER', 'VERLOREN_VOORWERP', 'SIGNA_AWV')
 				UNION DISTINCT
 				SELECT 	d.id, d.id as 'dossier_id', t.id as 'voucher_id', d.call_number, d.call_date, d.dossier_number, t.voucher_number, ad.name 'direction_name', adi.name 'indicator_name', c.code as `towing_service`, ip.name as `incident_type`
 				FROM 	`T_TOWING_VOUCHERS`t, T_TOWING_ACTIVITIES ta, P_TIMEFRAME_ACTIVITY_FEE taf, P_TIMEFRAME_ACTIVITIES tac,

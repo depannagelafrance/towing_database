@@ -246,6 +246,7 @@ INSERT INTO `P_INCIDENT_TYPES` (`name`, `code`, `code_agency`) VALUES
 	('Enkel signalisatie ifv ONGEVAL', 								'SIGNALISATIE', 			'SIGNA_ONGEVAL'),
 	('Enkel signalisatie ifv AFSLUITEN OP/AFRIT OF RIJSTROOK', 		'SIGNALISATIE', 			'SIGNA_RIJSTROOK'),
 	('Enkel signalisatie ifv BRANDWEER', 							'SIGNALISATIE', 			'SIGNA_BRANDWEER'),
+	('Enkel signalisatie ifv AW&V',						  			'SIGNALISATIE',				'SIGNA_AWV'), 
 	('Verloren voorwerp', 											'VERLOREN_VOORWERP', 		'VERLOREN_VOORWERP'),
 	('Botsabsorbeerder', 											'BOTSABSORBEERDER', 		'BOTSABSORBEERDER');
 
