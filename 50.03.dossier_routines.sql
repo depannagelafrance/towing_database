@@ -2104,7 +2104,9 @@ BEGIN
 							FROM 	T_DOSSIERS d, T_TOWING_VOUCHERS tv, P_INCIDENT_TYPES p
 							WHERE 	d.id = tv.dossier_id
 									AND d.incident_type_id = p.id AND p.code='ONGEVAL'
-									AND tv.towing_completed IS NULL;
+									AND tv.towing_completed IS NULL
+									AND tv.signa_arrival IS NOT NULL
+									AND (TIMESTAMPDIFF(MINUTE, tv.signa_arrival, now()) - 60) > 0;
 								  
 	DECLARE CONTINUE HANDLER FOR NOT FOUND SET no_rows_found = TRUE;
 	
