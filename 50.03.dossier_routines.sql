@@ -1636,7 +1636,7 @@ BEGIN
 	END IF;
 END $$
 
-CREATE PROCEDURE R_SEARCH_TOWING_VOUCHER(IN p_call_number VARCHAR(45), IN p_date TIMESTAMP, IN p_type VARCHAR(255), IN p_licence_plate VARCHAR(15), IN p_customer_name VARCHAR(255), IN p_token VARCHAR(255))
+CREATE PROCEDURE R_SEARCH_TOWING_VOUCHER(IN p_call_number VARCHAR(45), IN p_date LONG, IN p_type VARCHAR(255), IN p_licence_plate VARCHAR(15), IN p_customer_name VARCHAR(255), IN p_token VARCHAR(255))
 BEGIN
 	DECLARE v_company_id BIGINT;
 	DECLARE v_user_id VARCHAR(36);
@@ -1675,7 +1675,7 @@ BEGIN
 		END IF ;
 
 		IF TRIM(IFNULL(p_date, ""))  != '' THEN
-			SET @sql = concat(@sql, " AND d.call_date = '", p_date, "'");
+			SET @sql = concat(@sql, " AND UNIX_TIMESTAMP(DATE(d.call_date)) = ", p_date, "");
 		END IF ;
 
 		IF TRIM(IFNULL(p_customer_name, "")) != "" THEN
