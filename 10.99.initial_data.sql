@@ -188,6 +188,8 @@ INSERT INTO `P_DICTIONARY`(`category`, `name`, `cd`, `cd_by`)
 VALUES	('TRAFFIC_LANE', 'Pechstrook', now(), 'SYSTEM'),
 		('TRAFFIC_LANE', 'Spitsstrook', now(), 'SYSTEM'),
 		('TRAFFIC_LANE', 'Busstrook', now(), 'SYSTEM'),
+		('TRAFFIC_LANE', 'Berm', now(), 'SYSTEM'),
+		('TRAFFIC_LANE', 'Middenberm', now(), 'SYSTEM'),
 		('TRAFFIC_LANE', '1', now(), 'SYSTEM'),
 		('TRAFFIC_LANE', '2', now(), 'SYSTEM'),
 		('TRAFFIC_LANE', '3', now(), 'SYSTEM'),
@@ -199,7 +201,7 @@ VALUES	('TRAFFIC_LANE', 'Pechstrook', now(), 'SYSTEM'),
 
 INSERT INTO `P_ALLOTMENT_AGENCY`(`id`, `company_name`, `company_vat`, `street`, `street_number`, `street_pobox`, `zip`, `city`, `country`, `phone`, `email`, `cd`, `cd_by`)
 VALUES
-	(1,'AW&V - Antwerpen','','D\'Herbouvillekaai','11',null,'2020','Antwerpen','België','','',now(),'SYSTEM');
+	(1,'AW&V - Antwerpen','BE0123.456.789','D\'Herbouvillekaai','11',null,'2020','Antwerpen','België','','',now(),'SYSTEM');
 
 
 INSERT INTO `P_ALLOTMENT` (`id`, `name`, `allotment_agency_id`) VALUES (1, 'Perceel 1: Ring', 1);

@@ -12,6 +12,7 @@ DROP PROCEDURE IF EXISTS R_CREATE_DOSSIER $$
 DROP PROCEDURE IF EXISTS R_UPDATE_DOSSIER $$
 DROP PROCEDURE IF EXISTS R_CREATE_TOWING_VOUCHER $$
 DROP PROCEDURE IF EXISTS R_UPDATE_TOWING_VOUCHER $$
+DROP PROCEDURE IF EXISTS R_MARK_VOUCHER_AS_IDLE $$
 
 DROP PROCEDURE IF EXISTS R_FETCH_TOWING_DEPOT  		$$
 DROP PROCEDURE IF EXISTS R_FETCH_TOWING_CUSTOMER 	$$
@@ -286,6 +287,46 @@ BEGIN
 	END IF;
 END $$
 
+
+CREATE PROCEDURE R_MARK_VOUCHER_AS_IDLE(IN p_voucher_id BIGINT, IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id, v_dossier_id, v_timeframe_id, v_taf_id, v_voucher_id BIGINT;
+	DECLARE v_nr_of_vouchers INT;
+	DECLARE v_user_id VARCHAR(36);
+	DECLARE v_incident_type_code VARCHAR(255);
+	DECLARE v_fee_incl_vat, v_fee_excl_vat DOUBLE(10,2);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		-- REMOVE ALL ACTIVITIES AND INSERT THE "LOZE RIT"	
+		DELETE FROM T_TOWING_ACTIVITIES
+		WHERE towing_voucher_id = p_voucher_id;
+
+		SELECT timeframe_id INTO v_timeframe_id
+		FROM T_DOSSIERS d, T_TOWING_VOUCHERS tv
+		WHERE tv.id = p_voucher_id AND tv.dossier_id = d.id;
+
+		INSERT INTO T_TOWING_ACTIVITIES(towing_voucher_id, activity_id, amount, cal_fee_excl_vat, cal_fee_incl_vat)
+		SELECT 	id, t.activity_id, t.default_value, t.fee_excl_vat, t.fee_incl_vat 
+		FROM 	T_TOWING_VOUCHERS tv,
+				(SELECT taf.id as activity_id, taf.fee_excl_vat, taf.fee_incl_vat, ta.default_value
+				 FROM 	`P_TIMEFRAME_ACTIVITY_FEE` taf, `P_TIMEFRAME_ACTIVITIES` ta
+				 WHERE 	taf.timeframe_activity_id = ta.id 
+						AND taf.timeframe_id = v_timeframe_id
+						AND `code` IN ('LOZE_RIT')
+						AND current_date BETWEEN taf.valid_from AND taf.valid_until) t
+		WHERE tv.id = p_voucher_id;	
+
+		-- UPDATE CUSTOMER TO AGENCY
+		CALL R_UPDATE_TOWING_CUSTOMER_TO_AGENCY(p_voucher_id, p_token);
+
+		-- UPDATE THE START AND STOP TOWING TIMING 
+		UPDATE T_TOWING_VOUCHERS SET towing_start = NOW(), towing_completed=NOW() WHERE id = p_voucher_id LIMIT 1;
+	END IF;
+END $$
 
 CREATE PROCEDURE R_CREATE_DEFAULT_TOWING_VOUCHER_ACTIVITIES(IN p_dossier_id BIGINT, IN p_incident_type_id BIGINT, IN p_timeframe_id BIGINT)
 BEGIN
@@ -1763,6 +1804,7 @@ BEGIN
 	DECLARE v_first_name, v_last_name, v_company, v_company_vat VARCHAR(255);
 	DECLARE v_licence_plate VARCHAR(15);
 	DECLARE v_score, v_count INT;
+	DECLARE v_idle_ride BOOL;
 
 	SET v_score = 0;
 
@@ -1790,7 +1832,7 @@ BEGIN
 		-- CHECK IF CUSTOMER IS SET
 		-- 
 		SELECT first_name, last_name, company_name, company_vat
-		INTO v_firsT_name, v_last_name, v_company, v_company_vat
+		INTO v_first_name, v_last_name, v_company, v_company_vat
 		FROM T_TOWING_CUSTOMERS WHERE voucher_id = OLD.id;
 
 		IF TRIM(IFNULL(v_company, "")) != "" THEN
@@ -1804,38 +1846,54 @@ BEGIN
 		END IF;
 
 		--
+		-- check if LOZE_RIT
+		-- 
+		SELECT 	count(*) > 0 INTO v_idle_ride
+		FROM 	T_TOWING_ACTIVITIES ta, P_TIMEFRAME_ACTIVITY_FEE taf, P_TIMEFRAME_ACTIVITIES tac
+		WHERE 	ta.towing_voucher_id = OLD.id
+				AND ta.activity_id = taf.id
+				AND taf.timeframe_activity_id = tac.id
+				AND tac.code='LOZE_RIT';
+
+		--
 		-- CHECK IF CAUSER IS SET
 		-- 
-		SELECT first_name, last_name, company_name, company_vat
-		INTO v_first_name, v_last_name, v_company, v_company_vat
-		FROM T_TOWING_INCIDENT_CAUSERS WHERE voucher_id = OLD.id;
+		IF NOT v_idle_ride THEN
+			SELECT first_name, last_name, company_name, company_vat
+			INTO v_first_name, v_last_name, v_company, v_company_vat
+			FROM T_TOWING_INCIDENT_CAUSERS WHERE voucher_id = OLD.id;
 
-		IF TRIM(IFNULL(v_company, "")) != "" THEN
-			IF TRIM(IFNULL(v_company_vat, "")) = "" THEN
-				SET v_score = v_score + 1;				
-			END IF;
-		ELSE
-			IF TRIM(IFNULL(v_company, "")) = "" AND TRIM(IFNULL(v_first_name, "")) = "" AND TRIM(IFNULL(v_last_name, "")) = "" THEN
-				SET v_score = v_score + 1;
+			IF TRIM(IFNULL(v_company, "")) != "" THEN
+				IF TRIM(IFNULL(v_company_vat, "")) = "" THEN
+					SET v_score = v_score + 1;				
+				END IF;
+			ELSE
+				IF TRIM(IFNULL(v_company, "")) = "" AND TRIM(IFNULL(v_first_name, "")) = "" AND TRIM(IFNULL(v_last_name, "")) = "" THEN
+					SET v_score = v_score + 1;
+				END IF;
 			END IF;
 		END IF;
 
 		--
 		-- CHECK IF CUSTOMER SIGNATURE IS SET
 		-- 
-		SELECT count(*) INTO v_count
-		FROM T_TOWING_VOUCHER_ATTS
-		WHERE towing_voucher_id = OLD.id;
+		IF NOT v_idle_ride THEN
+			SELECT count(*) INTO v_count
+			FROM T_TOWING_VOUCHER_ATTS
+			WHERE towing_voucher_id = OLD.id;
 
-		IF v_count = 0 THEN
-			SET v_score = v_score + 1;
+			IF v_count = 0 THEN
+				SET v_score = v_score + 1;
+			END IF;
 		END IF;
 
 		--
 		-- CHECK IF VEHICLE IS COLLECTED
 		-- 
-		IF NEW.vehicule_collected IS NULL THEN
-			SET v_score = v_score + 1;
+		IF NOT v_idle_ride THEN
+			IF NEW.vehicule_collected IS NULL THEN
+				SET v_score = v_score + 1;
+			END IF;
 		END IF;
 
 		-- 
