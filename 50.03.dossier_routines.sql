@@ -1893,7 +1893,7 @@ BEGIN
 			LIMIT 0,1;
 
 			-- IF code IS SET and if team was at the site
-			IF v_code IS NOT NULL AND v_code != 'GNPLG' THEN
+			IF v_code IS NOT NULL AND v_code = 'GNPLG' THEN
 				SELECT 	count(*) INTO v_count
 				FROM 	T_TOWING_VOUCHER_ATTS
 				WHERE 	towing_voucher_id = OLD.id
