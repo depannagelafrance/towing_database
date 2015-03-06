@@ -1017,7 +1017,7 @@ BEGIN
 						AND d.allotment_direction_id = ad.id
 						AND d.allotment_direction_indicator_id = adi.id
 						AND tc.voucher_id = t.id
-						AND tc.type = 'AGENCY'
+						AND (tc.type = 'AGENCY' OR t.status = 'AGENCY')
 				UNION DISTINCT
 				SELECT 	d.id, d.id as 'dossier_id', t.id as 'voucher_id', d.call_number, d.call_date, d.dossier_number, t.voucher_number, ad.name 'direction_name', adi.name 'indicator_name', c.code as `towing_service`, ip.name as `incident_type`
 				FROM 	`T_TOWING_VOUCHERS`t, 
@@ -1806,6 +1806,7 @@ BEGIN
 	DECLARE v_score, v_count INT;
 	DECLARE v_incident_type_code VARCHAR(45);
 	DECLARE v_idle_ride, v_default_depot, v_has_insurance BOOL;
+	DECLARE v_customer_type ENUM('DEFAULT', 'AGENCY');
 
 	SET v_score = 0;
 
@@ -1864,6 +1865,7 @@ BEGIN
 			END IF;
 
 		END IF;
+
 		--
 		-- check if LOZE_RIT
 		-- 
@@ -1941,10 +1943,20 @@ BEGIN
 		-- 
 		-- CHECK SCORE, IF > 0 THEN CHANGE STATUS
 		--
+
 		IF v_score > 0 THEN
 			SET NEW.status = 'TO CHECK';
 		ELSE
-			SET NEW.status = 'READY FOR INVOICE';
+			SELECT type INTO v_customer_type
+			FROM 	T_TOWING_CUSTOMERS
+			WHERE 	voucher_id = OLD.id
+			LIMIT 	0,1;
+
+			IF NOT v_idle_ride THEN
+				SET NEW.status = 'READY FOR INVOICE';
+			ELSE			
+				SET NEW.status = IF(v_customer_type = 'AGENCY', 'AGENCY', 'READY FOR INVOICE');
+			END IF;
 		END IF;
 	END IF;
 END $$
