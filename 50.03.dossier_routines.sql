@@ -1802,7 +1802,7 @@ CREATE TRIGGER `TRG_BU_TOWING_VOUCHER` BEFORE UPDATE ON `T_TOWING_VOUCHERS`
 FOR EACH ROW
 BEGIN
 	DECLARE v_first_name, v_last_name, v_company, v_company_vat VARCHAR(255);
-	DECLARE v_licence_plate VARCHAR(15);
+	DECLARE v_licence_plate, v_code VARCHAR(15);
 	DECLARE v_score, v_count INT;
 	DECLARE v_idle_ride, v_default_depot BOOL;
 
@@ -1878,10 +1878,27 @@ BEGIN
 		-- CHECK IF CUSTOMER SIGNATURE IS SET
 		-- 
 		IF NOT v_idle_ride THEN
-			SELECT 	count(*) INTO v_count
-			FROM 	T_TOWING_VOUCHER_ATTS
-			WHERE 	towing_voucher_id = OLD.id
-					AND category IN ('SIGNATURE_POLICE','SIGNATURE_CAUSER');
+			-- CHECK traffic_post
+
+			SELECT code INTO v_code
+			FROM P_POLICE_TRAFFIC_POSTS  ptp, T_DOSSIERS d
+			WHERE ptp.id = d.police_traffic_post_id
+				AND d.id = OLD.dossier_id
+			LIMIT 0,1;
+
+			-- IF code IS SET and if team was at the site
+			IF v_code IS NOT NULL AND v_code != 'GNPLG' THEN
+				SELECT 	count(*) INTO v_count
+				FROM 	T_TOWING_VOUCHER_ATTS
+				WHERE 	towing_voucher_id = OLD.id
+						AND category IN ('SIGNATURE_CAUSER');
+			ELSE
+				-- team on site
+				SELECT 	count(*) INTO v_count
+				FROM 	T_TOWING_VOUCHER_ATTS
+				WHERE 	towing_voucher_id = OLD.id
+						AND category IN ('SIGNATURE_CAUSER', 'SIGNATURE_POLICE');
+			END IF;
 
 			IF v_count = 0 THEN
 				SET v_score = v_score + 1;
