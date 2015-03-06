@@ -537,7 +537,7 @@ BEGIN
 					`vehicule_type`,
 					`vehicule_licenceplate`,
 					`vehicule_country`,
-					`vehicule_collected`,
+					unix_timestamp(`vehicule_collected`) as vehicule_collected,
 					`towing_id`,
 					(SELECT concat_ws(' ', first_name, last_name) FROM `T_USERS` WHERE id = `towing_id`) AS `towed_by`,
 					`towing_vehicle_id`,
@@ -1852,7 +1852,8 @@ BEGIN
 			-- 
 			SELECT first_name, last_name, company_name, company_vat
 			INTO v_first_name, v_last_name, v_company, v_company_vat
-			FROM T_TOWING_CUSTOMERS WHERE voucher_id = OLD.id;
+			FROM T_TOWING_CUSTOMERS WHERE voucher_id = OLD.id
+			LIMIT 0,1;
 
 			IF TRIM(IFNULL(v_company, "")) != "" THEN
 				IF TRIM(IFNULL(v_company_vat, "")) = "" THEN
@@ -1882,7 +1883,8 @@ BEGIN
 		IF NOT v_idle_ride THEN
 			SELECT first_name, last_name, company_name, company_vat
 			INTO v_first_name, v_last_name, v_company, v_company_vat
-			FROM T_TOWING_INCIDENT_CAUSERS WHERE voucher_id = OLD.id;
+			FROM T_TOWING_INCIDENT_CAUSERS WHERE voucher_id = OLD.id
+			LIMIT 0,1;
 
 			IF TRIM(IFNULL(v_company, "")) != "" THEN
 				IF TRIM(IFNULL(v_company_vat, "")) = "" THEN
@@ -1933,7 +1935,8 @@ BEGIN
 			-- CHECK DEPOT
 			SELECT 	default_depot = 1 INTO v_default_depot
 			FROM 	T_TOWING_DEPOTS 
-			WHERE 	voucher_id = OLD.id;
+			WHERE 	voucher_id = OLD.id
+			LIMIT 	0,1;
 
 			IF v_default_depot AND NEW.vehicule_collected IS NULL THEN
 				SET v_score = v_score + 1;
@@ -2065,7 +2068,8 @@ BEGIN
 	SELECT	datediff(IFNULL(tv.vehicule_collected, now()), call_date) INTO v_day_count
 	FROM 	T_DOSSIERS d, T_TOWING_VOUCHERS tv
 	WHERE 	d.id = v_dossier_id
-			AND tv.dossier_id = d.id;
+			AND tv.dossier_id = d.id
+			AND tv.id = p_voucher_id;
 
 	IF v_day_count > 3 THEN
 		INSERT INTO T_TOWING_ACTIVITIES(towing_voucher_id, activity_id, amount, cal_fee_excl_vat, cal_fee_incl_vat)
