@@ -1804,7 +1804,7 @@ BEGIN
 	DECLARE v_first_name, v_last_name, v_company, v_company_vat VARCHAR(255);
 	DECLARE v_licence_plate VARCHAR(15);
 	DECLARE v_score, v_count INT;
-	DECLARE v_idle_ride BOOL;
+	DECLARE v_idle_ride, v_default_depot BOOL;
 
 	SET v_score = 0;
 
@@ -1827,7 +1827,7 @@ BEGIN
 		SET NEW.towed_by_vehicle = v_licence_plate;
 	END IF;
 
-	IF OLD.towing_completed IS NULL AND NEW.towing_completed IS NOT NULL THEN
+	IF NEW.towing_completed IS NOT NULL THEN
 		--
 		-- CHECK IF CUSTOMER IS SET
 		-- 
@@ -1878,9 +1878,10 @@ BEGIN
 		-- CHECK IF CUSTOMER SIGNATURE IS SET
 		-- 
 		IF NOT v_idle_ride THEN
-			SELECT count(*) INTO v_count
-			FROM T_TOWING_VOUCHER_ATTS
-			WHERE towing_voucher_id = OLD.id;
+			SELECT 	count(*) INTO v_count
+			FROM 	T_TOWING_VOUCHER_ATTS
+			WHERE 	towing_voucher_id = OLD.id
+					AND category IN ('SIGNATURE_POLICE','SIGNATURE_CAUSER');
 
 			IF v_count = 0 THEN
 				SET v_score = v_score + 1;
@@ -1891,7 +1892,12 @@ BEGIN
 		-- CHECK IF VEHICLE IS COLLECTED
 		-- 
 		IF NOT v_idle_ride THEN
-			IF NEW.vehicule_collected IS NULL THEN
+			-- CHECK DEPOT
+			SELECT 	default_depot = 1 INTO v_default_depot
+			FROM 	T_TOWING_DEPOTS 
+			WHERE 	voucher_id = OLD.id;
+
+			IF v_default_depot AND NEW.vehicule_collected IS NULL THEN
 				SET v_score = v_score + 1;
 			END IF;
 		END IF;
