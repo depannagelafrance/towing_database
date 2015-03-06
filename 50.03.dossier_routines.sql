@@ -1804,7 +1804,7 @@ BEGIN
 	DECLARE v_first_name, v_last_name, v_company, v_company_vat VARCHAR(255);
 	DECLARE v_licence_plate, v_code VARCHAR(15);
 	DECLARE v_score, v_count INT;
-	DECLARE v_idle_ride, v_default_depot BOOL;
+	DECLARE v_idle_ride, v_default_depot, v_has_insurance BOOL;
 
 	SET v_score = 0;
 
@@ -1828,23 +1828,29 @@ BEGIN
 	END IF;
 
 	IF NEW.towing_completed IS NOT NULL THEN
-		--
-		-- CHECK IF CUSTOMER IS SET
-		-- 
-		SELECT first_name, last_name, company_name, company_vat
-		INTO v_first_name, v_last_name, v_company, v_company_vat
-		FROM T_TOWING_CUSTOMERS WHERE voucher_id = OLD.id;
+		-- CHECK IF INSURANCE IS SET
 
-		IF TRIM(IFNULL(v_company, "")) != "" THEN
-			IF TRIM(IFNULL(v_company_vat, "")) = "" THEN
-				SET v_score = v_score + 1;				
+		SET v_has_insurance = (NEW.insurance_id IS NOT NULL);
+
+		IF NOT v_has_insurance THEN
+			--
+			-- CHECK IF CUSTOMER IS SET
+			-- 
+			SELECT first_name, last_name, company_name, company_vat
+			INTO v_first_name, v_last_name, v_company, v_company_vat
+			FROM T_TOWING_CUSTOMERS WHERE voucher_id = OLD.id;
+
+			IF TRIM(IFNULL(v_company, "")) != "" THEN
+				IF TRIM(IFNULL(v_company_vat, "")) = "" THEN
+					SET v_score = v_score + 1;				
+				END IF;
+			ELSE
+				IF TRIM(IFNULL(v_company, "")) = "" AND TRIM(IFNULL(v_first_name, "")) = "" AND TRIM(IFNULL(v_last_name, "")) = "" THEN
+					SET v_score = v_score + 1;
+				END IF;
 			END IF;
-		ELSE
-			IF TRIM(IFNULL(v_company, "")) = "" AND TRIM(IFNULL(v_first_name, "")) = "" AND TRIM(IFNULL(v_last_name, "")) = "" THEN
-				SET v_score = v_score + 1;
-			END IF;
+
 		END IF;
-
 		--
 		-- check if LOZE_RIT
 		-- 
