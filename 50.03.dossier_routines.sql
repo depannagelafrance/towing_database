@@ -1804,6 +1804,7 @@ BEGIN
 	DECLARE v_first_name, v_last_name, v_company, v_company_vat VARCHAR(255);
 	DECLARE v_licence_plate, v_code VARCHAR(15);
 	DECLARE v_score, v_count INT;
+	DECLARE v_incident_type_code VARCHAR(45);
 	DECLARE v_idle_ride, v_default_depot, v_has_insurance BOOL;
 
 	SET v_score = 0;
@@ -1825,6 +1826,18 @@ BEGIN
 		LIMIT 	0,1;
 
 		SET NEW.towed_by_vehicle = v_licence_plate;
+
+		IF NEW.towing_called IS NULL THEN
+			SELECT 	code INTO v_incident_type_code
+			FROM 	P_INCIDENT_TYPES it, T_DOSSIERS d
+			WHERE 	it.id = d.incident_type_id
+					AND d.id = OLD.dossier_id
+			LIMIT 	0,1;
+
+			IF v_incident_type_code IN ('PANNE', 'ONGEVAL') THEN
+				SET NEW.towing_called = now();
+			END IF;
+		END IF;
 	END IF;
 
 	IF NEW.towing_completed IS NOT NULL THEN
