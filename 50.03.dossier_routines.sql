@@ -1805,7 +1805,7 @@ BEGIN
 	DECLARE v_licence_plate, v_code VARCHAR(15);
 	DECLARE v_score, v_count INT;
 	DECLARE v_incident_type_code VARCHAR(45);
-	DECLARE v_idle_ride, v_default_depot, v_has_insurance BOOL;
+	DECLARE v_idle_ride, v_lost_object, v_default_depot, v_has_insurance BOOL;
 	DECLARE v_customer_type ENUM('DEFAULT', 'AGENCY');
 
 	SET v_score = 0;
@@ -1835,7 +1835,7 @@ BEGIN
 					AND d.id = OLD.dossier_id
 			LIMIT 	0,1;
 
-			IF v_incident_type_code IN ('PANNE', 'ONGEVAL') THEN
+			IF v_incident_type_code IN ('PANNE', 'ONGEVAL', 'ACHTERGELATEN_VOERTUIG') THEN
 				SET NEW.towing_called = now();
 			END IF;
 		END IF;
@@ -1878,9 +1878,19 @@ BEGIN
 				AND tac.code='LOZE_RIT';
 
 		--
+		-- check if LOST_OBJECT
+		-- 
+		SELECT 	count(*) > 0 INTO v_lost_object
+		FROM 	T_TOWING_ACTIVITIES ta, P_TIMEFRAME_ACTIVITY_FEE taf, P_TIMEFRAME_ACTIVITIES tac
+		WHERE 	ta.towing_voucher_id = OLD.id
+				AND ta.activity_id = taf.id
+				AND taf.timeframe_activity_id = tac.id
+				AND tac.code='VERLOREN_VOORWERP';
+
+		--
 		-- CHECK IF CAUSER IS SET
 		-- 
-		IF NOT v_idle_ride THEN
+		IF NOT v_idle_ride AND NOT v_lost_object THEN
 			SELECT first_name, last_name, company_name, company_vat
 			INTO v_first_name, v_last_name, v_company, v_company_vat
 			FROM T_TOWING_INCIDENT_CAUSERS WHERE voucher_id = OLD.id
@@ -1900,7 +1910,7 @@ BEGIN
 		--
 		-- CHECK IF CUSTOMER SIGNATURE IS SET
 		-- 
-		IF NOT v_idle_ride THEN
+		IF NOT v_idle_ride AND NOT v_lost_object THEN
 			-- CHECK traffic_post
 
 			SELECT code INTO v_code
@@ -1931,7 +1941,7 @@ BEGIN
 		--
 		-- CHECK IF VEHICLE IS COLLECTED
 		-- 
-		IF NOT v_idle_ride THEN
+		IF NOT v_idle_ride AND NOT v_lost_object THEN
 			-- CHECK DEPOT
 			SELECT 	default_depot = 1 INTO v_default_depot
 			FROM 	T_TOWING_DEPOTS 
@@ -1955,7 +1965,7 @@ BEGIN
 			WHERE 	voucher_id = OLD.id
 			LIMIT 	0,1;
 
-			IF NOT v_idle_ride THEN
+			IF NOT v_idle_ride AND NOT v_lost_object THEN
 				SET NEW.status = 'READY FOR INVOICE';
 			ELSE			
 				SET NEW.status = IF(v_customer_type = 'AGENCY', 'AGENCY', 'READY FOR INVOICE');
