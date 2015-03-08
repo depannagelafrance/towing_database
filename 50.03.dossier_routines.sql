@@ -223,6 +223,7 @@ BEGIN
 	DECLARE v_user_id VARCHAR(36);
 	DECLARE v_incident_type_code VARCHAR(255);
 	DECLARE v_fee_incl_vat, v_fee_excl_vat DOUBLE(10,2);
+	DECLARE v_voucher_number INT;
 
 	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
 
@@ -244,9 +245,15 @@ BEGIN
 			WHERE 	d.incident_type_id = it.id AND d.id = v_dossier_id
 			LIMIT	0,1;
 
+			SET v_voucher_number = F_NEXT_TOWING_VOUCHER_NUMBER();
 
-			INSERT INTO `T_TOWING_VOUCHERS` (`dossier_id`, `voucher_number`, `cd`, `cd_by`) 
-			VALUES (v_dossier_id, F_NEXT_TOWING_VOUCHER_NUMBER(), now(), F_RESOLVE_LOGIN(v_user_id, p_token));
+			INSERT INTO `T_TOWING_VOUCHERS` (`dossier_id`, `voucher_number`, `cd`, `cd_by`, `signa_id`, `signa_by`, `signa_by_vehicle`, `signa_arrival`) 
+			SELECT 	v_dossier_id, v_voucher_number, now(), F_RESOLVE_LOGIN(v_user_id, p_token), signa_id, signa_by, signa_by_vehicle, signa_arrival 
+			FROM 	T_TOWING_VOUCHERS 
+			WHERE 	dossier_id = v_dossier_id
+			ORDER 	BY id 
+			LIMIT 	0,1;
+			-- VALUES (v_dossier_id, F_NEXT_TOWING_VOUCHER_NUMBER(), now(), F_RESOLVE_LOGIN(v_user_id, p_token));
 			
 			SET v_voucher_id = LAST_INSERT_ID();
 
