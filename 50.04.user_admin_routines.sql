@@ -467,6 +467,25 @@ BEGIN
 	END IF;
 END $$
 
+-- ----------------------------------------------------
+-- TRIGGERS
+-- ----------------------------------------------------
+
+DROP TRIGGER IF EXISTS TRG_AI_USER $$
+DROP TRIGGER IF EXISTS TRG_AU_USER $$
+
+CREATE TRIGGER `TRG_AI_USER` AFTER INSERT ON `T_USERS`
+FOR EACH ROW
+BEGIN
+	CALL R_ADD_USER_AUDIT_LOG(NEW.id);
+END $$
+
+CREATE TRIGGER `TRG_AU_USER` AFTER UPDATE ON `T_USERS`
+FOR EACH ROW
+BEGIN
+	CALL R_ADD_USER_AUDIT_LOG(NEW.id);
+END $$
+
 
 -- ----------------------------------------------------
 -- RECALCULATE EXTRA TIME ACCIDENT EVERY 15 MINUTES

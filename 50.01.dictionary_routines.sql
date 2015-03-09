@@ -2,7 +2,6 @@ DELIMITER $$
 -- ---------------------------------------------------------------------
 -- DROP ROUTINES
 -- ---------------------------------------------------------------------
-DROP PROCEDURE IF EXISTS R_ADD_DICTIONARY_AUDIT_LOG $$
 DROP PROCEDURE IF EXISTS R_ADD_DICTIONARY $$
 DROP PROCEDURE IF EXISTS R_ADD_INSURANCE $$
 DROP PROCEDURE IF EXISTS R_ADD_COLLECTOR $$
@@ -29,15 +28,6 @@ DROP PROCEDURE IF EXISTS R_FETCH_COLLECTOR_BY_ID $$
 
 DROP PROCEDURE IF EXISTS R_FETCH_ALL_DRIVERS_BY_TYPE $$
 
-DROP PROCEDURE IF EXISTS R_CREATE_AUDIT_LOG $$
-
--- ---------------------------------------------------------------------
--- CREATE ROUTINES
--- ---------------------------------------------------------------------
-CREATE PROCEDURE R_ADD_DICTIONARY_AUDIT_LOG(IN p_id BIGINT)
-BEGIN
-	CALL R_CREATE_AUDIT_LOG('P_DICTIONARY', p_id);
-END $$
 
 CREATE PROCEDURE R_ADD_DICTIONARY(IN p_category ENUM('COLLECTOR'), IN p_name VARCHAR(255), IN p_user VARCHAR(255))
 BEGIN
@@ -47,8 +37,6 @@ BEGIN
 	VALUES(p_category, p_name, now(), p_user);
 
 	SET v_id = last_insert_id();
-
-	CALL R_ADD_DICTIONARY_AUDIT_LOG(v_id);
 
 	SELECT * FROM P_DICTIONARY WHERE id = v_id;
 END $$
@@ -62,8 +50,6 @@ BEGIN
 			ud_by = p_user
 	WHERE 	id = p_id;
 
-	CALL R_ADD_DICTIONARY_AUDIT_LOG(p_id);
-
 	SELECT * FROM P_DICTIONARY WHERE id = p_id;
 END $$
 
@@ -74,8 +60,6 @@ BEGIN
 			dd_by = p_user
 	WHERE 	id = p_id
 			AND category = p_category;
-
-	CALL R_ADD_DICTIONARY_AUDIT_LOG(p_id);
 
 	SELECT "OK" as result;
 END $$
@@ -344,10 +328,6 @@ BEGIN
 	END IF;
 END $$
 
-
-
-
-
 CREATE PROCEDURE R_FETCH_INSURANCE_BY_ID(IN p_id BIGINT, IN p_token VARCHAR(255))
 BEGIN
 	DECLARE v_company_id BIGINT;
@@ -413,37 +393,34 @@ BEGIN
 	END IF;
 END $$
 
-CREATE PROCEDURE R_CREATE_AUDIT_LOG(IN p_table_name VARCHAR(255), IN p_id BIGINT)
+DROP TRIGGER IF EXISTS TRG_AI_DICTIONARY $$
+DROP TRIGGER IF EXISTS TRG_AU_DICTIONARY $$
+
+DROP TRIGGER IF EXISTS TRG_AI_INSURANCES $$
+DROP TRIGGER IF EXISTS TRG_AU_INSURANCES $$
+
+CREATE TRIGGER `TRG_AI_DICTIONARY` AFTER INSERT ON `P_DICTIONARY`
+FOR EACH ROW
 BEGIN
-	DECLARE v_cols VARCHAR(1024);
-	DECLARE v_log_table VARCHAR(1024);
-
-	-- check if an audit log table exists
-	SELECT 	table_name INTO v_log_table
-	FROM 	information_schema.TABLES 
-	WHERE 	table_schema = schema() 
-			AND table_name=upper(concat(p_table_name, '_AUDIT_LOG'))
-	LIMIT 	0,1;
-
-	IF v_log_table IS NOT NULL THEN
-		-- concat all the columns
-		SELECT 		GROUP_CONCAT(concat('`', column_name, '`') SEPARATOR ', ')
-		INTO 		v_cols
-		FROM 		information_schema.COLUMNS 
-		WHERE 		table_schema = schema()
-					AND table_name = p_table_name
-		GROUP BY 	table_name;
-
-		SET @id = p_id;
-		SET @log_table = CONCAT('`', v_log_table, '`');
-		SET @cols = v_cols;
-		SET @tbl = p_table_name;
-		SET @sql = concat("INSERT INTO ", @log_table, "(", @cols, ") SELECT ", @cols, " FROM ", @tbl, " WHERE id = ?");
-
-		PREPARE STMT FROM @sql;
-		EXECUTE STMT USING @id;
-	END IF;
+	CALL R_ADD_DICTIONARY_AUDIT_LOG(NEW.id);
 END $$
 
+CREATE TRIGGER `TRG_AU_DICTIONARY` AFTER UPDATE ON `P_DICTIONARY`
+FOR EACH ROW
+BEGIN
+	CALL R_ADD_DICTIONARY_AUDIT_LOG(NEW.id);
+END $$
+
+CREATE TRIGGER `TRG_AI_INSURANCES` AFTER INSERT ON `T_INSURANCES`
+FOR EACH ROW
+BEGIN
+	CALL R_ADD_INSURANCE_AUDIT_LOG(NEW.id);
+END $$
+
+CREATE TRIGGER `TRG_AU_INSURANCES` AFTER UPDATE ON `T_INSURANCES`
+FOR EACH ROW
+BEGIN
+	CALL R_ADD_INSURANCE_AUDIT_LOG(NEW.id);
+END $$
 
 DELIMITER ;

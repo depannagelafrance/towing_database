@@ -458,7 +458,7 @@ BEGIN
 					`police_traffic_post_id`, 
 						(SELECT `name` FROM `P_POLICE_TRAFFIC_POSTS` WHERE id = d.`police_traffic_post_id`) as `traffic_post_name`,
 						(SELECT `phone` FROM `P_POLICE_TRAFFIC_POSTS` WHERE id = d.`police_traffic_post_id`) as `traffic_post_phone`,
-					`incident_type_id`, it.code as `incident_type_code`, it.name `incident_type_name`,
+					`incident_type_id`, it.code as `incident_type_code`, it.code_agency as `incident_type_code_agency`, it.name `incident_type_name`,
 					`timeframe_id`, (SELECT `name` FROM P_TIMEFRAMES WHERE id = d.timeframe_id) as "timeframe_name",
 					`allotment_id`, (SELECT `name` FROM P_ALLOTMENT WHERE id = d.`allotment_id`) as `allotment_name`,
 					`allotment_direction_indicator_id`, (SELECT `name` FROM P_ALLOTMENT_DIRECTION_INDICATORS WHERE id = d.`allotment_direction_indicator_id`) as `indicator_name`,
