@@ -449,8 +449,6 @@ CREATE TABLE IF NOT EXISTS `T_DOSSIERS` (
   `ud_by` VARCHAR(255) NULL)
 ENGINE = InnoDB;
 
-CREATE UNIQUE INDEX `dossier_number_UNIQUE` ON `T_DOSSIERS` (`dossier_number` ASC);
-
 CREATE INDEX `ix_dossier_dossier_number` ON `T_DOSSIERS` (`dossier_number` ASC);
 
 CREATE INDEX `ix_dossier_call_number` ON `T_DOSSIERS` (`call_number` ASC);

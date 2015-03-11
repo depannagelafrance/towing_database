@@ -10,6 +10,10 @@ DROP PROCEDURE IF EXISTS R_NOT_AUTHORIZED $$
 DROP PROCEDURE IF EXISTS R_NOT_FOUND $$
 
 DROP FUNCTION IF EXISTS F_RESOLVE_LOGIN $$
+
+DROP TRIGGER IF EXISTS TRG_AI_USER_TOKEN $$
+DROP TRIGGER IF EXISTS TRG_AU_USER_TOKEN $$
+
 -- ---------------------------------------------------------------------
 -- CREATE ROUTINES
 -- ---------------------------------------------------------------------
@@ -166,6 +170,20 @@ BEGIN
 	END IF;
 END $$
 
+-- ---------------------------------------
+-- TRIGGERS 
+-- ---------------------------------------
 
+CREATE TRIGGER `TRG_AI_USER_TOKEN` AFTER INSERT ON `T_USER_TOKENS`
+FOR EACH ROW
+BEGIN
+	CALL R_ADD_USER_TOKEN_AUDIT_LOG(NEW.user_id, NEW.token);
+END $$
+
+CREATE TRIGGER `TRG_AU_USER_TOKEN` AFTER UPDATE ON `T_USER_TOKENS`
+FOR EACH ROW
+BEGIN
+	CALL R_ADD_USER_TOKEN_AUDIT_LOG(NEW.user_id, NEW.token);
+END $$
 
 DELIMITER ;

@@ -1826,10 +1826,11 @@ BEGIN
 	DECLARE v_licence_plate, v_code VARCHAR(15);
 	DECLARE v_score, v_count INT;
 	DECLARE v_incident_type_code VARCHAR(45);
-	DECLARE v_idle_ride, v_lost_object, v_signa_only, v_default_depot, v_has_insurance BOOL;
+	DECLARE v_idle_ride, v_lost_object, v_signa_only, v_default_depot, v_has_insurance, v_is_agency BOOL;
 	DECLARE v_customer_type ENUM('DEFAULT', 'AGENCY');
 
 	SET v_score = 0;
+	SET v_is_agency = false;
 
 	IF NEW.signa_id IS NOT NULL THEN
 		SELECT cv.licence_plate INTO v_licence_plate
@@ -1871,8 +1872,8 @@ BEGIN
 			--
 			-- CHECK IF CUSTOMER IS SET
 			-- 
-			SELECT first_name, last_name, company_name, company_vat
-			INTO v_first_name, v_last_name, v_company, v_company_vat
+			SELECT first_name, last_name, company_name, company_vat, (type = 'AGENCY')
+			INTO v_first_name, v_last_name, v_company, v_company_vat, v_is_agency
 			FROM T_TOWING_CUSTOMERS WHERE voucher_id = OLD.id
 			LIMIT 0,1;
 
@@ -1920,7 +1921,7 @@ BEGIN
 		--
 		-- CHECK IF CAUSER IS SET
 		-- 
-		IF NOT v_idle_ride AND NOT v_lost_object AND NOT v_signa_only THEN
+		IF NOT v_idle_ride AND NOT v_lost_object AND NOT v_signa_only AND NOT v_is_agency THEN
 			SELECT first_name, last_name, company_name, company_vat
 			INTO v_first_name, v_last_name, v_company, v_company_vat
 			FROM T_TOWING_INCIDENT_CAUSERS WHERE voucher_id = OLD.id
