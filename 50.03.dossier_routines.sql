@@ -232,6 +232,7 @@ BEGIN
 	DECLARE v_incident_type_code VARCHAR(255);
 	DECLARE v_fee_incl_vat, v_fee_excl_vat DOUBLE(10,2);
 	DECLARE v_voucher_number INT;
+	DECLARE v_call_date DATETIME;
 
 	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
 
@@ -248,7 +249,7 @@ BEGIN
 		IF v_dossier_id IS NULL THEN
 			CALL R_NOT_FOUND;
 		ELSE
-			SELECT 	`code`, d.timeframe_id INTO v_incident_type_code, v_timeframe_id
+			SELECT 	`code`, d.timeframe_id, d.call_date INTO v_incident_type_code, v_timeframe_id, v_call_date
 			FROM	`P_INCIDENT_TYPES` it, T_DOSSIERS d
 			WHERE 	d.incident_type_id = it.id AND d.id = v_dossier_id
 			LIMIT	0,1;
@@ -275,7 +276,7 @@ BEGIN
 					 WHERE 	taf.timeframe_activity_id = ta.id 
 							AND taf.timeframe_id = v_timeframe_id
 							AND `code` = v_incident_type_code
-							AND current_date BETWEEN taf.valid_from AND taf.valid_until) t
+							AND v_call_date BETWEEN taf.valid_from AND taf.valid_until) t
 			WHERE tv.dossier_id = v_dossier_id
 					AND tv.id = v_voucher_id;
 
@@ -285,7 +286,7 @@ BEGIN
 			FROM 	`P_TIMEFRAME_ACTIVITY_FEE` taf, `P_TIMEFRAME_ACTIVITIES` ta
 			WHERE 	taf.timeframe_activity_id = ta.id AND taf.timeframe_id = v_timeframe_id
 					AND `code` = 'SIGNALISATIE'
-					AND current_date BETWEEN taf.valid_from AND taf.valid_until;
+					AND v_call_date BETWEEN taf.valid_from AND taf.valid_until;
 
 			IF v_taf_id IS NOT NULL THEN
 				INSERT IGNORE INTO T_TOWING_ACTIVITIES(towing_voucher_id, activity_id, amount, cal_fee_excl_vat, cal_fee_incl_vat)
@@ -310,6 +311,7 @@ BEGIN
 	DECLARE v_user_id VARCHAR(36);
 	DECLARE v_incident_type_code VARCHAR(255);
 	DECLARE v_fee_incl_vat, v_fee_excl_vat DOUBLE(10,2);
+	DECLARE v_call_date DATETIME;
 
 	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
 
@@ -320,9 +322,10 @@ BEGIN
 		DELETE FROM T_TOWING_ACTIVITIES
 		WHERE towing_voucher_id = p_voucher_id;
 
-		SELECT timeframe_id INTO v_timeframe_id
-		FROM T_DOSSIERS d, T_TOWING_VOUCHERS tv
-		WHERE tv.id = p_voucher_id AND tv.dossier_id = d.id;
+		SELECT 	timeframe_id, IFNULL(d.call_date, now()) INTO v_timeframe_id, v_call_date
+		FROM 	T_DOSSIERS d, T_TOWING_VOUCHERS tv
+		WHERE 	tv.id = p_voucher_id 
+				AND tv.dossier_id = d.id;
 
 		INSERT INTO T_TOWING_ACTIVITIES(towing_voucher_id, activity_id, amount, cal_fee_excl_vat, cal_fee_incl_vat)
 		SELECT 	id, t.activity_id, t.default_value, t.fee_excl_vat, t.fee_incl_vat 
@@ -332,7 +335,7 @@ BEGIN
 				 WHERE 	taf.timeframe_activity_id = ta.id 
 						AND taf.timeframe_id = v_timeframe_id
 						AND `code` IN ('LOZE_RIT')
-						AND current_date BETWEEN taf.valid_from AND taf.valid_until) t
+						AND v_call_date BETWEEN taf.valid_from AND taf.valid_until) t
 		WHERE tv.id = p_voucher_id;	
 
 		-- UPDATE CUSTOMER TO AGENCY
@@ -346,12 +349,18 @@ END $$
 CREATE PROCEDURE R_CREATE_DEFAULT_TOWING_VOUCHER_ACTIVITIES(IN p_dossier_id BIGINT, IN p_incident_type_id BIGINT, IN p_timeframe_id BIGINT)
 BEGIN
 		DECLARE v_incident_type_code VARCHAR(255);
+		DECLARE v_call_date DATETIME;
 
 		-- attach default activities based on selected timeframe
 		SELECT 	`code` INTO v_incident_type_code
 		FROM	`P_INCIDENT_TYPES`
 		WHERE 	id = p_incident_type_id
 		LIMIT	0,1;
+
+		SELECT 	IFNULL(call_date, now()) INTO v_call_date
+		FROM 	T_DOSSIERS
+		WHERE 	id = p_dossier_id
+		LIMIT 	0,1;
 
 		CASE 
 			WHEN v_incident_type_code = 'PANNE' OR v_incident_type_code = 'ONGEVAL' OR v_incident_type_code = 'ACHTERGELATEN_VOERTUIG' THEN
@@ -363,7 +372,7 @@ BEGIN
 						 WHERE 	taf.timeframe_activity_id = ta.id 
 								AND taf.timeframe_id = p_timeframe_id
 								AND `code` IN (v_incident_type_code, 'SIGNALISATIE')
-								AND current_date BETWEEN taf.valid_from AND taf.valid_until) t
+								AND v_call_date BETWEEN taf.valid_from AND taf.valid_until) t
 				WHERE tv.dossier_id = p_dossier_id;
 			ELSE
 				INSERT INTO T_TOWING_ACTIVITIES(towing_voucher_id, activity_id, amount, cal_fee_excl_vat, cal_fee_incl_vat)
@@ -374,7 +383,7 @@ BEGIN
 						 WHERE 	taf.timeframe_activity_id = ta.id 
 								AND taf.timeframe_id = p_timeframe_id
 								AND `code` IN (v_incident_type_code)
-								AND current_date BETWEEN taf.valid_from AND taf.valid_until) t
+								AND v_call_date BETWEEN taf.valid_from AND taf.valid_until) t
 				WHERE tv.dossier_id = p_dossier_id;	
 		END CASE;
 END $$
@@ -1176,7 +1185,7 @@ BEGIN
 	IF v_user_id IS NULL OR v_company_id IS NULL THEN
 		CALL R_NOT_AUTHORIZED;
 	ELSE
-		SELECT 	call_date INTO v_call_date
+		SELECT 	IFNULL(call_date, now()) INTO v_call_date
 		FROM 	T_DOSSIERS
 		WHERE 	id = p_dossier_id
 		LIMIT 	0,1;
@@ -2147,13 +2156,14 @@ CREATE PROCEDURE R_UPDATE_TOWING_STORAGE_COST_FOR_VOUCHER(IN p_voucher_id BIGINT
 BEGIN
 	DECLARE v_voucher_id, v_dossier_id, v_timeframe_id BIGINT DEFAULT NULL;
 	DECLARE v_day_count INT;
+	DECLARE v_call_date DATETIME;
 
 	SET v_voucher_id = p_voucher_id;
 	SET v_dossier_id = p_dossier_id;
 	SET v_timeframe_id = p_timeframe_id;
 	
 
-	SELECT	datediff(IFNULL(tv.vehicule_collected, now()), call_date) INTO v_day_count
+	SELECT	datediff(IFNULL(tv.vehicule_collected, now()), call_date), IFNULL(d.call_date, now()) INTO v_day_count, v_call_date
 	FROM 	T_DOSSIERS d, T_TOWING_VOUCHERS tv
 	WHERE 	d.id = v_dossier_id
 			AND tv.dossier_id = d.id
@@ -2167,7 +2177,7 @@ BEGIN
 				 FROM 	`P_TIMEFRAME_ACTIVITY_FEE` taf, `P_TIMEFRAME_ACTIVITIES` ta
 				 WHERE 	taf.timeframe_activity_id = ta.id AND taf.timeframe_id = v_timeframe_id
 						AND `code` = 'STALLING'
-						AND current_date BETWEEN taf.valid_from AND taf.valid_until) t
+						AND v_call_date BETWEEN taf.valid_from AND taf.valid_until) t
 		WHERE d.id = v_dossier_id
 			AND tv.dossier_id = d.id
 		ON DUPLICATE KEY UPDATE amount = datediff(IFNULL(tv.vehicule_collected, now()), call_date) - 3, 
@@ -2202,11 +2212,12 @@ END $$
 CREATE PROCEDURE R_UPDATE_EXTRA_TIME_SIGNA()
 BEGIN
 	DECLARE v_voucher_id, v_dossier_id, v_timeframe_id, v_extra_time BIGINT DEFAULT NULL;
-	
+	DECLARE v_call_date DATETIME;
 	DECLARE no_rows_found BOOLEAN DEFAULT FALSE;
 	
 	DECLARE c CURSOR FOR 	SELECT 	d.id as dossier_id, tv.id as towing_voucher_id, d.timeframe_id,
-									(TIMESTAMPDIFF(MINUTE, tv.signa_arrival, now()) - 60) as extra_time_signa
+									(TIMESTAMPDIFF(MINUTE, tv.signa_arrival, now()) - 60) as extra_time_signa,
+									d.call_date
 							FROM 	T_DOSSIERS d, T_TOWING_VOUCHERS tv
 							WHERE 	d.id = tv.dossier_id
 									AND tv.signa_arrival IS NOT NULL
@@ -2218,7 +2229,7 @@ BEGIN
 	OPEN c;
 	
 	REPEAT
-		FETCH c INTO v_dossier_id, v_voucher_id, v_timeframe_id, v_extra_time;
+		FETCH c INTO v_dossier_id, v_voucher_id, v_timeframe_id, v_extra_time, v_call_date;
 		
 		INSERT INTO T_TOWING_ACTIVITIES(towing_voucher_id, activity_id, amount, cal_fee_excl_vat, cal_fee_incl_vat)
 		SELECT 	tv.id, t.activity_id, CEIL(v_extra_time/15), t.fee_excl_vat, t.fee_incl_vat 
@@ -2227,7 +2238,7 @@ BEGIN
 				 FROM 	`P_TIMEFRAME_ACTIVITY_FEE` taf, `P_TIMEFRAME_ACTIVITIES` ta
 				 WHERE 	taf.timeframe_activity_id = ta.id AND taf.timeframe_id = v_timeframe_id
 						AND `code` = 'EXTRA_SIGNALISATIE'
-						AND current_date BETWEEN taf.valid_from AND taf.valid_until) t
+						AND v_call_date BETWEEN taf.valid_from AND taf.valid_until) t
 		WHERE 	d.id = v_dossier_id
 				AND tv.dossier_id = d.id
 				AND tv.id = v_voucher_id
@@ -2242,11 +2253,13 @@ END $$
 CREATE PROCEDURE R_UPDATE_EXTRA_TIME_ACCIDENT()
 BEGIN
 	DECLARE v_voucher_id, v_dossier_id, v_timeframe_id, v_extra_time BIGINT DEFAULT NULL;
+	DECLARE v_call_date DATETIME;
 	
 	DECLARE no_rows_found BOOLEAN DEFAULT FALSE;
 	
 	DECLARE c CURSOR FOR 	SELECT 	d.id as dossier_id, tv.id as towing_voucher_id, d.timeframe_id,
-									(TIMESTAMPDIFF(MINUTE, tv.signa_arrival, now()) - 60) as extra_time_accident
+									(TIMESTAMPDIFF(MINUTE, tv.signa_arrival, now()) - 60) as extra_time_accident,
+									IFNULL(d.call_date, now())
 							FROM 	T_DOSSIERS d, T_TOWING_VOUCHERS tv, P_INCIDENT_TYPES p
 							WHERE 	d.id = tv.dossier_id
 									AND d.incident_type_id = p.id AND p.code='ONGEVAL'
@@ -2259,7 +2272,7 @@ BEGIN
 	OPEN c;
 	
 	REPEAT
-		FETCH c INTO v_dossier_id, v_voucher_id, v_timeframe_id, v_extra_time;
+		FETCH c INTO v_dossier_id, v_voucher_id, v_timeframe_id, v_extra_time, v_call_date;
 		
 		INSERT INTO T_TOWING_ACTIVITIES(towing_voucher_id, activity_id, amount, cal_fee_excl_vat, cal_fee_incl_vat)
 		SELECT 	tv.id, t.activity_id, CEIL(v_extra_time/15), t.fee_excl_vat, t.fee_incl_vat 
@@ -2268,7 +2281,7 @@ BEGIN
 				 FROM 	`P_TIMEFRAME_ACTIVITY_FEE` taf, `P_TIMEFRAME_ACTIVITIES` ta
 				 WHERE 	taf.timeframe_activity_id = ta.id AND taf.timeframe_id = v_timeframe_id
 						AND `code` = 'EXTRA_ONGEVAL'
-						AND current_date BETWEEN taf.valid_from AND taf.valid_until) t
+						AND v_call_date BETWEEN taf.valid_from AND taf.valid_until) t
 		WHERE 	d.id = v_dossier_id
 				AND tv.dossier_id = d.id
 				AND tv.id = v_voucher_id
