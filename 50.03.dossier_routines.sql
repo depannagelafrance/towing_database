@@ -934,7 +934,7 @@ CREATE PROCEDURE R_UPDATE_TOWING_VOUCHER_PAYMENTS(IN p_dossier_id BIGINT, IN p_v
 BEGIN
 	DECLARE v_company_id BIGINT;
 	DECLARE v_user_id VARCHAR(36);
-	DECLARE v_cal_fee_excl_vat, v_cal_fee_incl_vat, v_paid DOUBLE(10,2);
+	DECLARE v_cal_fee_excl_vat, v_cal_fee_incl_vat, v_paid, v_unpaid DOUBLE(10,2);
 	DECLARE v_foreign_vat BOOL;
 
 	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
@@ -953,6 +953,12 @@ BEGIN
 
 		SET v_paid = IFNULL(p_in_cash, 0.0) + IFNULL(p_bank_deposit, 0.0) + IFNULL(p_debit_card, 0.0) + IFNULL(p_credit_card, 0.0);
 	
+		SET v_unpaid = IF(v_foreign_vat, v_cal_fee_excl_vat, v_cal_fee_incl_vat) - IFNULL(p_guarantee_insurance, 0.0) - v_paid;
+
+		IF v_unpaid < 0 THEN
+			SET v_unpaid = 0.0;
+		END IF;
+
 		UPDATE `T_TOWING_VOUCHER_PAYMENTS`
 		SET
 			`amount_guaranteed_by_insurance` = p_guarantee_insurance,
@@ -962,7 +968,7 @@ BEGIN
 			`paid_by_debit_card` = p_debit_card,
 			`paid_by_credit_card` = p_credit_card,
 			`cal_amount_paid` = v_paid,
-			`cal_amount_unpaid` = IF(v_foreign_vat, v_cal_fee_excl_vat, v_cal_fee_incl_vat) - IFNULL(p_guarantee_insurance, 0.0) - v_paid,
+			`cal_amount_unpaid` = v_unpaid,
 			`ud` = now(),
 			`ud_by` = F_RESOLVE_LOGIN(v_user_id, p_token)
 		WHERE `towing_voucher_id` = p_voucher_id;
