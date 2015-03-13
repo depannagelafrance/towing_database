@@ -2198,10 +2198,14 @@ BEGIN
 	DECLARE no_rows_found BOOLEAN DEFAULT FALSE;
 	
 	DECLARE c CURSOR FOR SELECT tv.id as voucher_id, dossier_id, timeframe_id 
-						 FROM 	T_TOWING_VOUCHERS tv, T_DOSSIERS d 
+						 FROM 	T_TOWING_VOUCHERS tv, T_DOSSIERS d, P_INCIDENT_TYPES it, T_TOWING_DEPOTS td
 						 WHERE 	tv.dossier_id = d.id
 								AND vehicule_collected IS NULL
-								AND datediff(now(), call_date) > 3;
+								AND datediff(now(), call_date) > 3
+								AND d.incident_type_id = it.id
+								AND it.code IN ('ONGEVAL', 'PANNE')
+								AND tv.id = voucher_id
+								AND default_depot = 1;
 								  
 	DECLARE CONTINUE HANDLER FOR NOT FOUND SET no_rows_found = TRUE;
 	
