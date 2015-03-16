@@ -284,7 +284,8 @@ BEGIN
 			-- create new signa activity
 			SELECT 	taf.id as activity_id, taf.fee_excl_vat, taf.fee_incl_vat INTO v_taf_id, v_fee_excl_vat, v_fee_incl_vat
 			FROM 	`P_TIMEFRAME_ACTIVITY_FEE` taf, `P_TIMEFRAME_ACTIVITIES` ta
-			WHERE 	taf.timeframe_activity_id = ta.id AND taf.timeframe_id = v_timeframe_id
+			WHERE 	taf.timeframe_activity_id = ta.id 
+					AND taf.timeframe_id = v_timeframe_id
 					AND `code` = 'SIGNALISATIE'
 					AND v_call_date BETWEEN taf.valid_from AND taf.valid_until;
 
@@ -862,19 +863,27 @@ END $$
 
 CREATE PROCEDURE R_UPDATE_TOWING_VOUCHER_ACTIVITY(IN p_voucher_id BIGINT, IN p_activity_id BIGINT, IN p_amount DOUBLE, IN p_token VARCHAR(255))
 BEGIN
-	DECLARE v_company_id, v_dossier_id BIGINT;
+	DECLARE v_company_id, v_dossier_id, v_timeframe_id BIGINT;
 	DECLARE v_user_id VARCHAR(36);
 	DECLARE v_fee_excl_vat, v_fee_incl_vat DOUBLE;
+	DECLARE v_call_date DATETIME;
 
 	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
 
 	IF v_user_id IS NULL OR v_company_id IS NULL THEN
 		CALL R_NOT_AUTHORIZED;
 	ELSE
+		SELECT 	d.call_date, d.timeframe_id INTO v_call_date, v_timeframe_id
+		FROM 	T_TOWING_VOUCHERS tv, T_DOSSIERS d
+		WHERE 	tv.id = p_voucher_id 
+				AND d.id = tv.dossier_id;
+
 		SELECT 	taf.fee_excl_vat, taf.fee_incl_vat
 		INTO	v_fee_excl_vat, v_fee_incl_vat
 		FROM   `P_TIMEFRAME_ACTIVITY_FEE` taf
-		WHERE 	id = p_activity_id
+		WHERE 	id = p_activity_id 
+				AND timeframe_id = v_timeframe_id
+				AND v_call_date BETWEEN taf.valid_from AND taf.valid_until
 		LIMIT 	0,1;
 
 		INSERT INTO T_TOWING_ACTIVITIES(towing_voucher_id, activity_id, amount, cal_fee_excl_vat, cal_fee_incl_vat)
