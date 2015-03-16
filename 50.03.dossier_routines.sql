@@ -887,7 +887,7 @@ BEGIN
 		LIMIT 	0,1;
 
 		INSERT INTO T_TOWING_ACTIVITIES(towing_voucher_id, activity_id, amount, cal_fee_excl_vat, cal_fee_incl_vat)
-		VALUES (p_voucher_id, p_activity_id, p_amount, (p_amount * v_fee_excl_vat), (p_amount * v_fee_incl_vat))
+		VALUES (p_voucher_id, p_activity_id, p_amount, (IFNULL(p_amount, 1) * v_fee_excl_vat), (IFNULL(p_amount, 1) * v_fee_incl_vat))
 		ON DUPLICATE KEY UPDATE amount = p_amount, 
 								cal_fee_excl_vat = (IFNULL(p_amount, 1) * v_fee_excl_vat), 
 								cal_fee_incl_vat = (IFNULL(p_amount, 1) * v_fee_incl_vat);
