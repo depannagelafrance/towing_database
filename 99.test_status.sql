@@ -62,7 +62,7 @@ BEGIN
 		-- 
 		SELECT 	count(*) > 0 INTO v_lost_object
 		FROM 	T_TOWING_ACTIVITIES ta, P_TIMEFRAME_ACTIVITY_FEE taf, P_TIMEFRAME_ACTIVITIES tac
-		WHERE 	ta.towing_voucher_id = OLD.id
+		WHERE 	ta.towing_voucher_id = p_voucher_id
 				AND ta.activity_id = taf.id
 				AND taf.timeframe_activity_id = tac.id
 				AND tac.code='VERLOREN_VOORWERP';
@@ -74,7 +74,7 @@ BEGIN
 		-- 
 		SELECT 	count(d.id) > 0 INTO v_signa_only
 		FROM 	T_DOSSIERS d, P_INCIDENT_TYPES it
-		WHERE 	d.id = OLD.dossier_id
+		WHERE 	d.id = p_dossier_id
 				AND d.incident_type_id = it.id
 				AND it.code = 'SIGNALISATIE';
 
@@ -86,7 +86,7 @@ BEGIN
 		IF NOT v_idle_ride AND NOT v_lost_object AND NOT v_signa_only AND NOT v_is_agency THEN
 			SELECT first_name, last_name, company_name, company_vat
 			INTO v_first_name, v_last_name, v_company, v_company_vat
-			FROM T_TOWING_INCIDENT_CAUSERS WHERE voucher_id = OLD.id
+			FROM T_TOWING_INCIDENT_CAUSERS WHERE voucher_id = p_voucher_id
 			LIMIT 0,1;
 
 			IF TRIM(IFNULL(v_company, "")) != "" THEN
@@ -111,14 +111,14 @@ BEGIN
 			SELECT code INTO v_code
 			FROM P_POLICE_TRAFFIC_POSTS  ptp, T_DOSSIERS d
 			WHERE ptp.id = d.police_traffic_post_id
-				AND d.id = OLD.dossier_id
+				AND d.id = p_dossier_id
 			LIMIT 0,1;
 
 			-- IF code IS SET and if team was at the site
 			IF v_code IS NOT NULL AND v_code = 'GNPLG' THEN
 				SELECT 	count(*) INTO v_count
 				FROM 	T_TOWING_VOUCHER_ATTS
-				WHERE 	towing_voucher_id = OLD.id
+				WHERE 	towing_voucher_id = p_voucher_id
 						AND category IN ('SIGNATURE_CAUSER');
 
 				SELECT "Signature causer: ", v_count;
@@ -126,7 +126,7 @@ BEGIN
 				-- team on site
 				SELECT 	count(*) INTO v_count
 				FROM 	T_TOWING_VOUCHER_ATTS
-				WHERE 	towing_voucher_id = OLD.id
+				WHERE 	towing_voucher_id = p_voucher_id
 						AND category IN ('SIGNATURE_CAUSER', 'SIGNATURE_POLICE');
 
 				SELECT "Signature causer/police", v_count;
@@ -145,12 +145,12 @@ BEGIN
 			-- CHECK DEPOT
 			SELECT 	default_depot = 1 INTO v_default_depot
 			FROM 	T_TOWING_DEPOTS 
-			WHERE 	voucher_id = OLD.id
+			WHERE 	voucher_id = p_voucher_id
 			LIMIT 	0,1;
 
 			SELECT "Default depot? ", v_default_depot;
 
-			IF v_default_depot AND NEW.vehicule_collected IS NULL THEN
+			IF v_default_depot AND (SELECT vehicule_collected FROM T_TOWING_VOUCHERS where id = p_voucher_id) IS NULL THEN
 				SET v_score = v_score + 1;
 				SELECT "Not collected from default depot?: ", v_score;
 			END IF;
