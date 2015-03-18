@@ -910,10 +910,19 @@ BEGIN
 	IF v_user_id IS NULL OR v_company_id IS NULL THEN
 		CALL R_NOT_AUTHORIZED;
 	ELSE
-		SELECT (IFNULL(company_vat_foreign_country, 0) = 1) INTO v_foreign_vat
-		FROM `T_TOWING_CUSTOMERS`
-		WHERE voucher_id = p_voucher_id 
-		LIMIT 0,1;
+		-- check if insurance was set
+		IF (SELECT insurance_id FROM T_TOWING_VOUCHERS WHERE id = p_voucher_id) IS NULL THEN
+			SELECT (IFNULL(company_vat_foreign_country, 0) = 1) INTO v_foreign_vat
+			FROM `T_TOWING_CUSTOMERS`
+			WHERE voucher_id = p_voucher_id 
+			LIMIT 0,1;
+		ELSE
+			-- insurances was set, check if foreign vat
+			SELECT IF(i.vat IS NULL, 0,  UPPER(LEFT(i.vat, 2)) != 'BE') INTO v_foreign_vat
+			FROM T_TOWING_VOUCHERS tv, T_INSURANCES i
+			WHERE tv.id = p_voucher_id AND tv.insurance_id = i.id
+			LIMIT 0,1;
+		END IF;
 
 		DELETE 
 		FROM 	T_TOWING_ACTIVITIES 
@@ -954,10 +963,19 @@ BEGIN
 	IF v_user_id IS NULL OR v_company_id IS NULL THEN
 		CALL R_NOT_AUTHORIZED;
 	ELSE
-		SELECT (IFNULL(company_vat_foreign_country, 0) = 1) INTO v_foreign_vat
-		FROM `T_TOWING_CUSTOMERS`
-		WHERE voucher_id = p_voucher_id 
-		LIMIT 0,1;
+		-- check if insurance was set
+		IF (SELECT insurance_id FROM T_TOWING_VOUCHERS WHERE id = p_voucher_id) IS NULL THEN
+			SELECT (IFNULL(company_vat_foreign_country, 0) = 1) INTO v_foreign_vat
+			FROM `T_TOWING_CUSTOMERS`
+			WHERE voucher_id = p_voucher_id 
+			LIMIT 0,1;
+		ELSE
+			-- insurances was set, check if foreign vat
+			SELECT IF(i.vat IS NULL, 0,  UPPER(LEFT(i.vat, 2)) != 'BE') INTO v_foreign_vat
+			FROM T_TOWING_VOUCHERS tv, T_INSURANCES i
+			WHERE tv.id = p_voucher_id AND tv.insurance_id = i.id
+			LIMIT 0,1;
+		END IF;
 
 		SELECT 	sum(cal_fee_excl_vat), sum(cal_fee_incl_vat) INTO v_cal_fee_excl_vat, v_cal_fee_incl_vat
 		FROM 	T_TOWING_ACTIVITIES
@@ -2104,11 +2122,19 @@ BEGIN
 	FROM 	T_TOWING_ACTIVITIES ta, P_TIMEFRAME_ACTIVITY_FEE taf
 	WHERE 	ta.activity_id = taf.id AND ta.towing_voucher_id = NEW.towing_voucher_id;
 
-	SELECT (IFNULL(company_vat_foreign_country, 0) = 1) INTO v_foreign_vat
-	FROM `T_TOWING_CUSTOMERS`
-	WHERE voucher_id = NEW.towing_voucher_id 
-	LIMIT 0,1;
-
+	-- check if insurance was set
+	IF (SELECT insurance_id FROM T_TOWING_VOUCHERS WHERE id = p_voucher_id) IS NULL THEN
+		SELECT (IFNULL(company_vat_foreign_country, 0) = 1) INTO v_foreign_vat
+		FROM `T_TOWING_CUSTOMERS`
+		WHERE voucher_id = NEW.towing_voucher_id  
+		LIMIT 0,1;
+	ELSE
+		-- insurances was set, check if foreign vat
+		SELECT IF(i.vat IS NULL, 0,  UPPER(LEFT(i.vat, 2)) != 'BE') INTO v_foreign_vat
+		FROM T_TOWING_VOUCHERS tv, T_INSURANCES i
+		WHERE tv.id = NEW.towing_voucher_id  AND tv.insurance_id = i.id
+		LIMIT 0,1;
+	END IF;
 
 
 	UPDATE `T_TOWING_VOUCHER_PAYMENTS` 
