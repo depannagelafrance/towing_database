@@ -92,6 +92,7 @@ DROP PROCEDURE IF EXISTS R_FETCH_ALL_VOUCHER_VALIDATION_MESSAGES $$
 DROP FUNCTION IF EXISTS F_NEXT_DOSSIER_NUMBER $$
 DROP FUNCTION IF EXISTS F_NEXT_TOWING_VOUCHER_NUMBER $$
 DROP FUNCTION IF EXISTS F_RESOLVE_TIMEFRAME_CATEGORY $$
+DROP FUNCTION IF EXISTS F_IS_VOUCHER_VIABLE_FOR_FOREIGN_VAT $$
 
 DROP TRIGGER IF EXISTS TRG_AI_DOSSIER $$
 DROP TRIGGER IF EXISTS TRG_AU_DOSSIER $$
@@ -158,6 +159,28 @@ BEGIN
 		RETURN 'HOLIDAY';
 	END IF; 
 END $$
+
+
+CREATE FUNCTION F_IS_VOUCHER_VIABLE_FOR_FOREIGN_VAT(p_voucher_id BIGINT) RETURNS BOOL
+BEGIN
+	DECLARE v_foreign_vat BOOL;
+
+	-- check if insurance was set
+	IF (SELECT insurance_id FROM T_TOWING_VOUCHERS WHERE id = p_voucher_id) IS NULL THEN
+		SELECT (IFNULL(company_vat_foreign_country, 0) = 1) INTO v_foreign_vat
+		FROM `T_TOWING_CUSTOMERS`
+		WHERE voucher_id = p_voucher_id 
+		LIMIT 0,1;
+	ELSE
+		-- insurances was set, check if foreign vat
+		SELECT IF(i.vat IS NULL, 0,  UPPER(LEFT(i.vat, 2)) != 'BE') INTO v_foreign_vat
+		FROM T_TOWING_VOUCHERS tv, T_INSURANCES i
+		WHERE tv.id = p_voucher_id AND tv.insurance_id = i.id
+		LIMIT 0,1;
+	END IF;
+
+	return v_foreign_vat;
+END $$ 
 
 -- ---------------------------------------------------------------------
 -- CREATE ROUTINES
@@ -910,19 +933,7 @@ BEGIN
 	IF v_user_id IS NULL OR v_company_id IS NULL THEN
 		CALL R_NOT_AUTHORIZED;
 	ELSE
-		-- check if insurance was set
-		IF (SELECT insurance_id FROM T_TOWING_VOUCHERS WHERE id = p_voucher_id) IS NULL THEN
-			SELECT (IFNULL(company_vat_foreign_country, 0) = 1) INTO v_foreign_vat
-			FROM `T_TOWING_CUSTOMERS`
-			WHERE voucher_id = p_voucher_id 
-			LIMIT 0,1;
-		ELSE
-			-- insurances was set, check if foreign vat
-			SELECT IF(i.vat IS NULL, 0,  UPPER(LEFT(i.vat, 2)) != 'BE') INTO v_foreign_vat
-			FROM T_TOWING_VOUCHERS tv, T_INSURANCES i
-			WHERE tv.id = p_voucher_id AND tv.insurance_id = i.id
-			LIMIT 0,1;
-		END IF;
+		SET v_foreign_vat = F_IS_VOUCHER_VIABLE_FOR_FOREIGN_VAT(p_voucher_id);
 
 		DELETE 
 		FROM 	T_TOWING_ACTIVITIES 
@@ -963,19 +974,7 @@ BEGIN
 	IF v_user_id IS NULL OR v_company_id IS NULL THEN
 		CALL R_NOT_AUTHORIZED;
 	ELSE
-		-- check if insurance was set
-		IF (SELECT insurance_id FROM T_TOWING_VOUCHERS WHERE id = p_voucher_id) IS NULL THEN
-			SELECT (IFNULL(company_vat_foreign_country, 0) = 1) INTO v_foreign_vat
-			FROM `T_TOWING_CUSTOMERS`
-			WHERE voucher_id = p_voucher_id 
-			LIMIT 0,1;
-		ELSE
-			-- insurances was set, check if foreign vat
-			SELECT IF(i.vat IS NULL, 0,  UPPER(LEFT(i.vat, 2)) != 'BE') INTO v_foreign_vat
-			FROM T_TOWING_VOUCHERS tv, T_INSURANCES i
-			WHERE tv.id = p_voucher_id AND tv.insurance_id = i.id
-			LIMIT 0,1;
-		END IF;
+		SET v_foreign_vat = F_IS_VOUCHER_VIABLE_FOR_FOREIGN_VAT(p_voucher_id);
 
 		SELECT 	sum(cal_fee_excl_vat), sum(cal_fee_incl_vat) INTO v_cal_fee_excl_vat, v_cal_fee_incl_vat
 		FROM 	T_TOWING_ACTIVITIES
@@ -2122,19 +2121,8 @@ BEGIN
 	FROM 	T_TOWING_ACTIVITIES ta, P_TIMEFRAME_ACTIVITY_FEE taf
 	WHERE 	ta.activity_id = taf.id AND ta.towing_voucher_id = NEW.towing_voucher_id;
 
-	-- check if insurance was set
-	IF (SELECT insurance_id FROM T_TOWING_VOUCHERS WHERE id = p_voucher_id) IS NULL THEN
-		SELECT (IFNULL(company_vat_foreign_country, 0) = 1) INTO v_foreign_vat
-		FROM `T_TOWING_CUSTOMERS`
-		WHERE voucher_id = NEW.towing_voucher_id  
-		LIMIT 0,1;
-	ELSE
-		-- insurances was set, check if foreign vat
-		SELECT IF(i.vat IS NULL, 0,  UPPER(LEFT(i.vat, 2)) != 'BE') INTO v_foreign_vat
-		FROM T_TOWING_VOUCHERS tv, T_INSURANCES i
-		WHERE tv.id = NEW.towing_voucher_id  AND tv.insurance_id = i.id
-		LIMIT 0,1;
-	END IF;
+
+	SET v_foreign_vat = F_IS_VOUCHER_VIABLE_FOR_FOREIGN_VAT(NEW.towing_voucher_id);
 
 
 	UPDATE `T_TOWING_VOUCHER_PAYMENTS` 
@@ -2156,11 +2144,7 @@ BEGIN
 	FROM 	T_TOWING_ACTIVITIES ta, P_TIMEFRAME_ACTIVITY_FEE taf
 	WHERE 	ta.activity_id = taf.id AND ta.towing_voucher_id = NEW.towing_voucher_id;
 
-	SELECT (IFNULL(company_vat_foreign_country, 0) = 1) INTO v_foreign_vat
-	FROM `T_TOWING_CUSTOMERS`
-	WHERE voucher_id = NEW.towing_voucher_id 
-	LIMIT 0,1;
-
+	SET v_foreign_vat = F_IS_VOUCHER_VIABLE_FOR_FOREIGN_VAT(NEW.towing_voucher_id);
 
 	UPDATE `T_TOWING_VOUCHER_PAYMENTS` 
 	SET 	`amount_customer` = IF(v_foreign_vat, v_excl_vat, v_incl_vat), 
@@ -2243,7 +2227,9 @@ BEGIN
 
 	IF v_day_count > 3 THEN
 		INSERT INTO T_TOWING_ACTIVITIES(towing_voucher_id, activity_id, amount, cal_fee_excl_vat, cal_fee_incl_vat)
-		SELECT 	tv.id, t.activity_id, datediff(IFNULL(tv.vehicule_collected, now()), call_date) - 3, t.fee_excl_vat, t.fee_incl_vat 
+		SELECT 	tv.id, t.activity_id, datediff(IFNULL(tv.vehicule_collected, now()), call_date) - 3, 
+			(datediff(IFNULL(tv.vehicule_collected, now()), call_date) - 3) * t.fee_excl_vat, 
+			(datediff(IFNULL(tv.vehicule_collected, now()), call_date) - 3) * t.fee_incl_vat 
 		FROM 	T_DOSSIERS d, T_TOWING_VOUCHERS tv,
 				(SELECT taf.id as activity_id, taf.fee_excl_vat, taf.fee_incl_vat
 				 FROM 	`P_TIMEFRAME_ACTIVITY_FEE` taf, `P_TIMEFRAME_ACTIVITIES` ta
