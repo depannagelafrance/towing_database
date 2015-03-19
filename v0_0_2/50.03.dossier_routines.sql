@@ -908,7 +908,7 @@ BEGIN
 		INTO	v_fee_excl_vat, v_fee_incl_vat
 		FROM   `P_TIMEFRAME_ACTIVITY_FEE` taf
 		WHERE 	1 = 1
-				AND timeframe_activity_id = p_activity_id 
+				AND id = p_activity_id 
 				AND timeframe_id = v_timeframe_id
 				AND v_call_date BETWEEN taf.valid_from AND taf.valid_until
 		LIMIT 	0,1;
