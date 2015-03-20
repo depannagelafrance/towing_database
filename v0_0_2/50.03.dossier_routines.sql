@@ -1051,7 +1051,7 @@ BEGIN
 						`P_INCIDENT_TYPES` ip
 				WHERE 	d.id = t.dossier_id
 						AND td.voucher_id = t.id
-						AND d.company_id = v_company_id
+						AND d.company_id IN (SELECT v_company_id UNION SELECT delegate_company_id FROM T_COMPANY_MAP WHERE supervisor_company_id = v_company_id)
 						AND d.company_id = c.id
 						AND d.incident_type_id = ip.id
 						AND d.allotment_direction_id = ad.id
@@ -1071,7 +1071,7 @@ BEGIN
 						`T_COMPANIES` c,
 						`P_INCIDENT_TYPES` ip
 				WHERE 	d.id = t.dossier_id
-						AND d.company_id = v_company_id
+						AND d.company_id IN (SELECT v_company_id UNION SELECT delegate_company_id FROM T_COMPANY_MAP WHERE supervisor_company_id = v_company_id)
 						AND d.company_id = c.id
 						AND d.incident_type_id = ip.id
 						AND d.allotment_direction_id = ad.id
@@ -1087,7 +1087,7 @@ BEGIN
 						`T_COMPANIES` c,
 						`P_INCIDENT_TYPES` ip
 				WHERE 	d.id = t.dossier_id
-						AND d.company_id = v_company_id
+						AND d.company_id IN (SELECT v_company_id UNION SELECT delegate_company_id FROM T_COMPANY_MAP WHERE supervisor_company_id = v_company_id)
 						AND d.company_id = c.id
 						AND d.incident_type_id = ip.id
 						AND d.allotment_direction_id = ad.id
@@ -1102,7 +1102,7 @@ BEGIN
 						`T_COMPANIES` c,
 						`P_INCIDENT_TYPES` ip
 				WHERE 	d.id = t.dossier_id
-						AND d.company_id = v_company_id
+						AND d.company_id IN (SELECT v_company_id UNION SELECT delegate_company_id FROM T_COMPANY_MAP WHERE supervisor_company_id = v_company_id)
 						AND d.company_id = c.id
 						AND d.incident_type_id = ip.id
 						AND d.allotment_direction_id = ad.id
@@ -1123,7 +1123,7 @@ BEGIN
 						`T_COMPANIES` c,
 						`P_INCIDENT_TYPES` ip
 				WHERE 	d.id = t.dossier_id
-						AND d.company_id = v_company_id
+						AND d.company_id IN (SELECT v_company_id UNION SELECT delegate_company_id FROM T_COMPANY_MAP WHERE supervisor_company_id = v_company_id)
 						AND d.company_id = c.id
 						AND d.incident_type_id = ip.id
 						AND d.allotment_direction_id = ad.id
@@ -1139,7 +1139,7 @@ BEGIN
 						`T_COMPANIES` c,
 						`P_INCIDENT_TYPES` ip
 				WHERE 	d.id = t.dossier_id
-						AND d.company_id = v_company_id
+						AND d.company_id IN (SELECT v_company_id UNION SELECT delegate_company_id FROM T_COMPANY_MAP WHERE supervisor_company_id = v_company_id)
 						AND d.company_id = c.id
 						AND d.incident_type_id = ip.id
 						AND d.allotment_direction_id = ad.id
@@ -1715,7 +1715,7 @@ BEGIN
 							`T_COMPANIES` c,
 							`P_INCIDENT_TYPES` ip
 					WHERE 	d.id = t.dossier_id
-							AND d.company_id = ", v_company_id, "
+							AND d.company_id IN (SELECT ", v_company_id, " UNION SELECT delegate_company_id FROM T_COMPANY_MAP WHERE supervisor_company_id = ", v_company_id, ") 
 							AND d.company_id = c.id
 							AND cu.voucher_id = t.id
 							AND d.incident_type_id = ip.id
@@ -1767,7 +1767,7 @@ BEGIN
 							`T_COMPANIES` c,
 							`P_INCIDENT_TYPES` ip
 					WHERE 	d.id = t.dossier_id
-							AND d.company_id = ?
+							AND d.company_id IN (SELECT ? UNION SELECT delegate_company_id FROM T_COMPANY_MAP WHERE supervisor_company_id = ?)
 							AND d.company_id = c.id
 							AND d.incident_type_id = ip.id
 							AND d.allotment_direction_id = ad.id
@@ -1779,7 +1779,7 @@ BEGIN
 		SET @v_company = v_company_id;
 
 		PREPARE STMT FROM @sql;
-		EXECUTE STMT USING @v_company;
+		EXECUTE STMT USING @v_company, @v_company;
 	END IF;
 END $$
 

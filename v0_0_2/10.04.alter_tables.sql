@@ -11,3 +11,21 @@ CREATE TABLE IF NOT EXISTS `T_TOWING_VOUCHER_VALIDATION_MESSAGES` (
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
+
+CREATE TABLE IF NOT EXISTS `T_COMPANY_MAP` (
+  `supervisor_company_id` BIGINT NOT NULL,
+  `delegate_company_id` BIGINT NOT NULL,
+  INDEX `fk_T_COMPANY_MAP_T_COMPANIES1_idx` (`supervisor_company_id` ASC),
+  PRIMARY KEY (`supervisor_company_id`, `delegate_company_id`),
+  INDEX `fk_T_COMPANY_MAP_T_COMPANIES2_idx` (`delegate_company_id` ASC),
+  CONSTRAINT `fk_T_COMPANY_MAP_T_COMPANIES1`
+    FOREIGN KEY (`supervisor_company_id`)
+    REFERENCES `T_COMPANIES` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_T_COMPANY_MAP_T_COMPANIES2`
+    FOREIGN KEY (`delegate_company_id`)
+    REFERENCES `T_COMPANIES` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB
