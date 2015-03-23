@@ -1,0 +1,18 @@
+ALTER TABLE `T_SEQUENCES` 
+ADD COLUMN `company_id` BIGINT NULL AFTER `code`,
+ADD INDEX `fk_sequence_company_idx` (`company_id` ASC);
+
+UPDATE T_SEQUENCES SET company_id=1 LIMIT 2;
+
+ALTER TABLE `T_SEQUENCES` 
+ADD CONSTRAINT `fk_sequence_company`
+  FOREIGN KEY (`company_id`)
+  REFERENCES `T_COMPANIES` (`id`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION;
+
+ALTER TABLE T_SEQUENCES DROP PRIMARY KEY;
+
+ALTER TABLE T_SEQUENCES ADD PRIMARY KEY(company_id, code);
+
+ALTER TABLE `T_DOSSIERS` DROP INDEX `dossier_number_UNIQUE`, ADD INDEX `dossier_number_UNIQUE` (`dossier_number` ASC);
