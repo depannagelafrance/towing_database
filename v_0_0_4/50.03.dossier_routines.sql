@@ -1704,7 +1704,7 @@ BEGIN
 	END IF;
 END $$
 
-CREATE PROCEDURE R_SEARCH_TOWING_VOUCHER(IN p_call_number VARCHAR(45), IN p_date LONG, IN p_type VARCHAR(255), IN p_licence_plate VARCHAR(15), IN p_customer_name VARCHAR(255), IN p_token VARCHAR(255))
+CREATE PROCEDURE R_SEARCH_TOWING_VOUCHER(IN p_call_number VARCHAR(45), IN p_date LONG, IN p_vehicle VARCHAR(255), IN p_type VARCHAR(255), IN p_licence_plate VARCHAR(15), IN p_customer_name VARCHAR(255), IN p_token VARCHAR(255))
 BEGIN
 	DECLARE v_company_id BIGINT;
 	DECLARE v_user_id VARCHAR(36);
@@ -1734,8 +1734,12 @@ BEGIN
 			SET @sql = concat(@sql, " AND d.call_number LIKE '%", p_call_number, "%'");
 		END IF ;
 
+		IF TRIM(IFNULL(p_vehicle, ""))  != '' THEN
+			SET @sql = concat(@sql, " AND t.vehicule LIKE '%", p_vehicle, "%'");
+		END IF ;
+
 		IF TRIM(IFNULL(p_type, ""))  != '' THEN
-			SET @sql = concat(@sql, " AND (t.vehicule_type LIKE '%", p_type, "%' OR t.vehicule LIKE '%", p_type, "%')");
+			SET @sql = concat(@sql, " AND t.vehicule_type LIKE '%", p_type, "%'");
 		END IF ;
 
 		IF TRIM(IFNULL(p_licence_plate, ""))  != '' THEN
