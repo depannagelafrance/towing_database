@@ -1,0 +1,13 @@
+ALTER TABLE `T_TOWING_VOUCHERS` 
+DROP FOREIGN KEY `fk_T_TOWING_VOUCHERS_P_DICTIONARY1`;
+
+INSERT INTO T_COLLECTORS(id, name, cd, cd_by, ud, ud_by, dd, dd_by)
+SELECT id, name, cd, cd_by, ud, ud_by, dd, dd_by
+FROM P_DICTIONARY WHERE category = 'COLLECTOR';
+
+ALTER TABLE `T_TOWING_VOUCHERS` 
+ADD CONSTRAINT `fk_vouchers_collectors`
+  FOREIGN KEY (collector_id)
+  REFERENCES `T_COLLECTORS`(id);
+
+UPDATE P_DICTIONARY SET dd=now(), dd_by='SYSTEM' WHERE category='COLLECTOR' LIMIT 1000;

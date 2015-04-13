@@ -1,0 +1,36 @@
+CREATE TABLE IF NOT EXISTS `T_COLLECTORS` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(255) NOT NULL,
+  `vat` VARCHAR(45) NULL,
+  `street` VARCHAR(255) NULL,
+  `street_number` VARCHAR(45) NULL,
+  `street_pobox` VARCHAR(45) NULL,
+  `zip` VARCHAR(45) NULL,
+  `city` VARCHAR(255) NULL,
+  `country` VARCHAR(255) NULL,
+  `cd` DATETIME NOT NULL,
+  `cd_by` VARCHAR(255) NOT NULL,
+  `ud` DATETIME NULL,
+  `ud_by` VARCHAR(255) NULL,
+  `dd` DATETIME NULL,
+  `dd_by` VARCHAR(255) NULL,
+  PRIMARY KEY (`id`))
+ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS `AUDIT_P_towing_be`.`T_COLLECTORS` (
+  `id` BIGINT NOT NULL,
+  `name` VARCHAR(255) NOT NULL,
+  `vat` VARCHAR(45) NULL,
+  `street` VARCHAR(255) NULL,
+  `street_number` VARCHAR(45) NULL,
+  `street_pobox` VARCHAR(45) NULL,
+  `zip` VARCHAR(45) NULL,
+  `city` VARCHAR(255) NULL,
+  `country` VARCHAR(255) NULL,
+  `cd` DATETIME NOT NULL,
+  `cd_by` VARCHAR(255) NOT NULL,
+  `ud` DATETIME NULL,
+  `ud_by` VARCHAR(255) NULL,
+  `dd` DATETIME NULL,
+  `dd_by` VARCHAR(255) NULL)
+ENGINE = InnoDB;
