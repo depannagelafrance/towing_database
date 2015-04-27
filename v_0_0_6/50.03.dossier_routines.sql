@@ -117,6 +117,8 @@ DROP TRIGGER IF EXISTS TRG_AI_TOWING_DEPOT $$
 DROP TRIGGER IF EXISTS TRG_AU_TOWING_DEPOT $$
 DROP TRIGGER IF EXISTS TRG_AI_TOWING_PAYMENTS $$
 DROP TRIGGER IF EXISTS TRG_AU_TOWING_PAYMENTS $$
+DROP TRIGGER IF EXISTS TRG_AI_TOWING_ADDITIONAL_COSTS $$
+DROP TRIGGER IF EXISTS TRG_AU_TOWING_ADDITIONAL_COSTS $$
 
 DROP EVENT IF EXISTS E_UPDATE_TOWING_STORAGE_COST $$
 DROP EVENT IF EXISTS E_UPDATE_SIGNA_EXTRA_TIME $$
@@ -2300,8 +2302,10 @@ END $$
 CREATE PROCEDURE R_RECALCULATE_VOUCHER_PAYMENTS(IN p_voucher_id BIGINT)
 BEGIN
 	DECLARE v_incl_vat, v_excl_vat, v_storage_incl_vat, v_storage_excl_vat, v_total DOUBLE;
+    DECLARE v_incl_additional_cost, v_excl_additional_cost DOUBLE;
 	DECLARE v_foreign_vat, v_foreign_collector_vat BOOL;
 
+	-- FETCH THE TOWING ACTIVITY BASED COST
 	SELECT 	sum(amount * fee_excl_vat), sum(amount * fee_incl_vat) INTO v_excl_vat, v_incl_vat
 	FROM 	T_TOWING_ACTIVITIES ta, P_TIMEFRAME_ACTIVITY_FEE taf, P_TIMEFRAME_ACTIVITIES pta
 	WHERE 	ta.activity_id = taf.id 
@@ -2309,13 +2313,19 @@ BEGIN
 				AND taf.timeframe_activity_id = pta.id
 				AND pta.code != 'STALLING';
 
-
+	-- FETCH THE STORAGE COST
 	SELECT 	sum(amount * fee_excl_vat), sum(amount * fee_incl_vat) INTO v_storage_excl_vat, v_storage_incl_vat
 	FROM 	T_TOWING_ACTIVITIES ta, P_TIMEFRAME_ACTIVITY_FEE taf, P_TIMEFRAME_ACTIVITIES pta
 	WHERE 	ta.activity_id = taf.id 
 				AND ta.towing_voucher_id = p_voucher_id
 				AND taf.timeframe_activity_id = pta.id
 				AND pta.code = 'STALLING';
+	
+    -- FETCH THE TOWING ADDITONAL COSTS (e.g. fuel)
+	SELECT 	sum(fee_excl_vat), sum(fee_incl_vat) INTO v_excl_additional_cost, v_incl_additional_cost
+    FROM 	T_TOWING_ADDITIONAL_COSTS
+    WHERE 	towing_voucher_id = p_voucher_id
+			AND dd IS NULL;
 
 	SELECT 	left(upper(vat), 2) = 'BE' INTO v_foreign_collector_vat
 	FROM 	T_COLLECTORS c, T_TOWING_VOUCHERS tv
@@ -2323,11 +2333,12 @@ BEGIN
 	LIMIT 	0,1;
 
 	SET v_foreign_vat = F_IS_VOUCHER_VIABLE_FOR_FOREIGN_VAT(p_voucher_id);
+    
 
-	SET v_total = v_incl_vat;
+	SET v_total = v_incl_vat + IFNULL(v_incl_additional_cost, 0.0);
 
 	IF v_foreign_vat THEN
-		SET v_total = v_excl_vat;
+		SET v_total = v_excl_vat + IFNULL(v_excl_additional_cost, 0.0);
 	END IF;
 
 	IF v_foreign_collector_vat THEN
@@ -2422,7 +2433,17 @@ BEGIN
 	CALL R_ADD_TOWING_PAYMENTS_AUDIT_LOG(NEW.id);
 END $$
 
+CREATE TRIGGER `TRG_AI_TOWING_ADDITIONAL_COSTS` AFTER INSERT ON `T_TOWING_ADDITIONAL_COSTS`
+FOR EACH ROW
+BEGIN
+	CALL R_ADD_TOWING_ADDITIONAL_COSTS_AUDIT_LOG(NEW.id);
+END $$
 
+CREATE TRIGGER `TRG_AU_TOWING_ADDITIONAL_COSTS` AFTER UPDATE ON `T_TOWING_ADDITIONAL_COSTS`
+FOR EACH ROW
+BEGIN
+	CALL R_ADD_TOWING_ADDITIONAL_COSTS_AUDIT_LOG(NEW.id);
+END $$
 -- ----------------------------------------------------------------
 -- EVENTS
 -- ----------------------------------------------------------------
