@@ -646,7 +646,7 @@ CREATE PROCEDURE R_FETCH_TOWING_ACTIVITIES_BY_VOUCHER(IN p_dossier_id BIGINT, IN
 BEGIN
 	DECLARE v_company_id, v_dossier_id BIGINT;
 	DECLARE v_user_id VARCHAR(36);
-	DECLARE v_total_incl, v_total_excl DOUBLE(10,2);
+	DECLARE v_total_incl, v_total_excl, v_costs_incl, v_costs_excl DOUBLE(10,2);
 
 	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
 
@@ -675,6 +675,12 @@ BEGIN
 			WHERE 	ta.towing_voucher_id = p_voucher_id
 					AND ta.activity_id = taf.id
 					AND taf.timeframe_activity_id = tia.id;
+                    
+			SELECT 	sum(tac.fee_excl_vat), sum(tac.fee_incl_vat)
+			INTO 	v_costs_excl, v_costs_incl
+			FROM 	T_TOWING_ADDITIONAL_COSTS tac
+			WHERE 	tac.towing_voucher_id = p_voucher_id;
+                    
 
 			SELECT ta.towing_voucher_id, ta.activity_id, tia.code, tia.name, tia.id as timeframe_activity_id, tia.default_value, tia.is_modifiable,
 				   taf.fee_incl_vat, -- format(taf.fee_incl_vat, 2) as fee_incl_vat,
@@ -682,8 +688,8 @@ BEGIN
 				   ta.amount,
 				   format(ta.cal_fee_excl_vat, 2, 'nl_BE') as cal_fee_excl_vat,
 				   format(ta.cal_fee_incl_vat, 2, 'nl_BE') as cal_fee_incl_vat ,
-				   v_total_incl as total_bill_incl_vat,
-				   v_total_excl as total_bill_excl_vat
+				   (v_total_incl + v_costs_incl) as total_bill_incl_vat,
+				   (v_total_excl + v_costs_excl) as total_bill_excl_vat
 			FROM T_TOWING_ACTIVITIES ta, P_TIMEFRAME_ACTIVITY_FEE taf, P_TIMEFRAME_ACTIVITIES tia
 			WHERE ta.towing_voucher_id = p_voucher_id
 				AND ta.activity_id = taf.id
