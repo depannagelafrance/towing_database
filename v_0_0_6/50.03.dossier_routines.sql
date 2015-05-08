@@ -522,7 +522,8 @@ BEGIN
 					d.`allotment_direction_indicator_id`, adi.name as `indicator_name`, adi.zip as `indicator_zip`, adi.city as `indicator_city`,
 					d.`allotment_direction_id`, ad.`name` as `direction_name`,
 					d.`company_id`, (SELECT `name` FROM T_COMPANIES WHERE id = d.`company_id`) as `company_name`,
-					v_traffic_lanes_name as traffic_lane_name, v_traffic_lanes_count as nr_of_block_lanes
+					v_traffic_lanes_name as traffic_lane_name, v_traffic_lanes_count as nr_of_block_lanes,
+                    (SELECT count(*) FROM T_TOWING_VOUCHERS WHERE dossier_id = d.`id`) as nr_of_vouchers
 			FROM 	P_TIMEFRAMES t, T_DOSSIERS d
 					LEFT JOIN P_INCIDENT_TYPES it 					ON d.incident_type_id = it.id
 					LEFT JOIN P_ALLOTMENT_DIRECTIONS ad				ON ad.id = d.`allotment_direction_id`
