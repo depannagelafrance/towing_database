@@ -1037,6 +1037,7 @@ BEGIN
 		SELECT 	* 
         FROM 	T_TOWING_ADDITIONAL_COSTS 
         WHERE 	towing_voucher_id = p_voucher_id 
+				AND dd IS NULL
         ORDER BY name;
     END IF;
 END $$
@@ -1077,7 +1078,7 @@ BEGIN
 	END IF;
 END $$
 
-CREATE PROCEDURE R_REMOVE_TOWING_ADDITIONAL_COST(IN p_id BIGINT, IN p_voucher_id BIGINT, IN p_token VARCHAR(255))
+CREATE PROCEDURE R_REMOVE_TOWING_ADDITIONAL_COST(IN p_voucher_id BIGINT, IN p_id BIGINT, IN p_token VARCHAR(255))
 BEGIN
 	DECLARE v_company_id BIGINT;
 	DECLARE v_user_id VARCHAR(36);
