@@ -2367,7 +2367,7 @@ BEGIN
     WHERE 	towing_voucher_id = p_voucher_id
 			AND dd IS NULL;
 
-	SELECT 	left(upper(vat), 2) = 'BE' INTO v_foreign_collector_vat
+	SELECT 	(vat IS NOT NULL AND TRIM(vat) != '' AND left(upper(vat), 2) != 'BE') INTO v_foreign_collector_vat
 	FROM 	T_COLLECTORS c, T_TOWING_VOUCHERS tv
 	WHERE 	c.id = tv.collector_id
 	LIMIT 	0,1;

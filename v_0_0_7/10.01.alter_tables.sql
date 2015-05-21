@@ -46,6 +46,17 @@ ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8
 COLLATE = utf8_general_ci;
 
+ALTER TABLE `P_towing_be`.`T_INVOICES` 
+ADD COLUMN `towing_voucher_id` BIGINT NULL AFTER `invoice_batch_run_id`,
+ADD INDEX `fk_invoices_towing_vouchers_idx` (`towing_voucher_id` ASC);
+ALTER TABLE `P_towing_be`.`T_INVOICES` 
+ADD CONSTRAINT `fk_invoices_towing_vouchers`
+  FOREIGN KEY (`towing_voucher_id`)
+  REFERENCES `P_towing_be`.`T_TOWING_VOUCHERS` (`id`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION;
+
+
 CREATE TABLE IF NOT EXISTS `P_towing_be`.`T_INVOICE_LINES` (
   `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
   `invoice_id` BIGINT(20) NOT NULL,
@@ -98,16 +109,10 @@ ALTER TABLE `P_towing_be`.`T_INSURANCES`
 ADD COLUMN `customer_number` VARCHAR(45) NULL AFTER `id`;
 
 ALTER TABLE `P_towing_be`.`T_TOWING_VOUCHERS` 
-ADD COLUMN `invoice_id` BIGINT NULL DEFAULT NULL AFTER `insurance_id`,
 ADD COLUMN `invoice_batch_run_id` VARCHAR(36) NULL DEFAULT NULL AFTER `invoice_id`,
 ADD INDEX `fk_vouchers_invoices_idx` (`invoice_id` ASC),
 ADD INDEX `fk_vouchers_invoice_batch_runs_idx` (`invoice_batch_run_id` ASC);
 ALTER TABLE `P_towing_be`.`T_TOWING_VOUCHERS` 
-ADD CONSTRAINT `fk_vouchers_invoices`
-  FOREIGN KEY (`invoice_id`)
-  REFERENCES `P_towing_be`.`T_INVOICES` (`id`)
-  ON DELETE NO ACTION
-  ON UPDATE NO ACTION,
 ADD CONSTRAINT `fk_vouchers_invoice_batch_runs`
   FOREIGN KEY (`invoice_batch_run_id`)
   REFERENCES `P_towing_be`.`T_INVOICE_BATCH_RUNS` (`id`)
@@ -124,9 +129,15 @@ ADD CONSTRAINT `fk_invoices_invoice_batch_run`
   ON DELETE NO ACTION
   ON UPDATE NO ACTION;
   
+ALTER TABLE `P_towing_be`.`T_INVOICES` 
+ADD COLUMN `invoice_structured_reference` VARCHAR(20) NOT NULL AFTER `invoice_number`;
+  
+  
 ALTER TABLE `P_towing_be`.`T_SEQUENCES` 
 CHANGE COLUMN `code` `code` ENUM('DOSSIER','TOWING_VOUCHER', 'INVOICE') NOT NULL ;
 
+ALTER TABLE `P_towing_be`.`T_COLLECTORS` 
+ADD COLUMN `type` ENUM('CUSTOMER', 'OTHER') NULL DEFAULT 'OTHER' AFTER `id`;
   
 
 SET SQL_MODE=@OLD_SQL_MODE;
