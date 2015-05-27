@@ -6,7 +6,10 @@ SET @@global.event_scheduler = 1;
 DELIMITER $$
 
 DROP PROCEDURE IF EXISTS R_INVOICE_CREATE_BATCH $$
+DROP PROCEDURE IF EXISTS R_CREATE_INVOICE_BATCH_FOR_VOUCHER $$
 DROP PROCEDURE IF EXISTS R_INVOICE_START_BATCH $$
+DROP PROCEDURE IF EXISTS R_START_INVOICE_BATCH_FOR_VOUCHER $$
+
 DROP PROCEDURE IF EXISTS R_INVOICE_CREATE_FOR_VOUCHER $$
 DROP PROCEDURE IF EXISTS R_INVOICE_CREATE_PARTIAL_INSURANCE $$
 DROP PROCEDURE IF EXISTS R_INVOICE_CREATE_PARTIAL_COLLECTOR $$
@@ -15,6 +18,9 @@ DROP PROCEDURE IF EXISTS R_INVOICE_CREATE_PARTIAL_CUSTOMER $$
 DROP PROCEDURE IF EXISTS R_INVOICE_FETCH_BATCH_INVOICES $$
 DROP PROCEDURE IF EXISTS R_INVOICE_FETCH_BATCH_INVOICE_CUSTOMER $$
 DROP PROCEDURE IF EXISTS R_INVOICE_FETCH_BATCH_INVOICE_LINES $$
+DROP PROCEDURE IF EXISTS R_INVOICE_FETCH_ALL_BATCH_RUNS $$
+DROP PROCEDURE IF EXISTS R_INVOICE_FETCH_COMPANY_INVOICES $$
+DROP PROCEDURE IF EXISTS R_INVOICE_FETCH_COMPANY_INVOICE $$
 
 DROP FUNCTION IF EXISTS F_CREATE_INVOICE_NUMBER $$
 DROP FUNCTION IF EXISTS F_CREATE_STRUCTURED_REFERENCE $$
@@ -40,27 +46,42 @@ BEGIN
         SET v_login = F_RESOLVE_LOGIN(v_user_id, p_token);
 
         -- CREATE A NEW BATCH REQUEST
-        INSERT INTO T_INVOICE_BATCH_RUNS(id, batch_started, cd, cd_by)
-        VALUES(v_batch_id, now(), now(), v_login);
---
---         UPDATE 	T_TOWING_VOUCHERS tv
---         SET 	invoice_batch_run_id = v_batch_id, ud = now(), ud_by = v_login
---         WHERE	tv.id IN (
--- 					SELECT * FROM (
--- 						SELECT 	tv2.id
--- 						FROM 	T_TOWING_VOUCHERS tv2, T_DOSSIERS d
---                         WHERE 	tv2.dossier_id = d.id
--- 								AND company_id = v_company_id
---                                 AND tv2.status = 'READY FOR INVOICE'
---                                 AND invoice_batch_run_id IS NULL
--- 						ORDER BY tv2.ud ASC) t)
--- 				AND tv.status='READY FOR INVOICE'
---         LIMIT 250;
+        INSERT INTO T_INVOICE_BATCH_RUNS(id, company_id, batch_started, cd, cd_by)
+        VALUES(v_batch_id, v_company_id, now(), now(), v_login);
 
 		UPDATE T_TOWING_VOUCHERS tv
         SET invoice_batch_run_id = v_batch_id, ud = now(), ud_by = v_login
         WHERE tv.status='READY FOR INVOICE'
         LIMIT 250;
+
+        SELECT v_batch_id AS invoice_batch_id;
+	END IF;
+END $$
+
+CREATE PROCEDURE R_CREATE_INVOICE_BATCH_FOR_VOUCHER(IN p_voucher_id BIGINT, IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id BIGINT;
+	DECLARE v_user_id, v_batch_id VARCHAR(36);
+    DECLARE v_login VARCHAR(255);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		SET v_batch_id = UUID();
+
+        SET v_login = F_RESOLVE_LOGIN(v_user_id, p_token);
+
+        -- CREATE A NEW BATCH REQUEST
+        INSERT INTO T_INVOICE_BATCH_RUNS(id, company_id, batch_started, cd, cd_by)
+        VALUES(v_batch_id, v_company_id, now(), now(), v_login);
+
+		UPDATE 	T_TOWING_VOUCHERS tv
+        SET 	invoice_batch_run_id = v_batch_id, ud = now(), ud_by = v_login
+        WHERE 	tv.status='READY FOR INVOICE'
+				AND tv.id = p_voucher_id
+        LIMIT 	1;
 
         SELECT v_batch_id AS invoice_batch_id;
 	END IF;
@@ -77,8 +98,8 @@ BEGIN
 	DECLARE no_rows_found BOOLEAN DEFAULT FALSE;
 
 	DECLARE c CURSOR FOR 	SELECT 	id
-												FROM 	T_TOWING_VOUCHERS
-												WHERE 	invoice_batch_run_id = p_batch_id;
+							FROM 	T_TOWING_VOUCHERS
+							WHERE 	invoice_batch_run_id = p_batch_id;
 
 	DECLARE CONTINUE HANDLER FOR NOT FOUND SET no_rows_found = TRUE;
 
@@ -97,6 +118,18 @@ BEGIN
 	END LOOP;    
 END $$
 
+CREATE PROCEDURE R_START_INVOICE_BATCH_FOR_VOUCHER(IN p_voucher_id BIGINT, IN p_batch_id VARCHAR(36), IN p_token VARCHAR(255))
+BEGIN
+	CALL R_INVOICE_CREATE_FOR_VOUCHER(p_voucher_id, p_batch_id);
+    
+    SELECT  UNIX_TIMESTAMP(call_date) AS call_date, call_number, 
+			vehicule, vehicule_type, vehicule_licenceplate,
+            UNIX_TIMESTAMP(DATE_ADD(current_date,INTERVAL 30 DAY)) as invoice_due_date
+    FROM	T_DOSSIERS d, T_TOWING_VOUCHERS tv
+    WHERE	tv.id = p_voucher_id
+			AND tv.dossier_id = d.id
+	LIMIT 	0,1;
+END $$
 
 -- ------------------------------------------------------------------------------------------
 -- CREATE THE INVOICE FOR A VOUCHER
@@ -146,6 +179,9 @@ BEGIN
     THEN
 		CALL R_INVOICE_CREATE_PARTIAL_CUSTOMER(p_voucher_id, p_batch_id);
 	END IF;
+    
+    -- CHANGE THE STATUS
+    UPDATE T_TOWING_VOUCHERS SET status='INVOICED' WHERE id = p_voucher_id LIMIT 1;
 END $$
 
 
@@ -460,6 +496,69 @@ BEGIN
 			AND tv.id = i.towing_voucher_id;
 END $$
 
+CREATE PROCEDURE R_INVOICE_FETCH_COMPANY_INVOICE(IN p_invoice_id BIGINT, IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id BIGINT;
+	DECLARE v_user_id, v_batch_id VARCHAR(36);
+    DECLARE v_login VARCHAR(255);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		SELECT 	i.id, i.company_id, i.invoice_customer_id, i.invoice_batch_run_id, i.towing_voucher_id,
+				UNIX_TIMESTAMP(i.invoice_date) as invoice_date,
+				i.invoice_number, concat(LEFT(i.invoice_number, 4), '/', SUBSTRING(i.invoice_number,5)) as invoice_number_display,
+				i.invoice_structured_reference,
+				i.vat_foreign_country,
+				i.invoice_total_excl_vat, i.invoice_total_incl_vat,
+				i.invoice_total_vat, i.invoice_vat_percentage,
+				concat('B', tv.voucher_number) as voucher_number
+		FROM 	T_INVOICES i, T_TOWING_VOUCHERS tv
+		WHERE 	i.id = p_invoice_id
+				AND i.company_id = v_company_id
+				AND tv.id = i.towing_voucher_id
+		LIMIT	0,1;    
+    END IF;
+END $$
+
+CREATE PROCEDURE R_INVOICE_FETCH_COMPANY_INVOICES(IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id BIGINT;
+	DECLARE v_user_id, v_batch_id VARCHAR(36);
+    DECLARE v_login VARCHAR(255);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		SELECT 	i.id as invoice_id, 
+				UNIX_TIMESTAMP(invoice_date) AS invoice_date,
+				i.invoice_number,
+				tv.voucher_number,
+				ic.company_name,
+				ic.company_vat,
+				ic.first_name,
+				ic.last_name,
+				ic.street,
+				ic.street_number,
+				ic.street_pobox,
+				ic.zip,
+				ic.city,
+				ic.country
+		FROM 	T_INVOICES i, T_INVOICE_CUSTOMERS ic, T_TOWING_VOUCHERS tv, T_DOSSIERS d
+		WHERE 	i.towing_voucher_id = tv.id
+				AND i.invoice_customer_id = ic.id
+				AND tv.dossier_id = d.id
+				AND i.company_id = v_company_id
+		ORDER 	BY invoice_date DESC
+        LIMIT	0,1000;
+	END IF;
+END $$
+
 CREATE PROCEDURE R_INVOICE_FETCH_BATCH_INVOICE_CUSTOMER(IN p_invoice_id BIGINT, IN p_batch_id VARCHAR(36))
 BEGIN
 	SELECT	ic.*
@@ -477,6 +576,29 @@ BEGIN
     WHERE 	i.id = il.invoice_id
 			AND i.id = p_invoice_id
             AND invoice_batch_run_id = p_batch_id;
+END $$
+
+CREATE PROCEDURE R_INVOICE_FETCH_ALL_BATCH_RUNS(IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id BIGINT;
+	DECLARE v_user_id, v_batch_id VARCHAR(36);
+    DECLARE v_login VARCHAR(255);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		SELECT	id, company_id, 
+				UNIX_TIMESTAMP(batch_started) as batch_started,
+                UNIX_TIMESTAMP(batch_completed) as batch_completed,
+                cd,
+                cd_by
+		FROM	T_INVOICE_BATCH_RUNS
+        WHERE	company_id = v_company_id
+        ORDER 	BY batch_started DESC;
+	END IF;
 END $$
 
 CREATE FUNCTION F_CREATE_INVOICE_NUMBER(p_company_id BIGINT) RETURNS BIGINT
