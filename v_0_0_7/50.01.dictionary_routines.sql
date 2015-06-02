@@ -66,6 +66,7 @@ END $$
 
 CREATE PROCEDURE R_ADD_INSURANCE(IN p_name VARCHAR(255), IN p_vat VARCHAR(45), 
 								 IN p_street VARCHAR(255), IN p_street_number VARCHAR(45), IN p_street_pobox VARCHAR(45), IN p_zip VARCHAR(45), IN p_city VARCHAR(45),
+                                 IN p_invoice_excluded TINYINT(1),
 								 IN p_token VARCHAR(255))
 BEGIN
 	DECLARE v_company_id BIGINT;
@@ -80,8 +81,8 @@ BEGIN
 		SELECT id INTO v_id FROM T_INSURANCES WHERE `name` = p_name AND dd IS NULL;
 
 		IF v_id IS NULL THEN
-			INSERT INTO T_INSURANCES(name, vat, street, street_number, street_pobox, zip, city, cd, cd_by)
-			VALUES(p_name, p_vat, p_street, p_street_number, p_street_pobox, p_zip, p_city, now(), F_RESOLVE_LOGIN(v_user_id, p_token));
+			INSERT INTO T_INSURANCES(name, vat, street, street_number, street_pobox, zip, city, invoice_excluded, cd, cd_by)
+			VALUES(p_name, p_vat, p_street, p_street_number, p_street_pobox, p_zip, p_city, p_invoice_excluded, now(), F_RESOLVE_LOGIN(v_user_id, p_token));
 
 			SELECT * FROM T_INSURANCES WHERE id = LAST_INSERT_ID();
 		ELSE
@@ -113,6 +114,7 @@ END $$
 
 CREATE PROCEDURE R_UPDATE_INSURANCE(IN p_id BIGINT, IN p_name VARCHAR(255), IN p_vat VARCHAR(45), 
 								    IN p_street VARCHAR(255), IN p_street_number VARCHAR(45), IN p_street_pobox VARCHAR(45), IN p_zip VARCHAR(45), IN p_city VARCHAR(45),
+                                    IN p_invoice_excluded TINYINT(1),
 								    IN p_token VARCHAR(255))
 BEGIN
 	DECLARE v_company_id BIGINT;
@@ -131,6 +133,7 @@ BEGIN
 				street_pobox = p_street_pobox,
 				zip = p_zip,
 				city = p_city,
+                invoice_excluded = p_invoice_excluded,
 				ud = now(),
 				ud_by = F_RESOLVE_LOGIN(v_user_id, p_token)
 		WHERE id = p_id
@@ -360,7 +363,7 @@ BEGIN
 	IF v_user_id IS NULL OR v_company_id IS NULL THEN
 		CALL R_NOT_AUTHORIZED;
 	ELSE
-		SELECT 	`id`, `name`, vat, street, street_number, street_pobox, zip, city
+		SELECT 	`id`, `name`, vat, street, street_number, street_pobox, zip, city, invoice_excluded
 		FROM 	T_INSURANCES
 		WHERE 	id = p_id
 				AND dd IS NULL

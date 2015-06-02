@@ -21,6 +21,7 @@ DROP PROCEDURE IF EXISTS R_INVOICE_FETCH_BATCH_INVOICE_LINES $$
 DROP PROCEDURE IF EXISTS R_INVOICE_FETCH_ALL_BATCH_RUNS $$
 DROP PROCEDURE IF EXISTS R_INVOICE_FETCH_COMPANY_INVOICES $$
 DROP PROCEDURE IF EXISTS R_INVOICE_FETCH_COMPANY_INVOICE $$
+DROP PROCEDURE IF EXISTS R_INVOICE_ATT_LINK_WITH_VOUCHER $$
 
 DROP FUNCTION IF EXISTS F_CREATE_INVOICE_NUMBER $$
 DROP FUNCTION IF EXISTS F_CREATE_STRUCTURED_REFERENCE $$
@@ -136,12 +137,14 @@ END $$
 -- ------------------------------------------------------------------------------------------
 CREATE PROCEDURE R_INVOICE_CREATE_FOR_VOUCHER(IN p_voucher_id BIGINT, IN p_batch_id VARCHAR(36))
 BEGIN
-	DECLARE v_has_insurance, v_has_collector BOOL;
+	DECLARE v_has_insurance, v_has_collector, v_insurance_excluded BOOL;
     DECLARE v_insurance_id, v_collector_id BIGINT;
 	DECLARE v_assurance_warranty, v_amount_customer DOUBLE(5,2);
     
-    SELECT 	(insurance_id IS NOT NULL), insurance_id, (collector_id IS NOT NULL), collector_id
-    INTO 	v_has_insurance, v_insurance_id, v_has_collector, v_collector_id
+    SELECT 	(insurance_id IS NOT NULL), insurance_id, 
+			IFNULL((SELECT invoice_excluded FROM T_INSURANCES WHERE id = insurance_id LIMIT 0,1), FALSE), 
+            (collector_id IS NOT NULL), collector_id
+    INTO 	v_has_insurance, v_insurance_id, v_insurance_excluded, v_has_collector, v_collector_id
     FROM 	T_TOWING_VOUCHERS
     WHERE 	id = p_voucher_id
     LIMIT 	0,1;
@@ -151,7 +154,7 @@ BEGIN
 	FROM 	T_TOWING_VOUCHER_PAYMENTS
 	WHERE 	towing_voucher_id = p_voucher_id;
 
-    IF v_has_insurance 
+    IF v_has_insurance AND NOT v_insurance_excluded
     THEN
         CALL R_INVOICE_CREATE_PARTIAL_INSURANCE(p_voucher_id, v_insurance_id, p_batch_id);
     END IF;
@@ -538,6 +541,7 @@ BEGIN
 		SELECT 	i.id as invoice_id, 
 				UNIX_TIMESTAMP(invoice_date) AS invoice_date,
 				i.invoice_number,
+                i.document_id,
 				tv.voucher_number,
 				ic.company_name,
 				ic.company_vat,
@@ -601,6 +605,25 @@ BEGIN
 	END IF;
 END $$
 
+CREATE PROCEDURE R_INVOICE_ATT_LINK_WITH_VOUCHER(IN p_invoice_id BIGINT, IN p_document_id BIGINT, IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id BIGINT;
+	DECLARE v_user_id, v_batch_id VARCHAR(36);
+    DECLARE v_login VARCHAR(255);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		UPDATE 	T_INVOICES
+        SET 	document_id = p_document_id
+        WHERE 	id = p_invoice_id
+        LIMIT 	1;
+    END IF;
+END $$
+
 CREATE FUNCTION F_CREATE_INVOICE_NUMBER(p_company_id BIGINT) RETURNS BIGINT
 BEGIN
 	DECLARE v_seq_val BIGINT;
@@ -634,13 +657,15 @@ END $$
 
 CREATE FUNCTION F_CREATE_STRUCTURED_REFERENCE(v_invoice_number VARCHAR(10)) RETURNS VARCHAR(20)
 BEGIN
-	RETURN CONCAT(	'+++', 
+	/*RETURN CONCAT(	'+++', 
 					LEFT(v_invoice_number, 2), 
 					'/',  
 					SUBSTRING(v_invoice_number, 3),
 					'/',
 					LPAD(MOD(v_invoice_number, 97), 2, 0),
-					'+++');
+					'+++');*/
+                    
+	RETURN v_invoice_number;
 END $$
 
 CREATE FUNCTION F_CREATE_CUSTOMER_NUMBER_FOR_PRIVATE_PERSON(p_last_name VARCHAR(255)) RETURNS VARCHAR(36)

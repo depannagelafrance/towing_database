@@ -71,6 +71,16 @@ ADD CONSTRAINT `fk_invoices_towing_vouchers`
   REFERENCES `P_towing_be`.`T_TOWING_VOUCHERS` (`id`)
   ON DELETE NO ACTION
   ON UPDATE NO ACTION;
+  
+ALTER TABLE `P_towing_be`.`T_INVOICES` 
+ADD COLUMN `document_id` BIGINT NULL AFTER `towing_voucher_id`;
+ALTER TABLE `P_towing_be`.`T_INVOICES` 
+ADD CONSTRAINT `fk_invoices_documents`
+  FOREIGN KEY (`id`)
+  REFERENCES `P_towing_be`.`T_DOCUMENTS` (`id`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION;
+  
 
 
 CREATE TABLE IF NOT EXISTS `P_towing_be`.`T_INVOICE_LINES` (
@@ -154,6 +164,10 @@ CHANGE COLUMN `code` `code` ENUM('DOSSIER','TOWING_VOUCHER', 'INVOICE') NOT NULL
 
 ALTER TABLE `P_towing_be`.`T_COLLECTORS` 
 ADD COLUMN `type` ENUM('CUSTOMER', 'OTHER') NULL DEFAULT 'OTHER' AFTER `id`;
+
+ALTER TABLE `P_towing_be`.`T_INSURANCES` 
+ADD COLUMN `invoice_excluded` TINYINT(1) NULL AFTER `city`;
+
   
 
 SET SQL_MODE=@OLD_SQL_MODE;

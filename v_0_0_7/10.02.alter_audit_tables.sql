@@ -45,6 +45,10 @@ COLLATE = utf8_general_ci;
 ALTER TABLE `AUDIT_P_towing_be`.`T_INVOICES` 
 ADD COLUMN `towing_voucher_id` BIGINT NULL AFTER `invoice_batch_run_id`;
 
+ALTER TABLE `AUDIT_P_towing_be`.`T_INVOICES` 
+ADD COLUMN `document_id` BIGINT NULL AFTER `towing_voucher_id`;
+
+
 
 CREATE TABLE IF NOT EXISTS `AUDIT_P_towing_be`.`T_INVOICE_LINES` (
   `id` BIGINT(20) NOT NULL,
@@ -91,10 +95,13 @@ ADD COLUMN `invoice_batch_run_id` VARCHAR(36) NOT NULL AFTER `invoice_customer_i
 
 ALTER TABLE `AUDIT_P_towing_be`.`T_INVOICES` 
 ADD COLUMN `invoice_structured_reference` VARCHAR(20) NOT NULL AFTER `invoice_number`;
-
-  
+ 
 ALTER TABLE `AUDIT_P_towing_be`.`T_COLLECTORS` 
 ADD COLUMN `type` ENUM('CUSTOMER', 'OTHER') NULL DEFAULT 'OTHER' AFTER `id`;
+
+ALTER TABLE `AUDIT_P_towing_be`.`T_INSURANCES` 
+ADD COLUMN `invoice_excluded` TINYINT(1) NULL AFTER `city`;
+
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
