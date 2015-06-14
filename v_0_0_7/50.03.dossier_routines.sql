@@ -431,7 +431,7 @@ END $$
 
 
 CREATE PROCEDURE  R_UPDATE_TOWING_VOUCHER(IN p_dossier_id BIGINT, IN p_voucher_id BIGINT,
-										  IN p_insurance_id BIGINT, IN p_insurance_dossier_nr VARCHAR(45), IN p_warranty_holder VARCHAR(255),
+										  IN p_insurance_id BIGINT, IN p_insurance_dossier_nr VARCHAR(45), In p_insurance_invoice_number VARCHAR(45), IN p_warranty_holder VARCHAR(255),
 										  IN p_collector_id BIGINT,
 										  IN p_vehicule VARCHAR(255), IN p_vehicule_type VARCHAR(255), IN p_vehicule_color VARCHAR(255), IN p_keys_present BOOL,
 										  IN p_vehicule_licence_plate VARCHAR(15), IN p_vehicule_country VARCHAR(5),
@@ -457,6 +457,7 @@ BEGIN
 		SET
 			insurance_id 			= p_insurance_id,
 			insurance_dossiernr 	= p_insurance_dossier_nr,
+            insurance_invoice_number = p_insurance_invoice_number,
 			insurance_warranty_held_by = p_warranty_holder,
 			collector_id 			= p_collector_id,
 			recipient_signature_dt 	= p_recipient_signature,
@@ -609,6 +610,7 @@ BEGIN
 					unix_timestamp(`police_signature_dt`) as police_signature_dt,
 					unix_timestamp(`recipient_signature_dt`) as recipient_signature_dt,
 					`insurance_dossiernr`,
+                    `insurance_invoice_number`,
 					`insurance_warranty_held_by`,
 					`vehicule`, `vehicule_color`, `vehicule_keys_present`, `vehicule_impact_remarks`,
 					`vehicule_type`,
@@ -1541,7 +1543,7 @@ BEGIN
 		VALUES (p_voucher_id, v_doc_id, p_category, now(), F_RESOLVE_LOGIN(v_user_id, p_token));
 
 
-		SELECT LAST_INSERT_ID() as attachment_id, 'OK' as result;
+		SELECT LAST_INSERT_ID() as attachment_id, v_doc_id as document_id, 'OK' as result;
 	END IF;
 END $$
 
@@ -2094,9 +2096,11 @@ BEGIN
 		END IF;
 	END IF;
 
-	IF NEW.towing_completed IS NOT NULL AND NEW.status != 'INVOICED' THEN
+	IF NEW.towing_completed IS NOT NULL AND NEW.status NOT IN ('INVOICED', 'INVOICED WITHOUT STORAGE') THEN
 		-- DELETE THE VALIDATION MESSAGES
-		DELETE FROM T_TOWING_VOUCHER_VALIDATION_MESSAGES WHERE towing_voucher_id = OLD.id;
+		DELETE FROM T_TOWING_VOUCHER_VALIDATION_MESSAGES 
+		WHERE towing_voucher_id = OLD.id
+			AND code NOT LIKE 'INVOICE%';
 
 		-- CHECK IF INSURANCE IS SET
 		SET v_has_insurance = (NEW.insurance_id IS NOT NULL);
@@ -2249,7 +2253,11 @@ BEGIN
 			WHERE 	voucher_id = OLD.id
 			LIMIT 	0,1;
 
-			IF v_default_depot AND NEW.vehicule_collected IS NULL THEN
+			-- IF STILL IN STORAGE (NOT COLLECTED) AND NOT COLLECTED WITHIN 30DAYS --> validation message
+			IF v_default_depot 
+				AND NEW.vehicule_collected IS NULL 
+                AND (SELECT datediff(now(), IFNULL(call_date, now())) FROM T_DOSSIERS WHERE id = NEW.dossier_id) < 30
+			THEN
 				SET v_score = v_score + 1;
 				CALL R_CREATE_VOUCHER_VALIDATION_MESSAGE(OLD.id, 'VEHICLE_DEPOT', 'Het voertuig bevind zich nog in het depot en werd niet afgehaald.');
 			END IF;

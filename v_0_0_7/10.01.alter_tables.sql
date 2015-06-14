@@ -11,7 +11,7 @@ SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL,ALLOW_INVALID_DATES';
 
 
 ALTER TABLE `P_towing_be`.`T_TOWING_VOUCHERS` 
-CHANGE COLUMN `status` `status` ENUM('NEW','IN PROGRESS','COMPLETED','TO CHECK','AGENCY','READY FOR INVOICE','INVOICED', 'AGENCY TO CHECK', 'AGENCY APPROVED', 'CLOSED') NOT NULL ;
+CHANGE COLUMN `status` `status` ENUM('NEW','IN PROGRESS','COMPLETED','TO CHECK','AGENCY','READY FOR INVOICE','INVOICED', 'INVOICED WITHOUT STORAGE', 'AGENCY TO CHECK', 'AGENCY APPROVED', 'CLOSED') NOT NULL ;
 
 
 CREATE TABLE IF NOT EXISTS `P_towing_be`.`T_INVOICE_BATCH_RUNS` (
@@ -128,6 +128,13 @@ ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8
 COLLATE = utf8_general_ci;
 
+ALTER TABLE `P_towing_be`.`T_INVOICE_CUSTOMERS` 
+ADD INDEX `ix_invoice_customers_custnum` (`customer_number` ASC),
+ADD INDEX `ix_invoice_customers_vat` (`company_vat` ASC),
+ADD INDEX `ix_invoice_customers_company` (`company_name` ASC),
+ADD INDEX `ix_invoice_customers_person` (`last_name` ASC, `street` ASC, `city` ASC);
+
+
 ALTER TABLE `P_towing_be`.`T_COLLECTORS` 
 ADD COLUMN `customer_number` VARCHAR(45) NULL AFTER `id`;
 
@@ -160,7 +167,8 @@ ADD COLUMN `invoice_structured_reference` VARCHAR(20) NOT NULL AFTER `invoice_nu
   
   
 ALTER TABLE `P_towing_be`.`T_SEQUENCES` 
-CHANGE COLUMN `code` `code` ENUM('DOSSIER','TOWING_VOUCHER', 'INVOICE') NOT NULL ;
+CHANGE COLUMN `code` `code` ENUM('DOSSIER','TOWING_VOUCHER','INVOICE', 'INVOICE_CUSTNUM_ORG') NOT NULL ;
+
 
 ALTER TABLE `P_towing_be`.`T_COLLECTORS` 
 ADD COLUMN `type` ENUM('CUSTOMER', 'OTHER') NULL DEFAULT 'OTHER' AFTER `id`;
@@ -168,7 +176,9 @@ ADD COLUMN `type` ENUM('CUSTOMER', 'OTHER') NULL DEFAULT 'OTHER' AFTER `id`;
 ALTER TABLE `P_towing_be`.`T_INSURANCES` 
 ADD COLUMN `invoice_excluded` TINYINT(1) NULL AFTER `city`;
 
-  
+ALTER TABLE `P_towing_be`.`T_TOWING_VOUCHERS` 
+ADD COLUMN `insurance_invoice_number` VARCHAR(45) NULL AFTER `insurance_dossiernr`;
+
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
