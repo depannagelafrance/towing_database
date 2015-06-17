@@ -38,6 +38,7 @@ CREATE TABLE IF NOT EXISTS `P_towing_be`.`T_INVOICES` (
   `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
   `company_id` BIGINT(20) NOT NULL,
   `invoice_customer_id` BIGINT(20) NOT NULL,
+  `invoice_batch_run_id` VARCHAR(36) NOT NULL,
   `invoice_date` DATE NOT NULL,
   `invoice_number` INT(10) ZEROFILL NOT NULL,
   `vat_foreign_country` TINYINT(1) NULL DEFAULT NULL,
@@ -48,11 +49,17 @@ CREATE TABLE IF NOT EXISTS `P_towing_be`.`T_INVOICES` (
   PRIMARY KEY (`id`),
   INDEX `fk_T_INVOICES_T_COMPANIES1_idx` (`company_id` ASC),
   INDEX `fk_T_INVOICES_T_INVOICE_CUSTOMERS1_idx` (`invoice_customer_id` ASC),
+  INDEX `fk_T_INVOICES_T_INVOICE_BATCH_idx` (`invoice_batch_run_id` ASC),
   CONSTRAINT `fk_T_INVOICES_T_COMPANIES1`
     FOREIGN KEY (`company_id`)
     REFERENCES `P_towing_be`.`T_COMPANIES` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
+  CONSTRAINT `fk_T_INVOICES_T_BATCH_RUNS`
+    FOREIGN KEY (`invoice_batch_run_id`)
+    REFERENCES `P_towing_be`.`T_INVOICE_BATCH_RUNS` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,    
   CONSTRAINT `fk_T_INVOICES_T_INVOICE_CUSTOMERS1`
     FOREIGN KEY (`invoice_customer_id`)
     REFERENCES `P_towing_be`.`T_INVOICE_CUSTOMERS` (`id`)
@@ -61,26 +68,6 @@ CREATE TABLE IF NOT EXISTS `P_towing_be`.`T_INVOICES` (
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8
 COLLATE = utf8_general_ci;
-
-ALTER TABLE `P_towing_be`.`T_INVOICES` 
-ADD COLUMN `towing_voucher_id` BIGINT NULL AFTER `invoice_batch_run_id`,
-ADD INDEX `fk_invoices_towing_vouchers_idx` (`towing_voucher_id` ASC);
-ALTER TABLE `P_towing_be`.`T_INVOICES` 
-ADD CONSTRAINT `fk_invoices_towing_vouchers`
-  FOREIGN KEY (`towing_voucher_id`)
-  REFERENCES `P_towing_be`.`T_TOWING_VOUCHERS` (`id`)
-  ON DELETE NO ACTION
-  ON UPDATE NO ACTION;
-  
-ALTER TABLE `P_towing_be`.`T_INVOICES` 
-ADD COLUMN `document_id` BIGINT NULL AFTER `towing_voucher_id`;
-ALTER TABLE `P_towing_be`.`T_INVOICES` 
-ADD CONSTRAINT `fk_invoices_documents`
-  FOREIGN KEY (`id`)
-  REFERENCES `P_towing_be`.`T_DOCUMENTS` (`id`)
-  ON DELETE NO ACTION
-  ON UPDATE NO ACTION;
-  
 
 
 CREATE TABLE IF NOT EXISTS `P_towing_be`.`T_INVOICE_LINES` (
@@ -128,6 +115,26 @@ ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8
 COLLATE = utf8_general_ci;
 
+
+ALTER TABLE `P_towing_be`.`T_INVOICES` 
+ADD COLUMN `towing_voucher_id` BIGINT NULL AFTER `invoice_batch_run_id`,
+ADD INDEX `fk_invoices_towing_vouchers_idx` (`towing_voucher_id` ASC);
+ALTER TABLE `P_towing_be`.`T_INVOICES` 
+ADD CONSTRAINT `fk_invoices_towing_vouchers`
+  FOREIGN KEY (`towing_voucher_id`)
+  REFERENCES `P_towing_be`.`T_TOWING_VOUCHERS` (`id`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION;
+  
+ALTER TABLE `P_towing_be`.`T_INVOICES` 
+ADD COLUMN `document_id` BIGINT NULL AFTER `towing_voucher_id`;
+ALTER TABLE `P_towing_be`.`T_INVOICES` 
+ADD CONSTRAINT `fk_invoices_documents`
+  FOREIGN KEY (`id`)
+  REFERENCES `P_towing_be`.`T_DOCUMENTS` (`id`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION;
+
 ALTER TABLE `P_towing_be`.`T_INVOICE_CUSTOMERS` 
 ADD INDEX `ix_invoice_customers_custnum` (`customer_number` ASC),
 ADD INDEX `ix_invoice_customers_vat` (`company_vat` ASC),
@@ -141,7 +148,8 @@ ADD COLUMN `customer_number` VARCHAR(45) NULL AFTER `id`;
 ALTER TABLE `P_towing_be`.`T_INSURANCES` 
 ADD COLUMN `customer_number` VARCHAR(45) NULL AFTER `id`;
 
-ALTER TABLE `P_towing_be`.`T_TOWING_VOUCHERS` 
+ALTER TABLE `P_towing_be`.`T_TOWING_VOUCHERS`
+ADD COLUMN `invoice_id` BIGINT NULL DEFAULT NULL, 
 ADD COLUMN `invoice_batch_run_id` VARCHAR(36) NULL DEFAULT NULL AFTER `invoice_id`,
 ADD INDEX `fk_vouchers_invoices_idx` (`invoice_id` ASC),
 ADD INDEX `fk_vouchers_invoice_batch_runs_idx` (`invoice_batch_run_id` ASC);
@@ -152,15 +160,15 @@ ADD CONSTRAINT `fk_vouchers_invoice_batch_runs`
   ON DELETE NO ACTION
   ON UPDATE NO ACTION;
   
-ALTER TABLE `P_towing_be`.`T_INVOICES` 
-ADD COLUMN `invoice_batch_run_id` VARCHAR(36) NOT NULL AFTER `invoice_customer_id`,
+/*ALTER TABLE `P_towing_be`.`T_INVOICES` 
+-- ADD COLUMN `invoice_batch_run_id` VARCHAR(36) NOT NULL AFTER `invoice_customer_id`,
 ADD INDEX `fk_invoices_invoice_batch_run_idx` (`invoice_batch_run_id` ASC);
 ALTER TABLE `P_towing_be`.`T_INVOICES` 
 ADD CONSTRAINT `fk_invoices_invoice_batch_run`
   FOREIGN KEY (`invoice_batch_run_id`)
   REFERENCES `P_towing_be`.`T_INVOICE_BATCH_RUNS` (`id`)
   ON DELETE NO ACTION
-  ON UPDATE NO ACTION;
+  ON UPDATE NO ACTION;*/
   
 ALTER TABLE `P_towing_be`.`T_INVOICES` 
 ADD COLUMN `invoice_structured_reference` VARCHAR(20) NOT NULL AFTER `invoice_number`;
@@ -178,6 +186,10 @@ ADD COLUMN `invoice_excluded` TINYINT(1) NULL AFTER `city`;
 
 ALTER TABLE `P_towing_be`.`T_TOWING_VOUCHERS` 
 ADD COLUMN `insurance_invoice_number` VARCHAR(45) NULL AFTER `insurance_dossiernr`;
+
+ALTER TABLE `P_towing_be`.`T_INVOICES` 
+ADD COLUMN `invoice_type` ENUM('CUSTOMER', 'INSURANCE', 'COLLECTOR') NOT NULL AFTER `document_id`,
+ADD COLUMN `invoice_message` TEXT NULL AFTER `invoice_vat_percentage`;
 
 
 SET SQL_MODE=@OLD_SQL_MODE;

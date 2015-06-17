@@ -13,6 +13,7 @@ DROP PROCEDURE IF EXISTS R_UPDATE_DOSSIER $$
 DROP PROCEDURE IF EXISTS R_CREATE_TOWING_VOUCHER $$
 DROP PROCEDURE IF EXISTS R_UPDATE_TOWING_VOUCHER $$
 DROP PROCEDURE IF EXISTS R_MARK_VOUCHER_AS_IDLE $$
+DROP PROCEDURE IF EXISTS R_UPDATE_VOUCHER_COLLECTION_INFO $$
 
 DROP PROCEDURE IF EXISTS R_FETCH_TOWING_DEPOT  		$$
 DROP PROCEDURE IF EXISTS R_FETCH_TOWING_CUSTOMER 	$$
@@ -263,6 +264,31 @@ BEGIN
 	END IF;
 END $$
 
+CREATE PROCEDURE R_UPDATE_VOUCHER_COLLECTION_INFO(IN p_voucher_number BIGINT, IN p_collector_id BIGINT, IN p_vehicule_collected TIMESTAMP, IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id, v_dossier_id, v_timeframe_id, v_taf_id, v_voucher_id BIGINT;
+	DECLARE v_nr_of_vouchers INT;
+	DECLARE v_user_id VARCHAR(36);
+	DECLARE v_incident_type_code VARCHAR(255);
+	DECLARE v_fee_incl_vat, v_fee_excl_vat DOUBLE(10,2);
+	DECLARE v_voucher_number INT;
+	DECLARE v_call_date DATETIME;
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		UPDATE 	T_TOWING_VOUCHERS tv, T_DOSSIERS d
+        SET	 	collector_id = p_collector_id, 
+				vehicule_collected = p_vehicule_collected
+        WHERE 	voucher_number = p_voucher_number
+				AND d.id = tv.dossier_id
+				AND d.company_id = v_company_id;
+
+        SELECT "OK" as result;
+    END IF;
+END $$
 
 CREATE PROCEDURE R_CREATE_TOWING_VOUCHER(IN p_dossier_id BIGINT, IN p_token VARCHAR(255))
 BEGIN
@@ -1269,6 +1295,23 @@ BEGIN
 						AND d.allotment_direction_indicator_id = adi.id
 				ORDER BY call_date DESC
 				LIMIT 0,1000;
+			WHEN 'READY FOR INVOICE' THEN
+				SELECT 	d.id, d.id as 'dossier_id', t.id as 'voucher_id', d.call_number, d.call_date, d.dossier_number, t.voucher_number, ad.name 'direction_name', adi.name 'indicator_name', c.code as `towing_service`, ip.name as `incident_type`
+				FROM 	`T_TOWING_VOUCHERS`t,
+						`T_DOSSIERS` d,
+						`P_ALLOTMENT_DIRECTIONS` ad,
+						`P_ALLOTMENT_DIRECTION_INDICATORS` adi,
+						`T_COMPANIES` c,
+						`P_INCIDENT_TYPES` ip
+				WHERE 	d.id = t.dossier_id
+						AND d.company_id IN (SELECT v_company_id UNION SELECT delegate_company_id FROM T_COMPANY_MAP WHERE supervisor_company_id = v_company_id)
+						AND d.company_id = c.id
+						AND d.incident_type_id = ip.id
+						AND d.allotment_direction_id = ad.id
+						AND d.allotment_direction_indicator_id = adi.id
+						AND t.status IN ('READY FOR INVOICE', 'INVOICED WITHOUT STORAGE')
+				ORDER BY call_date DESC
+				LIMIT 0,1000;                
 			ELSE
 				SELECT 	d.id, d.id as 'dossier_id', t.id as 'voucher_id', d.call_number, d.call_date, d.dossier_number, t.voucher_number, ad.name 'direction_name', adi.name 'indicator_name', c.code as `towing_service`, ip.name as `incident_type`
 				FROM 	`T_TOWING_VOUCHERS`t,
@@ -2074,6 +2117,15 @@ BEGIN
 
 		SET NEW.signa_by_vehicle = v_licence_plate;
 	END IF;
+    
+    SET NEW.towing_id = IFNULL(NEW.towing_id, OLD.towing_id);
+    SET NEW.towed_by  = IFNULL(NEW.towed_by, OLD.towed_by);
+    SET NEW.towed_by_vehicle = IFNULL(NEW.towed_by_vehicle, OLD.towed_by_vehicle);
+    SET NEW.towing_vehicle_id = IFNULL(NEW.towing_vehicle_id, OLD.towing_vehicle_id);
+    SET NEW.towing_called = IFNULL(NEW.towing_called, OLD.towing_called);
+    SET NEW.towing_arrival = IFNULL(NEW.towing_arrival, OLD.towing_arrival);
+    SET NEW.towing_start = IFNULL(NEW.towing_start, OLD.towing_start);
+    SET NEW.towing_completed = IFNULL(NEW.towing_completed, OLD.towing_completed);
 
 	IF NEW.towing_vehicle_id IS NOT NULL THEN
 		SELECT 	cv.licence_plate INTO v_licence_plate
@@ -2378,7 +2430,9 @@ BEGIN
 	SELECT 	(vat IS NOT NULL AND TRIM(vat) != '' AND left(upper(vat), 2) != 'BE') INTO v_foreign_collector_vat
 	FROM 	T_COLLECTORS c, T_TOWING_VOUCHERS tv
 	WHERE 	c.id = tv.collector_id
+			AND tv.id = p_voucher_id
 	LIMIT 	0,1;
+
 
 	SET v_foreign_vat = F_IS_VOUCHER_VIABLE_FOR_FOREIGN_VAT(p_voucher_id);
     
