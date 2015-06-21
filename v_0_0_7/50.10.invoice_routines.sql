@@ -404,7 +404,8 @@ BEGIN
 						   invoice_total_vat,
 						   invoice_vat_percentage,
                            invoice_message,
-                           invoice_type)
+                           invoice_type,
+                           insurance_dossiernr)
     VALUES(v_company_id, p_voucher_id, p_batch_id,
 		   v_invoice_customer_id, CURDATE(), v_invoice_number, F_CREATE_STRUCTURED_REFERENCE(v_invoice_number),
            v_foreign_vat,
@@ -412,7 +413,8 @@ BEGIN
            0.0,
            IF(v_foreign_vat, 0.0, v_vat),
            p_message,
-           'INSURANCE');
+           'INSURANCE',
+           v_insurance_dossier_nr);
 
 	SET v_invoice_id = LAST_INSERT_ID();
 
@@ -852,7 +854,8 @@ BEGIN
             concat('B', tv.voucher_number) as voucher_number,
             tvp.paid_in_cash, tvp.paid_by_bank_deposit, tvp.paid_by_debit_card, tvp.paid_by_credit_card, tvp.cal_amount_unpaid,
             i.invoice_type, 
-            i.invoice_message
+            i.invoice_message,
+            i.insurance_dossiernr
     FROM 	T_INVOICES i, T_TOWING_VOUCHERS tv, T_TOWING_VOUCHER_PAYMENTS tvp
     WHERE 	i.invoice_batch_run_id = p_batch_id
 			AND tv.id = i.towing_voucher_id

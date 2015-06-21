@@ -13,6 +13,7 @@ DROP PROCEDURE IF EXISTS R_UPDATE_DOSSIER $$
 DROP PROCEDURE IF EXISTS R_CREATE_TOWING_VOUCHER $$
 DROP PROCEDURE IF EXISTS R_UPDATE_TOWING_VOUCHER $$
 DROP PROCEDURE IF EXISTS R_MARK_VOUCHER_AS_IDLE $$
+DROP PROCEDURE IF EXISTS R_APPROVE_VOUCHER $$
 DROP PROCEDURE IF EXISTS R_UPDATE_VOUCHER_COLLECTION_INFO $$
 
 DROP PROCEDURE IF EXISTS R_FETCH_TOWING_DEPOT  		$$
@@ -49,6 +50,8 @@ DROP PROCEDURE IF EXISTS R_FETCH_TOWING_ACTIVITIES_BY_VOUCHER $$
 DROP PROCEDURE IF EXISTS R_FETCH_TOWING_PAYMENTS_BY_VOUCHER $$
 DROP PROCEDURE IF EXISTS R_FETCH_TOWING_COMPANY_BY_DOSSIER $$
 DROP PROCEDURE IF EXISTS R_FETCH_ALLOTMENT_AGENCY_BY_ALLOTMENT $$
+DROP PROCEDURE IF EXISTS R_FETCH_VOUCHER_AWAITING_APPROVAL_FOR_EXPORT $$
+DROP PROCEDURE IF EXISTS R_FETCH_VOUCHERS_APPROVED_BY_AWV $$
 
 DROP PROCEDURE IF EXISTS R_FETCH_ALL_DOSSIERS_BY_FILTER $$
 DROP PROCEDURE IF EXISTS R_FETCH_ALL_DOSSIERS_ASSIGNED_TO_ME_BY_FILTER $$
@@ -411,6 +414,28 @@ BEGIN
 		-- UPDATE THE START AND STOP TOWING TIMING
 		UPDATE T_TOWING_VOUCHERS SET towing_start = NOW(), towing_completed=NOW() WHERE id = p_voucher_id LIMIT 1;
 	END IF;
+END $$
+
+CREATE PROCEDURE R_APPROVE_VOUCHER(IN p_voucher_id BIGINT, IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id BIGINT;
+	DECLARE v_user_id VARCHAR(36);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+	IF v_user_id IS NULL 
+		OR v_company_id IS NULL 
+        OR (SELECT count(*) > 0 FROM T_USER_ROLES ur, P_ROLES r WHERE ur.user_id = v_user_id AND ur.role_id = r.id AND r.code = 'AWV') = FALSE
+	THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		UPDATE 	T_TOWING_VOUCHERS
+        SET 	awv_approved = now(), ud=now(), ud_by=F_RESOLVE_LOGIN(v_user_id, p_token)
+        WHERE 	id = p_voucher_id
+        LIMIT 	1;
+        
+        SELECT 'OK' as result;
+    END IF;
 END $$
 
 CREATE PROCEDURE R_CREATE_DEFAULT_TOWING_VOUCHER_ACTIVITIES(IN p_dossier_id BIGINT, IN p_incident_type_id BIGINT, IN p_timeframe_id BIGINT)
@@ -1312,6 +1337,42 @@ BEGIN
 						AND t.status IN ('READY FOR INVOICE', 'INVOICED WITHOUT STORAGE')
 				ORDER BY call_date DESC
 				LIMIT 0,1000;                
+			WHEN 'AWAITING_AWV_APPROVAL' THEN
+				SELECT 	d.id, d.id as 'dossier_id', t.id as 'voucher_id', d.call_number, d.call_date, d.dossier_number, t.voucher_number, ad.name 'direction_name', adi.name 'indicator_name', c.code as `towing_service`, ip.name as `incident_type`, t.awv_approved
+				FROM 	`T_TOWING_VOUCHERS`t,
+						`T_DOSSIERS` d,
+						`P_ALLOTMENT_DIRECTIONS` ad,
+						`P_ALLOTMENT_DIRECTION_INDICATORS` adi,
+						`T_COMPANIES` c,
+						`P_INCIDENT_TYPES` ip
+				WHERE 	d.id = t.dossier_id
+						AND d.company_id IN (SELECT v_company_id UNION SELECT delegate_company_id FROM T_COMPANY_MAP WHERE supervisor_company_id = v_company_id)
+						AND d.company_id = c.id
+						AND d.incident_type_id = ip.id
+						AND d.allotment_direction_id = ad.id
+						AND d.allotment_direction_indicator_id = adi.id
+						AND t.status = 'INVOICED'
+                        AND t.awv_approved IS NULL
+				ORDER BY call_date DESC
+				LIMIT 0,1000;
+			WHEN 'AWV_APPROVED' THEN
+				SELECT 	d.id, d.id as 'dossier_id', t.id as 'voucher_id', d.call_number, d.call_date, d.dossier_number, t.voucher_number, ad.name 'direction_name', adi.name 'indicator_name', c.code as `towing_service`, ip.name as `incident_type`, t.awv_approved
+				FROM 	`T_TOWING_VOUCHERS`t,
+						`T_DOSSIERS` d,
+						`P_ALLOTMENT_DIRECTIONS` ad,
+						`P_ALLOTMENT_DIRECTION_INDICATORS` adi,
+						`T_COMPANIES` c,
+						`P_INCIDENT_TYPES` ip
+				WHERE 	d.id = t.dossier_id
+						AND d.company_id IN (SELECT v_company_id UNION SELECT delegate_company_id FROM T_COMPANY_MAP WHERE supervisor_company_id = v_company_id)
+						AND d.company_id = c.id
+						AND d.incident_type_id = ip.id
+						AND d.allotment_direction_id = ad.id
+						AND d.allotment_direction_indicator_id = adi.id
+						AND t.status = 'INVOICED'
+                        AND t.awv_approved IS NOT NULL
+				ORDER BY call_date DESC
+				LIMIT 0,1000;                
 			ELSE
 				SELECT 	d.id, d.id as 'dossier_id', t.id as 'voucher_id', d.call_number, d.call_date, d.dossier_number, t.voucher_number, ad.name 'direction_name', adi.name 'indicator_name', c.code as `towing_service`, ip.name as `incident_type`
 				FROM 	`T_TOWING_VOUCHERS`t,
@@ -1328,10 +1389,111 @@ BEGIN
 						AND d.allotment_direction_indicator_id = adi.id
 						AND t.status = p_filter
 				ORDER BY call_date DESC
-				LIMIT 0,1000;
+				LIMIT 0,1000;            
 		END CASE;
 	END IF;
 END $$
+
+CREATE PROCEDURE R_FETCH_VOUCHER_AWAITING_APPROVAL_FOR_EXPORT(IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id BIGINT;
+	DECLARE v_user_id VARCHAR(36);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+	IF 	v_user_id IS NULL 
+		OR v_company_id IS NULL 
+        OR (SELECT count(*) > 0 FROM T_USER_ROLES ur, P_ROLES r WHERE ur.user_id = v_user_id AND ur.role_id = r.id AND r.code = 'AWV') = FALSE
+	THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		SELECT
+			d.call_date,
+			d.call_number,
+			tf.name timeframe_name,
+			a.name allotment_name,
+			ad.name allotment_direction_name,
+			adi.name allotment_direction_indicator_name,
+			tv.voucher_number,
+			tv.vehicule, tv.vehicule_type, tv.vehicule_color, tv.vehicule_keys_present, tv.vehicule_licenceplate, tv.vehicule_country,
+			tv.signa_arrival,
+			TIMEDIFF(tv.signa_arrival,d.call_date) driving_time,
+			tv.towing_called, tv.towing_arrival, tv.towing_start, tv.towing_completed, tv.additional_info,
+			tv.cic,
+			tic.first_name, tic.last_name, tic.company_name, tic.company_vat, tic.street, tic.street_number, tic.street_pobox, tic.zip, tic.city, tic.country,
+			CONCAT(LEFT(i.invoice_number, 4), '/', SUBSTRING(i.invoice_number, 5)) invoice_number, 
+			i.invoice_date, invoice_total_excl_vat, invoice_total_incl_vat,
+			tac.code activity_code, 
+			tac.name activity_name, 
+			ta.amount, ta.cal_fee_excl_vat, ta.cal_fee_incl_vat
+		FROM 
+			T_DOSSIERS d,
+			T_TOWING_VOUCHERS tv,
+			T_TOWING_INCIDENT_CAUSERS tic,
+			T_TOWING_ACTIVITIES ta,
+			P_TIMEFRAME_ACTIVITY_FEE taf,
+			P_TIMEFRAME_ACTIVITIES tac,
+			P_ALLOTMENT a,
+			P_ALLOTMENT_DIRECTION_INDICATORS adi,
+			P_ALLOTMENT_DIRECTIONS ad,
+			P_TIMEFRAMES tf,
+			T_INVOICES i
+		WHERE
+			d.allotment_id = a.id
+            AND d.company_id IN (SELECT v_company_id UNION SELECT delegate_company_id FROM T_COMPANY_MAP WHERE supervisor_company_id = v_company_id)
+			AND d.id = tv.dossier_id
+			AND tv.status='INVOICED'
+            AND tv.awv_approved IS NULL
+			AND d.timeframe_id = tf.id
+			AND tv.id = i.towing_voucher_id
+			AND tv.id = tic.voucher_id
+			AND tv.id = ta.towing_voucher_id
+			AND ta.activity_id = taf.id
+			AND taf.timeframe_activity_id = tac.id
+			AND d.allotment_direction_indicator_id = adi.id
+			AND d.allotment_direction_id = ad.id
+		ORDER BY d.call_date;
+    END IF;
+END$$
+
+CREATE PROCEDURE R_FETCH_VOUCHERS_APPROVED_BY_AWV(IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id BIGINT;
+	DECLARE v_user_id VARCHAR(36);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+	IF 	v_user_id IS NULL 
+		OR v_company_id IS NULL 
+        OR (SELECT count(*) > 0 FROM T_USER_ROLES ur, P_ROLES r WHERE ur.user_id = v_user_id AND ur.role_id = r.id AND r.code = 'AWV') = FALSE
+	THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		SELECT
+			tv.id,
+			DATE_FORMAT(d.call_date,'%d/%m/%Y') call_date,
+			ad.name allotment_direction_name,
+			tv.vehicule, tv.vehicule_type, tv.vehicule_licenceplate, 
+			tic.first_name, tic.last_name, tic.company_name, tic.company_vat, tic.street, tic.street_number, tic.street_pobox, tic.zip, tic.city, tic.country,
+			i.invoice_date, invoice_total_excl_vat, invoice_total_incl_vat
+		FROM 
+			T_DOSSIERS d,
+			T_TOWING_VOUCHERS tv,
+			T_TOWING_INCIDENT_CAUSERS tic,
+			P_ALLOTMENT_DIRECTIONS ad,
+			T_INVOICES i
+		WHERE
+			d.company_id IN (SELECT v_company_id UNION SELECT delegate_company_id FROM T_COMPANY_MAP WHERE supervisor_company_id = v_company_id)
+			AND d.id = tv.dossier_id
+			AND tv.status='INVOICED'
+			AND tv.awv_approved IS NOT NULL
+			AND tv.id = i.towing_voucher_id
+			AND tv.id = tic.voucher_id
+			AND d.allotment_direction_id = ad.id
+		ORDER BY d.call_date;
+	END IF;
+END $$
+
 
 CREATE PROCEDURE R_FETCH_ALL_DOSSIERS_ASSIGNED_TO_ME_BY_FILTER(IN p_filter VARCHAR(25), IN p_token VARCHAR(255))
 BEGIN

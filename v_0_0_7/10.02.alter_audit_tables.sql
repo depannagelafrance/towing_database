@@ -141,6 +141,11 @@ ALTER TABLE `AUDIT_P_towing_be`.`T_INVOICES`
 ADD COLUMN `invoice_type` ENUM('CUSTOMER', 'INSURANCE', 'COLLECTOR') NOT NULL AFTER `document_id`,
 ADD COLUMN `invoice_message` TEXT NULL AFTER `invoice_vat_percentage`;
 
+ALTER TABLE `AUDIT_P_towing_be`.`T_INVOICES` 
+ADD COLUMN `insurance_dossiernr` VARCHAR(45) NULL AFTER `invoice_message`;
+
+ALTER TABLE `AUDIT_P_towing_be`.`T_TOWING_VOUCHERS` 
+ADD COLUMN `awv_approved` DATETIME NULL AFTER `invoice_batch_run_id`;
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
