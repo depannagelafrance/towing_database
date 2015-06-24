@@ -197,6 +197,30 @@ ADD COLUMN `insurance_dossiernr` VARCHAR(45) NULL AFTER `invoice_message`;
 ALTER TABLE `P_towing_be`.`T_TOWING_VOUCHERS` 
 ADD COLUMN `awv_approved` DATETIME NULL AFTER `invoice_batch_run_id`;
 
+CREATE TABLE `P_towing_be`.`T_TOWING_LETTERS` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `document_id` BIGINT NOT NULL,
+  `render_date` DATETIME NULL,
+  PRIMARY KEY (`id`),
+  INDEX `fk_towing_letter_document_idx` (`document_id` ASC),
+  CONSTRAINT `fk_towing_letter_document`
+    FOREIGN KEY (`document_id`)
+    REFERENCES `P_towing_be`.`T_DOCUMENTS` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+
+
+CREATE TABLE `P_towing_be`.`T_AWV_TOWING_LETTER_BATCHES` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `document_id` BIGINT NOT NULL,
+  `render_date` DATETIME NOT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `fk_atlb_document_idx` (`document_id` ASC),
+  CONSTRAINT `fk_atlb_document`
+    FOREIGN KEY (`document_id`)
+    REFERENCES `P_towing_be`.`T_DOCUMENTS` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
 
 
 SET SQL_MODE=@OLD_SQL_MODE;

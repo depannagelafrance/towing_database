@@ -13,6 +13,7 @@ DROP PROCEDURE IF EXISTS R_UPDATE_DOSSIER $$
 DROP PROCEDURE IF EXISTS R_CREATE_TOWING_VOUCHER $$
 DROP PROCEDURE IF EXISTS R_UPDATE_TOWING_VOUCHER $$
 DROP PROCEDURE IF EXISTS R_MARK_VOUCHER_AS_IDLE $$
+DROP PROCEDURE IF EXISTS R_MARK_VOUCHER_AS_CLOSED $$
 DROP PROCEDURE IF EXISTS R_APPROVE_VOUCHER $$
 DROP PROCEDURE IF EXISTS R_UPDATE_VOUCHER_COLLECTION_INFO $$
 
@@ -63,6 +64,7 @@ DROP PROCEDURE IF EXISTS R_FETCH_ALL_COMPANIES_BY_ALLOTMENT $$
 DROP PROCEDURE IF EXISTS R_FETCH_ALL_TRAFFIC_POSTS_BY_ALLOTMENT $$
 DROP PROCEDURE IF EXISTS R_FETCH_ALL_DOSSIER_TRAFFIC_LANES $$
 
+DROP PROCEDURE IF EXISTS R_ADD_BLOB $$
 DROP PROCEDURE IF EXISTS R_ADD_BLOB_TO_VOUCHER $$
 DROP PROCEDURE IF EXISTS R_ADD_COLLECTOR_SIGNATURE $$
 DROP PROCEDURE IF EXISTS R_ADD_CAUSER_SIGNATURE $$
@@ -70,6 +72,10 @@ DROP PROCEDURE IF EXISTS R_ADD_POLICE_SIGNATURE $$
 DROP PROCEDURE IF EXISTS R_ADD_INSURANCE_DOCUMENT $$
 DROP PROCEDURE IF EXISTS R_ADD_VEHICLE_DAMAGE_DOCUMENT $$
 DROP PROCEDURE IF EXISTS R_ADD_ANY_DOCUMENT $$
+
+DROP PROCEDURE IF EXISTS R_LINK_AWV_LETTER_BATCH_WITH_VOUCHER $$
+DROP PROCEDURE IF EXISTS R_ADD_AWV_LETTER_BATCH $$
+DROP PROCEDURE IF EXISTS R_FETCH_ALL_AWV_DOCUMENTS $$
 
 DROP PROCEDURE IF EXISTS R_FETCH_SIGNATURE_BY_VOUCHER $$
 DROP PROCEDURE IF EXISTS R_FETCH_CAUSER_SIGNATURE_BY_VOUCHER $$
@@ -414,6 +420,26 @@ BEGIN
 		-- UPDATE THE START AND STOP TOWING TIMING
 		UPDATE T_TOWING_VOUCHERS SET towing_start = NOW(), towing_completed=NOW() WHERE id = p_voucher_id LIMIT 1;
 	END IF;
+END $$
+
+CREATE PROCEDURE R_MARK_VOUCHER_AS_CLOSED(IN p_voucher_id BIGINT, IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id BIGINT;
+	DECLARE v_user_id VARCHAR(36);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+	IF v_user_id IS NULL 
+		OR v_company_id IS NULL 
+		OR (SELECT count(*) > 0 FROM T_USER_ROLES ur, P_ROLES r WHERE ur.user_id = v_user_id AND ur.role_id = r.id AND r.code = 'AWV') = FALSE
+	THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		UPDATE 	T_TOWING_VOUCHERS tv
+        SET 	tv.status='CLOSED'
+        WHERE 	tv.id = p_voucher_id
+        LIMIT 	1;
+    END IF;
 END $$
 
 CREATE PROCEDURE R_APPROVE_VOUCHER(IN p_voucher_id BIGINT, IN p_token VARCHAR(255))
@@ -1470,7 +1496,7 @@ BEGIN
 		CALL R_NOT_AUTHORIZED;
 	ELSE
 		SELECT
-			tv.id,
+			tv.id as towing_voucher_id,
 			DATE_FORMAT(d.call_date,'%d/%m/%Y') call_date,
 			ad.name allotment_direction_name,
 			tv.vehicule, tv.vehicule_type, tv.vehicule_licenceplate, 
@@ -1494,6 +1520,52 @@ BEGIN
 	END IF;
 END $$
 
+CREATE PROCEDURE R_LINK_AWV_LETTER_BATCH_WITH_VOUCHER(IN p_voucher_id BIGINT, IN p_document_id BIGINT, IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id, v_dossier_id BIGINT;
+	DECLARE v_user_id VARCHAR(36);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE        
+        INSERT INTO T_TOWING_VOUCHER_ATTS(towing_voucher_id, document_id, category, cd, cd_by)
+        VALUES(p_voucher_id, p_document_id, 'AWV_LETTER_BATCH', now(), F_RESOLVE_LOGIN(v_user_id, p_token));
+    END IF;
+END $$
+
+CREATE PROCEDURE R_ADD_AWV_LETTER_BATCH(IN p_document_id BIGINT, IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id, v_dossier_id BIGINT;
+	DECLARE v_user_id VARCHAR(36);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		INSERT INTO T_AWV_TOWING_LETTER_BATCHES(document_id, render_date)
+        VALUES(p_document_id, now());
+    END IF;
+END $$
+
+CREATE PROCEDURE R_FETCH_ALL_AWV_DOCUMENTS(IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id, v_dossier_id BIGINT;
+	DECLARE v_user_id VARCHAR(36);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		SELECT 	UNIX_TIMESTAMP(b.render_date) as render_date, b.document_id, d.document_blob_id, d.name, d.cd, d.cd_by
+        FROM 	T_AWV_TOWING_LETTER_BATCHES b, T_DOCUMENTS d
+        WHERE	b.document_id = d.id
+        ORDER 	BY b.render_date DESC;
+    END IF;
+END $$
 
 CREATE PROCEDURE R_FETCH_ALL_DOSSIERS_ASSIGNED_TO_ME_BY_FILTER(IN p_filter VARCHAR(25), IN p_token VARCHAR(255))
 BEGIN
@@ -1751,6 +1823,36 @@ BEGIN
 		SELECT LAST_INSERT_ID() as attachment_id, v_doc_id as document_id, 'OK' as result;
 	END IF;
 END $$
+
+CREATE PROCEDURE R_ADD_BLOB (IN p_name VARCHAR(255), 
+							 IN p_content_type VARCHAR(255), 
+							 IN p_file_size INT,
+							 IN p_content LONGTEXT,
+							 IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id, v_dossier_id BIGINT;
+	DECLARE v_user_id VARCHAR(36);
+	DECLARE v_blob_id, v_doc_id BIGINT;
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		INSERT INTO `T_DOCUMENT_BLOB`(`content`) VALUES(p_content);
+
+		SET v_blob_id = LAST_INSERT_ID();
+
+		INSERT INTO `T_DOCUMENTS` (`document_blob_id`, `name`, `content_type`, `file_size`, `cd`, `cd_by`)
+		VALUES (v_blob_id, p_name, p_content_type, p_file_size, now(), F_RESOLVE_LOGIN(v_user_id, p_token));
+
+		SET v_doc_id = LAST_INSERT_ID();
+
+		SELECT v_doc_id as document_id, 'OK' as result;
+	END IF;
+END $$
+
+
 
 CREATE PROCEDURE R_ADD_COLLECTOR_SIGNATURE(IN p_voucher_id BIGINT, IN p_content_type VARCHAR(255), IN p_file_size INT,
 										   IN p_content LONGTEXT,
@@ -2310,7 +2412,7 @@ BEGIN
 		END IF;
 	END IF;
 
-	IF NEW.towing_completed IS NOT NULL AND NEW.status NOT IN ('INVOICED', 'INVOICED WITHOUT STORAGE') THEN
+	IF NEW.towing_completed IS NOT NULL AND NEW.status NOT IN ('INVOICED', 'INVOICED WITHOUT STORAGE', 'CLOSED') THEN
 		-- DELETE THE VALIDATION MESSAGES
 		DELETE FROM T_TOWING_VOUCHER_VALIDATION_MESSAGES 
 		WHERE towing_voucher_id = OLD.id
@@ -2613,9 +2715,9 @@ BEGIN
 
 
 	UPDATE `T_TOWING_VOUCHER_PAYMENTS`
-	SET 	`amount_customer` = v_total,
+	SET 	`amount_customer` = v_total - IFNULL(amount_guaranteed_by_insurance, 0.0),
 			`amount_guaranteed_by_insurance` = IFNULL(amount_guaranteed_by_insurance, 0.0),
-			`cal_amount_unpaid` = v_total - IFNULL(cal_amount_paid, 0.0),
+			`cal_amount_unpaid` = (v_total - IFNULL(amount_guaranteed_by_insurance, 0.0)) - IFNULL(cal_amount_paid, 0.0),
 			`ud` = now(), `ud_by` = (SELECT ud_by FROM T_TOWING_ACTIVITIES WHERE id = p_voucher_id LIMIT 0,1)
 	WHERE 	towing_voucher_id = p_voucher_id
 	LIMIT	1;
