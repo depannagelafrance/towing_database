@@ -321,6 +321,8 @@ BEGIN
 				AND tac.activity_id = taf.id
 				AND tac.towing_voucher_id=p_voucher_id;
     
+    
+		SELECT v_has_insurance, v_amount_customer,  v_assurance_warranty, v_amount_customer, v_storage_costs;
 
 		-- CREATE AN INVOICE FOR THE CUSTOMER UNDER FOLLOWING CONDITIONS:
 		-- (a) THERE IS NO INSURANCE INVOLVED
@@ -329,7 +331,7 @@ BEGIN
 			OR (v_has_insurance 
 				AND v_amount_customer != v_assurance_warranty 
                 AND v_amount_customer > 0
-				AND v_amount_customer != v_storage_costs) 
+				AND v_amount_customer != IFNULL(v_storage_costs, 0)) 
 		THEN
 			CALL R_INVOICE_CREATE_PARTIAL_CUSTOMER(p_voucher_id, p_batch_id, p_message);
 		END IF;
@@ -346,7 +348,7 @@ END $$
 CREATE PROCEDURE R_INVOICE_CREATE_PARTIAL_INSURANCE(IN p_voucher_id BIGINT, IN p_insurance_id BIGINT, IN p_batch_id VARCHAR(36), IN p_message TEXT)
 BEGIN
 	DECLARE v_foreign_vat  BOOL;
-	DECLARE v_customer_number, v_company_vat, v_street_number, v_street_pobox, v_zip, v_insurance_dossier_nr  VARCHAR(45);
+	DECLARE v_customer_number, v_collector_custnum, v_company_vat, v_street_number, v_street_pobox, v_zip, v_insurance_dossier_nr  VARCHAR(45);
 	DECLARE v_company_name, v_street, v_city, v_country VARCHAR(255);
 	DECLARE	v_company_id, v_invoice_customer_id, v_invoice_id, v_voucher_number, v_invoice_number, v_collector_id BIGINT;
 	DECLARE v_amount, v_amount_excl_vat, v_amount_incl_vat, v_vat DOUBLE(5,2);
@@ -382,6 +384,12 @@ BEGIN
     FROM 	T_TOWING_VOUCHER_PAYMENTS
     WHERE 	towing_voucher_id = p_voucher_id
     LIMIT 	0,1;
+    
+    SELECT 	customer_number
+    INTO	v_collector_custnum
+    FROM 	T_COLLECTORS
+    WHERE 	id = v_collector_id
+    LIMIT	0,1;
 
     IF v_foreign_vat THEN
 		SET v_amount_excl_vat = v_amount;
@@ -435,7 +443,10 @@ BEGIN
 	SET v_invoice_id = LAST_INSERT_ID();
 
 	
-    IF v_collector_id IS NULL THEN
+    IF v_collector_id IS NULL -- IF NO COLLECTOR IS SET, OR
+		OR v_collector_custnum = v_customer_number -- IF THE COLLECTOR IS THE INSURANCE COMPANY
+	THEN
+		
 		-- INSERT ALL ACTIVITIES FROM THE VOUCHER AS INVOICE_LINES
 		INSERT INTO T_INVOICE_LINES(invoice_id,
 									item,

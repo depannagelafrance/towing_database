@@ -96,6 +96,7 @@ CREATE PROCEDURE R_ADD_COLLECTOR(IN p_name VARCHAR(255), IN p_vat VARCHAR(45),
 								 IN p_street VARCHAR(255), IN p_street_number VARCHAR(45), IN p_street_pobox VARCHAR(45), 
 								 IN p_zip VARCHAR(45), IN p_city VARCHAR(45),IN p_country VARCHAR(255),
                                  IN p_custnum VARCHAR(45),
+                                 IN p_type ENUM('CUSTOMER', 'OTHER'),
 							     IN p_token VARCHAR(255))
 BEGIN
 	DECLARE v_company_id BIGINT;
@@ -107,8 +108,8 @@ BEGIN
 		CALL R_NOT_AUTHORIZED;
 	ELSE
 		-- CALL R_ADD_DICTIONARY('COLLECTOR', p_name, F_RESOLVE_LOGIN(v_user_id, p_token));
-		INSERT INTO T_COLLECTORS(name, vat, street, street_number, street_pobox, zip, city, country, customer_number, cd, cd_by)
-		VALUES(p_name, p_vat, p_street, p_street_number, p_street_pobox, p_zip, p_city, p_country, p_custnum, now(), F_RESOLVE_LOGIN(v_user_id, p_token));
+		INSERT INTO T_COLLECTORS(name, vat, street, street_number, street_pobox, zip, city, country, customer_number, type, cd, cd_by)
+		VALUES(p_name, p_vat, p_street, p_street_number, p_street_pobox, p_zip, p_city, p_country, p_custnum, p_type, now(), F_RESOLVE_LOGIN(v_user_id, p_token));
 
 		SELECT * FROM T_COLLECTORS WHERE id = last_insert_id();
 	END IF;
@@ -151,6 +152,7 @@ CREATE PROCEDURE R_UPDATE_COLLECTOR(IN p_id BIGINT, IN p_name VARCHAR(255), IN p
 								    IN p_street VARCHAR(255), IN p_street_number VARCHAR(45), IN p_street_pobox VARCHAR(45), 
 								    IN p_zip VARCHAR(45), IN p_city VARCHAR(45),IN p_country VARCHAR(255), 
                                     IN p_custnum VARCHAR(45),
+                                    IN p_type ENUM('CUSTOMER', 'OTHER'),
                                     IN p_token VARCHAR(255))
 BEGIN
 	DECLARE v_company_id BIGINT;
@@ -162,13 +164,21 @@ BEGIN
 		CALL R_NOT_AUTHORIZED;
 	ELSE
 		-- CALL R_UPDATE_DICTIONARY(p_id, 'COLLECTOR', p_name, F_RESOLVE_LOGIN(v_user_id, p_token));
-		UPDATE T_COLLECTORS
-		SET name = p_name,
-			vat = p_vat, street = p_street, street_number = p_street_number,
-			street_pobox = p_street_pobox, zip = p_zip, city = p_city, country = p_country,
-            customer_number = p_custnum,
-			ud = now(), ud_by = F_RESOLVE_LOGIN(v_user_id, p_token)
-		WHERE id = p_id;
+		UPDATE 	T_COLLECTORS
+		SET 	name = p_name,
+				vat = p_vat, 
+                street = p_street, 
+                street_number = p_street_number,
+				street_pobox = p_street_pobox, 
+                zip = p_zip, 
+                city = p_city, 
+                country = p_country,
+				customer_number = p_custnum, 
+                type = p_type,
+				ud = now(), 
+                ud_by = F_RESOLVE_LOGIN(v_user_id, p_token)
+		WHERE 	id = p_id
+		LIMIT 	1;
 
 		SELECT * FROM T_COLLECTORS WHERE id = p_id;
 	END IF;
@@ -388,7 +398,7 @@ BEGIN
 	IF v_user_id IS NULL OR v_company_id IS NULL THEN
 		CALL R_NOT_AUTHORIZED;
 	ELSE
-		SELECT 	`id`, `name`, name, vat, street, street_number, street_pobox, zip, city, country, customer_number
+		SELECT 	`id`, `name`, name, vat, street, street_number, street_pobox, zip, city, country, customer_number, type
 		FROM 	T_COLLECTORS
 		WHERE 	id = p_id
 				AND dd IS NULL;
