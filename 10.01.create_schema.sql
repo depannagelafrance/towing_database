@@ -9,8 +9,8 @@ SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL,ALLOW_INVALID_DATES';
 -- -------- -----------------------------------------------------
 -- Schema towing
 -- -----------------------------------------------------
-DROP SCHEMA IF EXISTS `towing` ;
-CREATE SCHEMA IF NOT EXISTS `towing` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci ;
+DROP SCHEMA IF EXISTS `towing_be` ;
+CREATE SCHEMA IF NOT EXISTS `towing_be` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci ;
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;

@@ -322,7 +322,7 @@ BEGIN
 				AND tac.towing_voucher_id=p_voucher_id;
     
     
-		SELECT v_has_insurance, v_amount_customer,  v_assurance_warranty, v_amount_customer, v_storage_costs;
+		-- SELECT v_has_insurance, v_amount_customer,  v_assurance_warranty, v_amount_customer, v_storage_costs;
 
 		-- CREATE AN INVOICE FOR THE CUSTOMER UNDER FOLLOWING CONDITIONS:
 		-- (a) THERE IS NO INSURANCE INVOLVED
@@ -582,7 +582,7 @@ BEGIN
 
 			-- CREATE A NEW INVOICE CUSTOMER    
 			CALL R_INVOICE_CUSTOMER_FIND_OR_CREATE(
-				   IF(v_company_name IS NULL OR TRIM(v_company_name) = '', 'ORGANISATION', 'PERSON'),
+				   IF(v_company_name IS NULL OR TRIM(v_company_name) = '', 'PERSON', 'ORGANISATION'),
 				   p_voucher_id,
 				   v_company_id, 
 				   v_company_name, 
@@ -678,7 +678,7 @@ CREATE PROCEDURE R_INVOICE_CUSTOMER_FIND_OR_CREATE(IN p_type ENUM('PERSON', 'ORG
 BEGIN
 	DECLARE v_cust_id BIGINT;
     
-    IF p_cust_num IS NOT NULL THEN
+    IF p_cust_num IS NOT NULL AND p_type != 'PERSON' THEN -- custnum for persons is the same for all
 		SELECT 	id INTO v_cust_id 
         FROM 	T_INVOICE_CUSTOMERS 
 		WHERE 	lower(customer_number) = lower(p_cust_num) 
@@ -765,7 +765,7 @@ BEGIN
 
 	-- CREATE A NEW INVOICE CUSTOMER    
     CALL R_INVOICE_CUSTOMER_FIND_OR_CREATE(
-		   IF(v_company_name IS NULL OR TRIM(v_company_name) = '', 'ORGANISATION', 'PERSON'),
+		   IF(v_company_name IS NULL OR TRIM(v_company_name) = '', 'PERSON', 'ORGANISATION'),
            p_voucher_id,
 		   v_company_id, 
 		   v_company_name, 

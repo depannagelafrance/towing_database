@@ -84,19 +84,6 @@ ADD INDEX `fk_invoices_towing_vouchers_idx` (`towing_voucher_id` ASC);
   
 ALTER TABLE `AUDIT_P_towing_be`.`T_INVOICES` 
 ADD COLUMN `document_id` BIGINT NULL AFTER `towing_voucher_id`;
-ALTER TABLE `AUDIT_P_towing_be`.`T_INVOICES` 
-ADD CONSTRAINT `fk_invoices_documents`
-  FOREIGN KEY (`id`)
-  REFERENCES `AUDIT_P_towing_be`.`T_DOCUMENTS` (`id`)
-  ON DELETE NO ACTION
-  ON UPDATE NO ACTION;
-
-ALTER TABLE `AUDIT_P_towing_be`.`T_INVOICE_CUSTOMERS` 
-ADD INDEX `ix_invoice_customers_custnum` (`customer_number` ASC),
-ADD INDEX `ix_invoice_customers_vat` (`company_vat` ASC),
-ADD INDEX `ix_invoice_customers_company` (`company_name` ASC),
-ADD INDEX `ix_invoice_customers_person` (`last_name` ASC, `street` ASC, `city` ASC);
-
 
 ALTER TABLE `AUDIT_P_towing_be`.`T_COLLECTORS` 
 ADD COLUMN `customer_number` VARCHAR(45) NULL AFTER `id`;
@@ -123,11 +110,6 @@ ADD CONSTRAINT `fk_invoices_invoice_batch_run`
 ALTER TABLE `AUDIT_P_towing_be`.`T_INVOICES` 
 ADD COLUMN `invoice_structured_reference` VARCHAR(20) NOT NULL AFTER `invoice_number`;
   
-  
-ALTER TABLE `AUDIT_P_towing_be`.`T_SEQUENCES` 
-CHANGE COLUMN `code` `code` ENUM('DOSSIER','TOWING_VOUCHER','INVOICE', 'INVOICE_CUSTNUM_ORG') NOT NULL ;
-
-
 ALTER TABLE `AUDIT_P_towing_be`.`T_COLLECTORS` 
 ADD COLUMN `type` ENUM('CUSTOMER', 'OTHER') NULL DEFAULT 'OTHER' AFTER `id`;
 
@@ -152,6 +134,12 @@ CREATE TABLE `AUDIT_P_towing_be`.`T_AWV_TOWING_LETTER_BATCHES` (
   `id` BIGINT NOT NULL,
   `document_id` BIGINT NOT NULL,
   `render_date` DATETIME NOT NULL);
+
+ALTER TABLE `AUDIT_P_towing_be`.`T_TOWING_VOUCHERS` 
+ADD COLUMN `collector_name` VARCHAR(255) NULL AFTER `collector_id`;
+
+ALTER TABLE `AUDIT_P_towing_be`.`T_TOWING_VOUCHER_ATTS` 
+CHANGE COLUMN `category` `category` ENUM('SIGNATURE_COLLECTOR','SIGNATURE_POLICE','SIGNATURE_CAUSER','ASSISTANCE_ATT','VEHICLE_DAMAGE','ATT', 'AWV_LETTER_BATCH') NOT NULL ;
 
 
 SET SQL_MODE=@OLD_SQL_MODE;

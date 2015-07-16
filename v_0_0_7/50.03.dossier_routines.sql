@@ -682,7 +682,7 @@ BEGIN
 			SELECT	`id`,
 					`dossier_id`,
 					`insurance_id`,
-					`collector_id`,
+					`collector_id`, `collector_name`,
 					`voucher_number`,
 					unix_timestamp(`police_signature_dt`) as police_signature_dt,
 					unix_timestamp(`recipient_signature_dt`) as recipient_signature_dt,
@@ -1856,9 +1856,24 @@ END $$
 
 CREATE PROCEDURE R_ADD_COLLECTOR_SIGNATURE(IN p_voucher_id BIGINT, IN p_content_type VARCHAR(255), IN p_file_size INT,
 										   IN p_content LONGTEXT,
+                                           IN p_name VARCHAR(255),
 									       IN p_token VARCHAR(255))
 BEGIN
+	DECLARE v_company_id BIGINT;
+	DECLARE v_user_id VARCHAR(36);
+
 	CALL R_ADD_BLOB_TO_VOUCHER(p_voucher_id, 'SIGNATURE_COLLECTOR', 'signature_collector.png', p_content_type, p_file_size, p_content, p_token);
+   
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+	
+	IF v_user_id IS NOT NULL AND v_company_id IS NOT NULL THEN
+		UPDATE 	T_TOWING_VOUCHERS
+		SET 	collector_name = p_name,
+				ud = now(),
+				ud_by = F_RESOLVE_LOGIN(v_user_id, p_token)
+		WHERE 	id = p_voucher_id
+		LIMIT 	1;
+    END IF;
 END $$
 
 CREATE PROCEDURE R_ADD_CAUSER_SIGNATURE(IN p_voucher_id BIGINT, IN p_content_type VARCHAR(255), IN p_file_size INT,
