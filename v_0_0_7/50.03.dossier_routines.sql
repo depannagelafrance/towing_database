@@ -679,16 +679,16 @@ BEGIN
 		IF v_dossier_id IS NULL THEN
 			CALL R_NOT_FOUND;
 		ELSE
-			SELECT	`id`,
-					`dossier_id`,
-					`insurance_id`,
-					`collector_id`, `collector_name`,
-					`voucher_number`,
+			SELECT	tv.`id`,
+					tv.`dossier_id`,
+					tv.`insurance_id`,
+					tv.`collector_id`, `collector_name`,
+					tv.`voucher_number`,
 					unix_timestamp(`police_signature_dt`) as police_signature_dt,
 					unix_timestamp(`recipient_signature_dt`) as recipient_signature_dt,
-					`insurance_dossiernr`,
-                    `insurance_invoice_number`,
-					`insurance_warranty_held_by`,
+					tv.`insurance_dossiernr`,
+                    tv.`insurance_invoice_number`,
+					tv.`insurance_warranty_held_by`,
 					`vehicule`, `vehicule_color`, `vehicule_keys_present`, `vehicule_impact_remarks`,
 					`vehicule_type`,
 					`vehicule_licenceplate`,
@@ -710,14 +710,23 @@ BEGIN
                     `causer_not_present`,
 					`status`,
 					`additional_info`,
-					`cd`,
-					`cd_by`,
-					`ud`,
-					`ud_by`,
+					tv.`cd`,
+					tv.`cd_by`,
+					tv.`ud`,
+					tv.`ud_by`,
 					(SELECT `name` FROM T_COLLECTORS WHERE id = tv.`collector_id`) as `collector_name`,
-					(SELECT `name` FROM T_INSURANCES WHERE id = tv.`insurance_id`) as `insurance_name`
-			FROM 	T_TOWING_VOUCHERS tv
-			WHERE	`dossier_id` = v_dossier_id;
+					(SELECT `name` FROM T_INSURANCES WHERE id = tv.`insurance_id`) as `insurance_name`,
+                    -- jaartal+maand+dag_TB+takelbonnummer_verkorte naam aannemer_PA of TA nummer_Perceel_nr autosnelweg	
+					-- e.g. 20150622_TB356482_France_PA09149798_P1_R1
+					CONCAT(	YEAR(d.call_date), LPAD(MONTH(d.call_date), 2, '0'), LPAD(DAY(d.call_date), 2, '0'), '_'
+							'TB', voucher_number, '_',
+							(SELECT code FROM T_COMPANIES WHERE id = d.company_id LIMIT 0,1), '_',
+							d.call_number, '_',
+							(SELECT code FROM P_ALLOTMENT WHERE id = d.allotment_id LIMIT 0,1), '_',
+							(SELECT REPLACE(REPLACE(name, '>', '_'), ' ', '') FROM P_ALLOTMENT_DIRECTIONS WHERE id = d.allotment_direction_id LIMIT 0,1), '.pdf') as towing_voucher_filename
+			FROM 	T_TOWING_VOUCHERS tv, T_DOSSIERS d
+			WHERE	`dossier_id` = v_dossier_id
+					AND tv.dossier_id = d.id;
 		END IF;
 	END IF;
 END $$

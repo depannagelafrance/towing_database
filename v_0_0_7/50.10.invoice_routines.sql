@@ -189,6 +189,7 @@ BEGIN
     DECLARE v_insurance_id, v_collector_id BIGINT;
 	DECLARE v_assurance_warranty, v_amount_customer_excl_vat, v_amount_customer_incl_vat, v_amount_customer, v_storage_costs DOUBLE(5,2);
     DECLARE v_insurance_custnum, v_collector_custnum, v_status, v_collector_type, v_insurance_invoice_number VARCHAR(45);
+    DECLARE v_collector_vat, v_customer_vat VARCHAR(45);
     DECLARE v_call_date, v_vehicule_collected DATE;
     
     SELECT 	(insurance_id IS NOT NULL), insurance_id, insurance_invoice_number,
@@ -209,8 +210,8 @@ BEGIN
     WHERE 	id = v_insurance_id
     LIMIT 	0,1;
     
-    SELECT 	customer_number, type, LEFT(vat, 2) != 'BE'
-    INTO 	v_collector_custnum, v_collector_type, v_collector_foreign_vat
+    SELECT 	customer_number, type, LEFT(vat, 2) != 'BE', vat
+    INTO 	v_collector_custnum, v_collector_type, v_collector_foreign_vat, v_collector_vat
     FROM 	T_COLLECTORS
     WHERE 	id = v_collector_id
     LIMIT 	0,1;
@@ -218,6 +219,9 @@ BEGIN
 	SET v_has_validation_messages = FALSE;
     SET v_status = 'INVOICED';
 
+	-- ------------------------------------------------------------------
+	-- CHECK IF THE REQUIRED VALUES ARE SET FOR INSURANCES AND COLLECTORS
+    -- ------------------------------------------------------------------
 	DELETE FROM T_TOWING_VOUCHER_VALIDATION_MESSAGES WHERE towing_voucher_id = p_voucher_id;
 
 	IF v_has_insurance AND NOT v_insurance_excluded AND (v_insurance_custnum IS NULL OR TRIM(v_insurance_custnum) = '') THEN
@@ -245,6 +249,9 @@ BEGIN
     END IF;
     
     
+    -- ------------------------------------------------------------------
+    -- START THE INVOICING IF THERE ARE NO VALIDATION ERRORS
+    -- ------------------------------------------------------------------
     IF NOT v_has_validation_messages THEN
 		SELECT 	amount_guaranteed_by_insurance, amount_customer
 		INTO	v_assurance_warranty, v_amount_customer
@@ -258,6 +265,12 @@ BEGIN
 				AND taf.timeframe_activity_id = ta.id
 				AND tac.activity_id = taf.id
 				AND tac.towing_voucher_id=p_voucher_id; 
+                
+		SELECT 	IFNULL(company_vat, '')
+        INTO 	v_customer_vat
+        FROM 	T_TOWING_CUSTOMERS
+        WHERE 	voucher_id = p_voucher_id
+        LIMIT 	0,1;
 
 		
 		-- SET v_amount_customer = v_assurance_warranty - v_amount_customer_incl_vat;
@@ -274,8 +287,10 @@ BEGIN
 		IF v_has_collector THEN
 			-- IF THE COLLECTOR IS NOT THE CLIENT, ADD THE STORAGE COSTS TO THE CLIENT'S BILL
             -- IF THE COLLECTOR AND INSURANCE ARE NOT THE SAME
+            -- IF THE COLLECTOR IS NOT THE INVOICE CUSTOMER
 			IF (SELECT `type` FROM T_COLLECTORS WHERE id = v_collector_id) != 'CUSTOMER' 
-				AND v_collector_custnum != v_insurance_custnum
+				AND v_collector_custnum != IFNULL(v_insurance_custnum, -1)
+                AND LOWER(v_collector_vat) != LOWER(v_customer_vat)
 			THEN
 				IF (SELECT 	count(ta.code)
 					FROM 	P_TIMEFRAME_ACTIVITIES ta, P_TIMEFRAME_ACTIVITY_FEE taf, T_TOWING_ACTIVITIES tac
@@ -494,15 +509,22 @@ BEGIN
     END IF;
             
 	-- INSERT THE INVOICE LINE FOR THE CUSTOMERS PART
-    IF v_amount != v_amount_customer AND v_amount_customer > 0 AND NOT v_collector_id THEN
+    IF v_amount != v_amount_customer AND v_amount_customer > 0 /* AND NOT v_collector_id IS NULL */ 
+    THEN
 		INSERT INTO T_INVOICE_LINES(invoice_id,
 									item,
 									item_amount, item_price_excl_vat, item_price_incl_vat,
 									item_total_excl_vat, item_total_incl_vat)
-		VALUES( v_invoice_id,
+		SELECT 	v_invoice_id,
 				CONCAT('Ten laste van klant, referentie takelbon B', v_voucher_number, ' - dossier: ', IFNULL(v_insurance_dossier_nr, 'N/A')),
-				1, -(v_amount_customer / (1+v_vat)), -v_amount_customer,
-				-(v_amount_customer / (1+v_vat)), -v_amount_customer);
+				1, 
+                (v_amount - SUM(item_total_excl_vat)), -- -(v_amount_customer / (1+v_vat)), -v_amount_customer,
+				(v_amount - SUM(item_total_incl_vat)), -- -(v_amount_customer / (1+v_vat)), -v_amount_customer;
+                (v_amount - SUM(item_total_excl_vat)), -- -(v_amount_customer / (1+v_vat)), -v_amount_customer,
+				(v_amount - SUM(item_total_incl_vat))  -- -(v_amount_customer / (1+v_vat)), -v_amount_customer;
+		FROM	T_INVOICE_LINES
+        WHERE 	invoice_id = v_invoice_id;
+			
 	END IF;
             
 	-- UPDATE THE TOTAL OF THE INVOICE WITH THE INFORMATION FROM THE INVOICE LINES
@@ -807,7 +829,10 @@ BEGIN
 	SET v_invoice_id = LAST_INSERT_ID();
 
 	-- CHECK IF THE COLLECTOR WAS SET, AND IF THE COLLECTOR IS OF TYPE 'CUSTOMER'
-	IF v_collector_id IS NULL OR (v_collector_id IS NOT NULL AND (SELECT `type` FROM T_COLLECTORS WHERE id = v_collector_id) = 'CUSTOMER') THEN
+	IF v_collector_id IS NULL 
+		OR (v_collector_id IS NOT NULL AND (SELECT `type` FROM T_COLLECTORS WHERE id = v_collector_id) = 'CUSTOMER')
+        OR (v_collector_id IS NOT NULL AND v_company_vat IS NOT NULL AND TRIM(v_company_vat) != '' AND (SELECT lower(`vat`) FROM T_COLLECTORS WHERE id = v_collector_id) = lower(v_company_vat)) 
+	THEN
 		-- CREATE THE INVOICE LINES FOR THE CREATE INVOICE
 		INSERT INTO T_INVOICE_LINES(invoice_id,
 									item,
@@ -903,15 +928,25 @@ BEGIN
             i.invoice_total_excl_vat, i.invoice_total_incl_vat,
             i.invoice_total_vat, i.invoice_vat_percentage,
             concat('B', tv.voucher_number) as voucher_number,
+            UNIX_TIMESTAMP(d.call_date) as call_date, d.call_number, d.id AS dossier_id,
             tvp.paid_in_cash, tvp.paid_by_bank_deposit, tvp.paid_by_debit_card, tvp.paid_by_credit_card, tvp.cal_amount_unpaid,
             tvp.amount_guaranteed_by_insurance,
             i.invoice_type, 
             i.invoice_message,
-            i.insurance_dossiernr
-    FROM 	T_INVOICES i, T_TOWING_VOUCHERS tv, T_TOWING_VOUCHER_PAYMENTS tvp
+            i.insurance_dossiernr,
+            -- jaartal+maand+dag_FVH+factuurnummer_verkorte naam aannemer_PA of TA nummer_Perceel_nr autosnelweg
+            -- e.g. 20150622_FVH562879_Hamse_TA00000953_P5_E313
+            CONCAT(	YEAR(i.invoice_date), LPAD(MONTH(i.invoice_date), 2, '0'), LPAD(DAY(i.invoice_date), 2, '0'), '_'
+					'FVH', i.invoice_number, '_', 
+                    (SELECT code FROM T_COMPANIES WHERE id = d.company_id LIMIT 0,1), '_',
+                    d.call_number, '_',
+                    (SELECT code FROM P_ALLOTMENT WHERE id = d.allotment_id LIMIT 0,1), '_',
+                    (SELECT REPLACE(REPLACE(name, '>', '_'), ' ', '') FROM P_ALLOTMENT_DIRECTIONS WHERE id = d.allotment_direction_id LIMIT 0,1), '.pdf') AS filename
+    FROM 	T_INVOICES i, T_TOWING_VOUCHERS tv, T_TOWING_VOUCHER_PAYMENTS tvp, T_DOSSIERS d
     WHERE 	i.invoice_batch_run_id = p_batch_id
 			AND tv.id = i.towing_voucher_id
-            AND tv.id = tvp.towing_voucher_id;
+            AND tv.id = tvp.towing_voucher_id
+            AND d.id = tv.dossier_id;
 END $$
 
 CREATE PROCEDURE R_INVOICE_FETCH_COMPANY_INVOICE(IN p_invoice_id BIGINT, IN p_token VARCHAR(255))
