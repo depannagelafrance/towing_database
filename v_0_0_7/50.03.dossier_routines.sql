@@ -771,18 +771,23 @@ BEGIN
 			WHERE 	tac.towing_voucher_id = p_voucher_id;
                     
 
-			SELECT ta.towing_voucher_id, ta.activity_id, tia.code, tia.name, tia.id as timeframe_activity_id, tia.default_value, tia.is_modifiable,
-				   taf.fee_incl_vat, -- format(taf.fee_incl_vat, 2) as fee_incl_vat,
-				   taf.fee_excl_vat, -- format(taf.fee_excl_vat, 2) as fee_excl_vat,
-				   ta.amount,
-				   format(ta.cal_fee_excl_vat, 2, 'nl_BE') as cal_fee_excl_vat,
-				   format(ta.cal_fee_incl_vat, 2, 'nl_BE') as cal_fee_incl_vat ,
-				   (v_total_incl + v_costs_incl) as total_bill_incl_vat,
-				   (v_total_excl + v_costs_excl) as total_bill_excl_vat
-			FROM T_TOWING_ACTIVITIES ta, P_TIMEFRAME_ACTIVITY_FEE taf, P_TIMEFRAME_ACTIVITIES tia
-			WHERE ta.towing_voucher_id = p_voucher_id
-				AND ta.activity_id = taf.id
-				AND taf.timeframe_activity_id = tia.id;
+			SELECT 	ta.towing_voucher_id, ta.activity_id, tia.code, tia.name, tia.id as timeframe_activity_id, tia.default_value, tia.is_modifiable,
+					taf.fee_incl_vat, -- format(taf.fee_incl_vat, 2) as fee_incl_vat,
+					taf.fee_excl_vat, -- format(taf.fee_excl_vat, 2) as fee_excl_vat,
+					ta.amount,
+					format(ta.cal_fee_excl_vat, 2, 'nl_BE') as cal_fee_excl_vat,
+					format(ta.cal_fee_incl_vat, 2, 'nl_BE') as cal_fee_incl_vat ,
+					(v_total_incl + v_costs_incl) as total_bill_incl_vat,
+					(v_total_excl + v_costs_excl) as total_bill_excl_vat,
+					t.name as timeframe_name
+			FROM 	T_TOWING_ACTIVITIES ta, 
+					P_TIMEFRAME_ACTIVITY_FEE taf, 
+                    P_TIMEFRAME_ACTIVITIES tia, 
+                    P_TIMEFRAMES t
+			WHERE 	ta.towing_voucher_id = p_voucher_id
+					AND ta.activity_id = taf.id
+					AND taf.timeframe_activity_id = tia.id
+					AND t.id = taf.timeframe_id;
 		END IF;
 	END IF;
 END $$
@@ -1055,6 +1060,19 @@ BEGIN
 		FROM 	T_TOWING_VOUCHERS tv, T_DOSSIERS d
 		WHERE 	tv.id = p_voucher_id
 				AND d.id = tv.dossier_id;
+                               
+		-- CHECK IF THE ACTIVITY IS A BOTSABSORBEERDER, IT NEEDS THE CURRENT TIMEFRAME, NOT THE ONE BASED ON THE CALLDATE
+		IF (SELECT IFNULL(ta.code, '') FROM P_TIMEFRAME_ACTIVITIES ta, P_TIMEFRAME_ACTIVITY_FEE taf 
+			WHERE 	ta.id  = taf.timeframe_activity_id
+					AND taf.id = p_activity_id LIMIT 0,1) = 'BOTSABSORBEERDER' 
+        THEN
+			-- ACTIVITY IS A BOTSABSORBEERDER
+			SELECT 	t.id INTO v_timeframe_id
+			FROM 	P_TIMEFRAMES t, P_TIMEFRAME_VALIDITY tv
+			WHERE	t.id = tv.timeframe_id
+					AND current_time() BETWEEN `from` AND `till`
+					AND tv.category = F_RESOLVE_TIMEFRAME_CATEGORY();
+        END IF;
 
 		SELECT 	taf.fee_excl_vat, taf.fee_incl_vat
 		INTO	v_fee_excl_vat, v_fee_incl_vat
@@ -1064,12 +1082,13 @@ BEGIN
 				AND timeframe_id = v_timeframe_id
 				AND v_call_date BETWEEN taf.valid_from AND taf.valid_until
 		LIMIT 	0,1;
-
+        
 		INSERT INTO T_TOWING_ACTIVITIES(towing_voucher_id, activity_id, amount, cal_fee_excl_vat, cal_fee_incl_vat)
 		VALUES (p_voucher_id, p_activity_id, p_amount, (IFNULL(p_amount, 1) * v_fee_excl_vat), (IFNULL(p_amount, 1) * v_fee_incl_vat))
 		ON DUPLICATE KEY UPDATE amount = p_amount,
 								cal_fee_excl_vat = (IFNULL(p_amount, 1) * v_fee_excl_vat),
 								cal_fee_incl_vat = (IFNULL(p_amount, 1) * v_fee_incl_vat);
+        
 	END IF;
 END $$
 
@@ -1651,12 +1670,29 @@ BEGIN
 		WHERE 	id = p_dossier_id
 		LIMIT 	0,1;
 
+		-- CHANGE ISSUE 211: BOTSABSORBEERDER shoud use current timeframe, not the timeframe of the calldate
 		SELECT 	taf.id, ta.name, ta.code, ta.default_value, ta.is_modifiable,
 				format(taf.fee_excl_vat, 2) as fee_excl_vat,
 				format(fee_incl_vat, 2) as fee_incl_vat
 		FROM 	`P_TIMEFRAME_ACTIVITIES` ta, `P_TIMEFRAME_ACTIVITY_FEE` taf
 		WHERE 	ta.id = taf.timeframe_activity_id
+				AND ta.code != 'BOTSABSORBEERDER'
 				AND taf.timeframe_id = (SELECT timeframe_id FROM T_DOSSIERS WHERE id = p_dossier_id)
+				AND taf.id NOT IN (SELECT activity_id FROM T_TOWING_ACTIVITIES WHERE towing_voucher_id = p_voucher_id)
+				AND v_call_date BETWEEN taf.valid_from AND taf.valid_until
+		UNION
+		SELECT 	taf.id, ta.name, ta.code, ta.default_value, ta.is_modifiable,
+				format(taf.fee_excl_vat, 2) as fee_excl_vat,
+				format(fee_incl_vat, 2) as fee_incl_vat
+		FROM 	`P_TIMEFRAME_ACTIVITIES` ta, `P_TIMEFRAME_ACTIVITY_FEE` taf
+		WHERE 	ta.id = taf.timeframe_activity_id
+				AND ta.code = 'BOTSABSORBEERDER'
+				AND taf.timeframe_id = (
+						SELECT 	t.id 
+						FROM 	P_TIMEFRAMES t, P_TIMEFRAME_VALIDITY tv
+						WHERE	t.id = tv.timeframe_id
+								AND current_time() BETWEEN `from` AND `till`
+								AND tv.category = F_RESOLVE_TIMEFRAME_CATEGORY())
 				AND taf.id NOT IN (SELECT activity_id FROM T_TOWING_ACTIVITIES WHERE towing_voucher_id = p_voucher_id)
 				AND v_call_date BETWEEN taf.valid_from AND taf.valid_until;
 	END IF;

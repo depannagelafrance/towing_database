@@ -676,12 +676,12 @@ BEGIN
 			WHERE 	ta.towing_voucher_id = p_voucher_id
 					AND ta.activity_id = taf.id
 					AND taf.timeframe_activity_id = tia.id;
-                    
+
 			SELECT 	sum(tac.fee_excl_vat), sum(tac.fee_incl_vat)
 			INTO 	v_costs_excl, v_costs_incl
 			FROM 	T_TOWING_ADDITIONAL_COSTS tac
 			WHERE 	tac.towing_voucher_id = p_voucher_id;
-                    
+
 
 			SELECT ta.towing_voucher_id, ta.activity_id, tia.code, tia.name, tia.id as timeframe_activity_id, tia.default_value, tia.is_modifiable,
 				   taf.fee_incl_vat, -- format(taf.fee_incl_vat, 2) as fee_incl_vat,
@@ -827,7 +827,7 @@ BEGIN
 				AND d.id = tv.dossier_id
 				AND tv.id = p_voucher_id
 		LIMIT 0,1;
-        
+
         CALL R_UPDATE_TOWING_DEPOT(p_depot_id,  p_voucher_id,
 									v_company_name , v_street,
 									v_street_number, v_street_pobox, v_zip, v_city, 0, p_token);
@@ -1034,15 +1034,15 @@ BEGIN
 	IF v_user_id IS NULL OR v_company_id IS NULL THEN
 		CALL R_NOT_AUTHORIZED;
 	ELSE
-		SELECT 	* 
-        FROM 	T_TOWING_ADDITIONAL_COSTS 
-        WHERE 	towing_voucher_id = p_voucher_id 
+		SELECT 	*
+        FROM 	T_TOWING_ADDITIONAL_COSTS
+        WHERE 	towing_voucher_id = p_voucher_id
 				AND dd IS NULL
         ORDER BY name;
     END IF;
 END $$
 
-CREATE PROCEDURE R_UPDATE_TOWING_ADDITIONAL_COST(IN p_id BIGINT, IN p_voucher_id BIGINT, 
+CREATE PROCEDURE R_UPDATE_TOWING_ADDITIONAL_COST(IN p_id BIGINT, IN p_voucher_id BIGINT,
 												 IN p_name VARCHAR(255),
                                                  IN p_fee_excl_vat DOUBLE, IN p_fee_incl_vat DOUBLE,
 												 IN p_token VARCHAR(255))
@@ -1058,7 +1058,7 @@ BEGIN
 		IF p_id IS NULL THEN
 			INSERT INTO T_TOWING_ADDITIONAL_COSTS(towing_voucher_id, name, fee_excl_vat, fee_incl_vat, cd, cd_by)
             VALUES(p_voucher_id, p_name, p_fee_excl_vat, p_fee_incl_vat, now(), F_RESOLVE_LOGIN(v_user_id, p_token));
-            
+
             SELECT * FROM T_TOWING_ADDITIONAL_COSTS WHERE id = LAST_INSERT_ID();
 		ELSE
 			UPDATE 	T_TOWING_ADDITIONAL_COSTS
@@ -1067,13 +1067,13 @@ BEGIN
                     fee_incl_vat = p_fee_incl_vat,
                     ud = now(),
                     ud_by = F_RESOLVE_LOGIN(v_user_id, p_token)
-			WHERE	id = p_id 
+			WHERE	id = p_id
 					AND towing_voucher_id = p_voucher_id
 			LIMIT 1;
-				
+
 			SELECT * FROM T_TOWING_ADDITIONAL_COSTS WHERE id = p_id AND towing_voucher_id = p_voucher_id;
 		END IF;
-        
+
         CALL R_RECALCULATE_VOUCHER_PAYMENTS(p_voucher_id);
 	END IF;
 END $$
@@ -1091,9 +1091,9 @@ BEGIN
 		UPDATE 	T_TOWING_ADDITIONAL_COSTS
 			SET dd = now(),
 				dd_by = F_RESOLVE_LOGIN(v_user_id, p_token)
-		WHERE	id = p_id 
+		WHERE	id = p_id
 				AND towing_voucher_id = p_voucher_id
-		LIMIT 1;    
+		LIMIT 1;
     END IF;
 END $$
 
@@ -1491,9 +1491,9 @@ BEGIN
 	IF v_user_id IS NULL OR v_company_id IS NULL THEN
 		CALL R_NOT_AUTHORIZED;
 	ELSE
-		SELECT	tic.id, tic.voucher_id, 
-				tic.first_name, tic.last_name, tic.company_name, tic.company_vat, tic.company_vat_foreign_country, 
-                tic.street, tic.street_number, tic.street_pobox, tic.zip, tic.city, tic.country, 
+		SELECT	tic.id, tic.voucher_id,
+				tic.first_name, tic.last_name, tic.company_name, tic.company_vat, tic.company_vat_foreign_country,
+                tic.street, tic.street_number, tic.street_pobox, tic.zip, tic.city, tic.country,
                 tic.phone, tic.email,
                 tv.causer_not_present
 		FROM 	T_TOWING_INCIDENT_CAUSERS tic, T_TOWING_VOUCHERS tv
@@ -2116,7 +2116,7 @@ BEGIN
 					CALL R_CREATE_VOUCHER_VALIDATION_MESSAGE(OLD.id, 'CUSTOMER_COMPANY_VAT', 'Het veld BTW-nummer werd niet opgegegeven bij de facturatiegegevens.');
 				END IF;
 			ELSE
-				IF TRIM(IFNULL(v_company, "")) = "" AND TRIM(IFNULL(v_first_name, "")) = "" AND TRIM(IFNULL(v_last_name, "")) = "" THEN
+				IF /*TRIM(IFNULL(v_company, "")) = "" AND*/ TRIM(IFNULL(v_first_name, "")) = "" AND TRIM(IFNULL(v_last_name, "")) = "" THEN
 					SET v_score = v_score + 1;
 					CALL R_CREATE_VOUCHER_VALIDATION_MESSAGE(OLD.id, 'CUSTOMER_NAME', 'De naam van de klant ontbreekt bij de facturatiegegevens.');
 				END IF;
@@ -2152,15 +2152,15 @@ BEGIN
 		WHERE 	d.id = OLD.dossier_id
 				AND d.incident_type_id = it.id
 				AND it.code = 'SIGNALISATIE';
-		
+
         IF v_signa_only THEN
 			-- CHECK IF THE SIGNA INCIDENT CONTAINS OTHER ACTIVITIES
-			IF (SELECT 	count(*) 
-				FROM 	T_TOWING_VOUCHERS tv, 
-					T_DOSSIERS d, 
-					P_INCIDENT_TYPES it, 
-					T_TOWING_ACTIVITIES ta, 
-					P_TIMEFRAME_ACTIVITY_FEE taf, 
+			IF (SELECT 	count(*)
+				FROM 	T_TOWING_VOUCHERS tv,
+					T_DOSSIERS d,
+					P_INCIDENT_TYPES it,
+					T_TOWING_ACTIVITIES ta,
+					P_TIMEFRAME_ACTIVITY_FEE taf,
 					P_TIMEFRAME_ACTIVITIES tac
 				WHERE 	tv.dossier_id = d.id
 					AND d.incident_type_id = it.id
@@ -2216,8 +2216,8 @@ BEGIN
 				FROM 	T_TOWING_VOUCHER_ATTS
 				WHERE 	towing_voucher_id = OLD.id
 						AND category IN ('SIGNATURE_POLICE');
-                        
-				IF v_count = 0 THEN 
+
+				IF v_count = 0 THEN
 					SET v_score = v_score + 1;
 					CALL R_CREATE_VOUCHER_VALIDATION_MESSAGE(OLD.id, 'SIGNATURE_POLICE', concat('Er werd geen handtekening geplaatst door de verkeerspolitie [', v_code, '].'));
                 END IF;
@@ -2229,12 +2229,12 @@ BEGIN
 				FROM 	T_TOWING_VOUCHER_ATTS
 				WHERE 	towing_voucher_id = OLD.id
 						AND category IN ('SIGNATURE_CAUSER');
-                        
+
 				IF v_count = 0 THEN
 					SET v_score = v_score + 1;
 					CALL R_CREATE_VOUCHER_VALIDATION_MESSAGE(OLD.id, 'SIGNATURE_CAUSER', 'Er werd geen handtekening gevonden voor de hinderverwekker.');
 				END IF;
-                        
+
 			END IF;
 
 		END IF;
@@ -2348,7 +2348,7 @@ BEGIN
 	-- FETCH THE TOWING ACTIVITY BASED COST
 	SELECT 	sum(amount * fee_excl_vat), sum(amount * fee_incl_vat) INTO v_excl_vat, v_incl_vat
 	FROM 	T_TOWING_ACTIVITIES ta, P_TIMEFRAME_ACTIVITY_FEE taf, P_TIMEFRAME_ACTIVITIES pta
-	WHERE 	ta.activity_id = taf.id 
+	WHERE 	ta.activity_id = taf.id
 				AND ta.towing_voucher_id = p_voucher_id
 				AND taf.timeframe_activity_id = pta.id
 				AND pta.code != 'STALLING';
@@ -2356,11 +2356,11 @@ BEGIN
 	-- FETCH THE STORAGE COST
 	SELECT 	sum(amount * fee_excl_vat), sum(amount * fee_incl_vat) INTO v_storage_excl_vat, v_storage_incl_vat
 	FROM 	T_TOWING_ACTIVITIES ta, P_TIMEFRAME_ACTIVITY_FEE taf, P_TIMEFRAME_ACTIVITIES pta
-	WHERE 	ta.activity_id = taf.id 
+	WHERE 	ta.activity_id = taf.id
 				AND ta.towing_voucher_id = p_voucher_id
 				AND taf.timeframe_activity_id = pta.id
 				AND pta.code = 'STALLING';
-	
+
     -- FETCH THE TOWING ADDITONAL COSTS (e.g. fuel)
 	SELECT 	sum(fee_excl_vat), sum(fee_incl_vat) INTO v_excl_additional_cost, v_incl_additional_cost
     FROM 	T_TOWING_ADDITIONAL_COSTS
@@ -2373,7 +2373,7 @@ BEGIN
 	LIMIT 	0,1;
 
 	SET v_foreign_vat = F_IS_VOUCHER_VIABLE_FOR_FOREIGN_VAT(p_voucher_id);
-    
+
 
 	SET v_total = v_incl_vat + IFNULL(v_incl_additional_cost, 0.0);
 

@@ -234,6 +234,11 @@ ADD COLUMN `code` VARCHAR(45) NOT NULL AFTER `id`;
 
 UPDATE `P_towing_be`.`P_ALLOTMENT` SET code = 'P1' WHERE id = 1;
 
+ALTER TABLE `P_towing_be`.`T_INVOICES` 
+ADD COLUMN `invoice_amount_paid` DOUBLE(5,2) NULL AFTER `invoice_vat_percentage`,
+ADD COLUMN `invoice_payment_type` ENUM('OTHER', 'CASH', 'BANKDEPOSIT', 'MAESTRO', 'VISA') NULL AFTER `insurance_dossiernr`;
+
+
 
 
 SET SQL_MODE=@OLD_SQL_MODE;
