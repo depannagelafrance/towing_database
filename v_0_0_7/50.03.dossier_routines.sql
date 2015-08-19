@@ -1067,22 +1067,33 @@ BEGIN
 					AND taf.id = p_activity_id LIMIT 0,1) = 'BOTSABSORBEERDER' 
         THEN
 			-- ACTIVITY IS A BOTSABSORBEERDER
-			SELECT 	t.id INTO v_timeframe_id
-			FROM 	P_TIMEFRAMES t, P_TIMEFRAME_VALIDITY tv
-			WHERE	t.id = tv.timeframe_id
-					AND current_time() BETWEEN `from` AND `till`
-					AND tv.category = F_RESOLVE_TIMEFRAME_CATEGORY();
+-- 			SELECT 	t.id INTO v_timeframe_id
+-- 			FROM 	P_TIMEFRAMES t, P_TIMEFRAME_VALIDITY tv
+-- 			WHERE	t.id = tv.timeframe_id
+-- 					AND current_time() BETWEEN `from` AND `till`
+-- 					AND tv.category = F_RESOLVE_TIMEFRAME_CATEGORY();
+--                     
+			SELECT 	taf.fee_excl_vat, taf.fee_incl_vat
+			INTO	v_fee_excl_vat, v_fee_incl_vat
+			FROM   `P_TIMEFRAME_ACTIVITY_FEE` taf
+			WHERE 	1 = 1
+					AND id = p_activity_id
+					-- AND timeframe_id = v_timeframe_id 
+					AND v_call_date BETWEEN taf.valid_from AND taf.valid_until
+			LIMIT 	0,1;
+		ELSE
+			SELECT 	taf.fee_excl_vat, taf.fee_incl_vat
+			INTO	v_fee_excl_vat, v_fee_incl_vat
+			FROM   `P_TIMEFRAME_ACTIVITY_FEE` taf
+			WHERE 	1 = 1
+					AND id = p_activity_id
+					AND timeframe_id = v_timeframe_id
+					AND v_call_date BETWEEN taf.valid_from AND taf.valid_until
+			LIMIT 	0,1;
+					
         END IF;
 
-		SELECT 	taf.fee_excl_vat, taf.fee_incl_vat
-		INTO	v_fee_excl_vat, v_fee_incl_vat
-		FROM   `P_TIMEFRAME_ACTIVITY_FEE` taf
-		WHERE 	1 = 1
-				AND id = p_activity_id
-				AND timeframe_id = v_timeframe_id
-				AND v_call_date BETWEEN taf.valid_from AND taf.valid_until
-		LIMIT 	0,1;
-        
+
 		INSERT INTO T_TOWING_ACTIVITIES(towing_voucher_id, activity_id, amount, cal_fee_excl_vat, cal_fee_incl_vat)
 		VALUES (p_voucher_id, p_activity_id, p_amount, (IFNULL(p_amount, 1) * v_fee_excl_vat), (IFNULL(p_amount, 1) * v_fee_incl_vat))
 		ON DUPLICATE KEY UPDATE amount = p_amount,

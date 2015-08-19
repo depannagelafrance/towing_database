@@ -7,7 +7,6 @@ DELIMITER $$
 
 DROP PROCEDURE IF EXISTS R_INVOICE_CREATE_BATCH $$
 DROP PROCEDURE IF EXISTS R_CREATE_INVOICE_BATCH_FOR_VOUCHER $$
-DROP PROCEDURE IF EXISTS R_INVOICE_START_BATCH $$
 DROP PROCEDURE IF EXISTS R_START_INVOICE_BATCH_FOR_VOUCHER $$
 DROP PROCEDURE IF EXISTS R_START_INVOICE_STORAGE_BATCH_FOR_VOUCHER $$
 
@@ -92,39 +91,18 @@ BEGIN
 END $$
 
 
--- ------------------------------------------------------------------------------------------
--- START PROCESSING VOUCHERS
--- ------------------------------------------------------------------------------------------
-CREATE PROCEDURE R_INVOICE_START_BATCH(IN p_batch_id VARCHAR(36))
+CREATE PROCEDURE R_START_INVOICE_BATCH_FOR_VOUCHER(	IN p_voucher_id BIGINT, IN p_batch_id VARCHAR(36), 
+													IN p_customer_amount DOUBLE(9,2), IN p_customer_ptype VARCHAR(25),
+													IN p_collector_amount DOUBLE(9,2), IN p_collector_ptype VARCHAR(25),
+                                                    IN p_assurance_amount DOUBLE(9,2), IN p_assurance_ptype VARCHAR(25),
+													IN p_message TEXT, 
+                                                    IN p_token VARCHAR(255))
 BEGIN
-	DECLARE v_voucher_id BIGINT DEFAULT NULL;
-
-	DECLARE no_rows_found BOOLEAN DEFAULT FALSE;
-
-	DECLARE c CURSOR FOR 	SELECT 	id
-							FROM 	T_TOWING_VOUCHERS
-							WHERE 	invoice_batch_run_id = p_batch_id;
-
-	DECLARE CONTINUE HANDLER FOR NOT FOUND SET no_rows_found = TRUE;
-
-	OPEN c;
-		
-	read_loop: LOOP
-		FETCH c INTO v_voucher_id;
-        
-		IF no_rows_found THEN
-		  LEAVE read_loop;
-		END IF;
-        
-        SELECT CONCAT('Processing voucher: ', v_voucher_id);
-        
-        CALL R_INVOICE_CREATE_FOR_VOUCHER(v_voucher_id, p_batch_id);
-	END LOOP;    
-END $$
-
-CREATE PROCEDURE R_START_INVOICE_BATCH_FOR_VOUCHER(IN p_voucher_id BIGINT, IN p_batch_id VARCHAR(36), IN p_message TEXT, IN p_token VARCHAR(255))
-BEGIN
-	CALL R_INVOICE_CREATE_FOR_VOUCHER(p_voucher_id, p_batch_id, p_message);
+	CALL R_INVOICE_CREATE_FOR_VOUCHER(p_voucher_id, p_batch_id, 
+									  p_customer_amount, p_customer_ptype,
+									  p_collector_amount, p_collector_ptype,
+                                      p_assurance_amount, p_assurance_ptype,
+									  p_message);
     
     IF (SELECT count(*) FROM T_TOWING_VOUCHER_VALIDATION_MESSAGES WHERE towing_voucher_id = p_voucher_id) > 0 THEN
 		SELECT "VALIDATION_ERRORS" as result;
@@ -182,7 +160,11 @@ END $$
 -- ------------------------------------------------------------------------------------------
 -- CREATE THE INVOICE FOR A VOUCHER
 -- ------------------------------------------------------------------------------------------
-CREATE PROCEDURE R_INVOICE_CREATE_FOR_VOUCHER(IN p_voucher_id BIGINT, IN p_batch_id VARCHAR(36), IN p_message TEXT)
+CREATE PROCEDURE R_INVOICE_CREATE_FOR_VOUCHER(IN p_voucher_id BIGINT, IN p_batch_id VARCHAR(36), 
+											  IN p_customer_amount DOUBLE(9,2), IN p_customer_ptype VARCHAR(25),
+											  IN p_collector_amount DOUBLE(9,2), IN p_collector_ptype VARCHAR(25),
+											  IN p_assurance_amount DOUBLE(9,2), IN p_assurance_ptype VARCHAR(25),
+											  IN p_message TEXT)
 BEGIN
 	DECLARE v_has_insurance, v_has_collector, v_insurance_excluded, v_foreign_vat_insurance, v_has_validation_messages, v_default_depot BOOL;
     DECLARE v_collector_foreign_vat BOOL;
@@ -272,16 +254,9 @@ BEGIN
         WHERE 	voucher_id = p_voucher_id
         LIMIT 	0,1;
 
-		
-		-- SET v_amount_customer = v_assurance_warranty - v_amount_customer_incl_vat;
-		
-		-- IF v_foreign_vat_insurance THEN
-		-- 	SET v_amount_customer = v_assurance_warranty - v_amount_customer_excl_vat;
-		-- END IF;
-
 		IF v_has_insurance AND NOT v_insurance_excluded
 		THEN
-			CALL R_INVOICE_CREATE_PARTIAL_INSURANCE(p_voucher_id, v_insurance_id, p_batch_id, p_message);
+			CALL R_INVOICE_CREATE_PARTIAL_INSURANCE(p_voucher_id, v_insurance_id, p_batch_id, p_message, p_assurance_amount, p_assurance_ptype);
 		END IF;
 
 		IF v_has_collector THEN
@@ -300,7 +275,7 @@ BEGIN
 							AND tac.towing_voucher_id=p_voucher_id) > 0
 				THEN
 					IF v_vehicule_collected IS NOT NULL THEN
-						CALL R_INVOICE_CREATE_PARTIAL_COLLECTOR(p_voucher_id, v_collector_id, p_batch_id, p_message);
+						CALL R_INVOICE_CREATE_PARTIAL_COLLECTOR(p_voucher_id, v_collector_id, p_batch_id, p_message, p_collector_amount, p_collector_ptype);
 					ELSE
 						-- vehicule not collected
                         IF DATEDIFF(now(), v_call_date) > 30 THEN
@@ -336,8 +311,6 @@ BEGIN
 				AND tac.activity_id = taf.id
 				AND tac.towing_voucher_id=p_voucher_id;
     
-    
-		-- SELECT v_has_insurance, v_amount_customer,  v_assurance_warranty, v_amount_customer, v_storage_costs;
 
 		-- CREATE AN INVOICE FOR THE CUSTOMER UNDER FOLLOWING CONDITIONS:
 		-- (a) THERE IS NO INSURANCE INVOLVED
@@ -348,7 +321,7 @@ BEGIN
                 AND v_amount_customer > 0
 				AND v_amount_customer != IFNULL(v_storage_costs, 0)) 
 		THEN
-			CALL R_INVOICE_CREATE_PARTIAL_CUSTOMER(p_voucher_id, p_batch_id, p_message);
+			CALL R_INVOICE_CREATE_PARTIAL_CUSTOMER(p_voucher_id, p_batch_id, p_message, p_customer_amount, p_customer_ptype);
 		END IF;
 		
 		-- CHANGE THE STATUS
@@ -360,7 +333,7 @@ END $$
 -- ------------------------------------------------------------------------------------------
 -- CREATE THE INVOICE FOR AN INSURANCE COMPANY
 -- ------------------------------------------------------------------------------------------
-CREATE PROCEDURE R_INVOICE_CREATE_PARTIAL_INSURANCE(IN p_voucher_id BIGINT, IN p_insurance_id BIGINT, IN p_batch_id VARCHAR(36), IN p_message TEXT)
+CREATE PROCEDURE R_INVOICE_CREATE_PARTIAL_INSURANCE(IN p_voucher_id BIGINT, IN p_insurance_id BIGINT, IN p_batch_id VARCHAR(36), IN p_message TEXT, IN p_paid DOUBLE(9,2), IN p_payment_type VARCHAR(25))
 BEGIN
 	DECLARE v_foreign_vat  BOOL;
 	DECLARE v_customer_number, v_collector_custnum, v_company_vat, v_street_number, v_street_pobox, v_zip, v_insurance_dossier_nr  VARCHAR(45);
@@ -444,7 +417,9 @@ BEGIN
 						   invoice_vat_percentage,
                            invoice_message,
                            invoice_type,
-                           insurance_dossiernr)
+                           insurance_dossiernr,
+                           invoice_amount_paid,
+                           invoice_payment_type)
     VALUES(v_company_id, p_voucher_id, p_batch_id,
 		   v_invoice_customer_id, CURDATE(), v_invoice_number, F_CREATE_STRUCTURED_REFERENCE(v_invoice_number),
            v_foreign_vat,
@@ -453,7 +428,9 @@ BEGIN
            IF(v_foreign_vat, 0.0, v_vat),
            p_message,
            'INSURANCE',
-           v_insurance_dossier_nr);
+           v_insurance_dossier_nr,
+           p_paid,
+           p_payment_type);
 
 	SET v_invoice_id = LAST_INSERT_ID();
 
@@ -545,7 +522,7 @@ END $$
 -- ------------------------------------------------------------------------------------------
 -- CREATE THE INVOICE FOR A COLLECTOR
 -- ------------------------------------------------------------------------------------------
-CREATE PROCEDURE R_INVOICE_CREATE_PARTIAL_COLLECTOR(IN p_voucher_id BIGINT, IN p_collector_id BIGINT, IN p_batch_id VARCHAR(36), IN p_message TEXT)
+CREATE PROCEDURE R_INVOICE_CREATE_PARTIAL_COLLECTOR(IN p_voucher_id BIGINT, IN p_collector_id BIGINT, IN p_batch_id VARCHAR(36), IN p_message TEXT, IN p_paid DOUBLE(9,2), IN p_payment_type VARCHAR(25))
 BEGIN
 	DECLARE v_foreign_vat  BOOL;
 	DECLARE v_customer_number, v_company_vat, v_street_number, v_street_pobox, v_zip  VARCHAR(45);
@@ -654,7 +631,9 @@ BEGIN
 							   invoice_total_vat,
 							   invoice_vat_percentage,
                                invoice_message,
-                               invoice_type)
+                               invoice_type,
+                               invoice_amount_paid,
+                               invoice_payment_type)
 		VALUES(v_company_id, p_voucher_id,
 			   p_batch_id,
 			   v_invoice_customer_id, CURDATE(), v_invoice_number, F_CREATE_STRUCTURED_REFERENCE(v_invoice_number),
@@ -663,7 +642,9 @@ BEGIN
 			   IF(v_foreign_vat, v_amount_excl_vat, v_amount_incl_vat) - v_amount_excl_vat,
 			   IF(v_foreign_vat, 0.0, v_vat),
                p_message,
-               'COLLECTOR');
+               'COLLECTOR',
+			   p_paid,
+			   p_payment_type);
 
 		SET v_invoice_id = LAST_INSERT_ID();
 
@@ -752,7 +733,7 @@ END $$
 -- ------------------------------------------------------------------------------------------
 -- CREATE THE INVOICE FOR A CUSTOMER
 -- ------------------------------------------------------------------------------------------
-CREATE PROCEDURE R_INVOICE_CREATE_PARTIAL_CUSTOMER(IN p_voucher_id BIGINT, IN p_batch_id VARCHAR(36), IN p_message TEXT)
+CREATE PROCEDURE R_INVOICE_CREATE_PARTIAL_CUSTOMER(IN p_voucher_id BIGINT, IN p_batch_id VARCHAR(36), IN p_message TEXT, IN p_paid DOUBLE(9,2), IN p_payment_type VARCHAR(25))
 BEGIN
 	DECLARE v_foreign_vat  BOOL;
 	DECLARE v_customer_number, v_company_vat, v_street_number, v_street_pobox, v_zip, v_insurance_dossier_nr  VARCHAR(45);
@@ -815,7 +796,9 @@ BEGIN
 						   invoice_total_vat,
 						   invoice_vat_percentage,
                            invoice_message,
-                           invoice_type)
+                           invoice_type,
+                           invoice_amount_paid,
+                           invoice_payment_type)
 	VALUES(v_company_id, p_voucher_id,
 		   p_batch_id,
 		   v_invoice_customer_id, CURDATE(), v_invoice_number, F_CREATE_STRUCTURED_REFERENCE(v_invoice_number),
@@ -824,7 +807,9 @@ BEGIN
 		   0.0,
 		   IF(v_foreign_vat, 0, v_vat),
            p_message,
-           'CUSTOMER');
+           'CUSTOMER',
+           p_paid,
+           p_payment_type);
 
 	SET v_invoice_id = LAST_INSERT_ID();
 
