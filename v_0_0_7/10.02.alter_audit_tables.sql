@@ -148,7 +148,7 @@ UPDATE `AUDIT_P_towing_be`.`P_ALLOTMENT` SET code = 'P1' WHERE id = 1 LIMIT 1;
 
 ALTER TABLE `AUDIT_P_towing_be`.`T_INVOICES` 
 ADD COLUMN `invoice_amount_paid` DOUBLE(5,2) NULL AFTER `invoice_vat_percentage`,
-ADD COLUMN `invoice_payment_type` ENUM('OTHER', 'CASH', 'BANKDEPOSIT', 'MAESTRO', 'VISA') NULL AFTER `insurance_dossiernr`;
+ADD COLUMN `invoice_payment_type` ENUM('OTHER', 'CASH', 'BANKDEPOSIT', 'MAESTRO', 'VISA', 'CREDITCARD') NULL AFTER `insurance_dossiernr`;
 
 
 

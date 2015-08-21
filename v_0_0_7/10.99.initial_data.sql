@@ -42,3 +42,44 @@ INSERT INTO T_USER_ROLES(user_id, role_id) VALUES(@user_id, 7);
 
 INSERT INTO `T_COMPANY_MAP`(`supervisor_company_id`, `delegate_company_id`)
 VALUES (4, 1);
+
+
+
+UPDATE T_TOWING_VOUCHERS tv, T_DOSSIERS d
+SET tv.signa_arrival = DATE_ADD(signa_arrival, INTERVAL 1 MONTH)
+WHERE month(d.call_date) > month(tv.signa_arrival)
+	and TIMEDIFF(tv.signa_arrival,d.call_date) < 0
+	and d.id = tv.dossier_id;
+
+UPDATE T_TOWING_VOUCHERS tv, T_DOSSIERS d
+SET tv.towing_called = DATE_ADD(towing_called, INTERVAL 1 MONTH)
+WHERE month(d.call_date) > month(tv.towing_called)
+	and TIMEDIFF(tv.towing_called,d.call_date) < 0
+	and d.id = tv.dossier_id;
+    
+UPDATE T_TOWING_VOUCHERS tv, T_DOSSIERS d
+SET tv.towing_completed = DATE_ADD(towing_completed, INTERVAL 1 MONTH)
+WHERE month(d.call_date) > month(tv.towing_completed)
+	and TIMEDIFF(tv.towing_completed,d.call_date) < 0
+	and d.id = tv.dossier_id;    
+    
+UPDATE T_TOWING_VOUCHERS tv, T_DOSSIERS d
+SET tv.towing_arrival = DATE_ADD(towing_arrival, INTERVAL 1 MONTH)
+WHERE month(d.call_date) > month(tv.towing_arrival)
+	and TIMEDIFF(tv.towing_arrival,d.call_date) < 0
+	and d.id = tv.dossier_id;
+    
+UPDATE T_TOWING_VOUCHERS tv, T_DOSSIERS d
+SET tv.towing_start = DATE_ADD(towing_start, INTERVAL 1 MONTH)
+WHERE month(d.call_date) > month(tv.towing_start)
+	and TIMEDIFF(tv.towing_start,d.call_date) < 0
+	and d.id = tv.dossier_id;    
+    
+SET @user_id = UUID();
+    
+INSERT INTO T_USERS(id, company_id, login, first_name, last_name, email, is_active, is_locked, locked_ts, cd, cd_by)
+values(@user_id, 1, 'dlf_cron', 'CRONJOB', '', 'melissa@depannagelafrance.be', 1, 0, null, now(), 'SYSTEM');
+
+INSERT INTO `T_USER_PASSWORDS` (`user_id`, `pwd`) VALUES (@user_id, PASSWORD('VD0A86i3t{3=q2g!'));
+
+INSERT INTO T_USER_TOKENS VALUES(@user_id, '8E1j60y5h0570fX40m30SxTR72378Wt700HD');

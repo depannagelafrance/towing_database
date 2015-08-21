@@ -169,7 +169,7 @@ BEGIN
 	DECLARE v_has_insurance, v_has_collector, v_insurance_excluded, v_foreign_vat_insurance, v_has_validation_messages, v_default_depot BOOL;
     DECLARE v_collector_foreign_vat BOOL;
     DECLARE v_insurance_id, v_collector_id BIGINT;
-	DECLARE v_assurance_warranty, v_amount_customer_excl_vat, v_amount_customer_incl_vat, v_amount_customer, v_storage_costs DOUBLE(5,2);
+	DECLARE v_assurance_warranty, v_amount_customer_excl_vat, v_amount_customer_incl_vat, v_amount_customer, v_storage_costs DOUBLE(9,2);
     DECLARE v_insurance_custnum, v_collector_custnum, v_status, v_collector_type, v_insurance_invoice_number VARCHAR(45);
     DECLARE v_collector_vat, v_customer_vat VARCHAR(45);
     DECLARE v_call_date, v_vehicule_collected DATE;

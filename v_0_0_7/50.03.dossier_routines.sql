@@ -6,6 +6,21 @@ SET @@global.event_scheduler = 1;
 DELIMITER $$
 
 -- ---------------------------------------------------------------------
+-- DROP VIEWS
+-- ---------------------------------------------------------------------
+
+DROP VIEW IF EXISTS V_TOWING_VOUCHER_ACTIVITIES $$
+
+CREATE VIEW V_TOWING_VOUCHER_ACTIVITIES AS
+SELECT ta.name, ta.code, tac.amount, tac.cal_fee_excl_vat, tac.cal_fee_incl_vat, tac.towing_voucher_id 
+FROM P_TIMEFRAME_ACTIVITIES ta,
+	 P_TIMEFRAME_ACTIVITY_FEE taf,
+	 T_TOWING_ACTIVITIES tac
+WHERE
+	ta.id = taf.timeframe_activity_id
+	AND tac.activity_id = taf.id $$
+
+-- ---------------------------------------------------------------------
 -- DROP ROUTINES
 -- ---------------------------------------------------------------------
 DROP PROCEDURE IF EXISTS R_CREATE_DOSSIER $$
@@ -52,6 +67,7 @@ DROP PROCEDURE IF EXISTS R_FETCH_TOWING_PAYMENTS_BY_VOUCHER $$
 DROP PROCEDURE IF EXISTS R_FETCH_TOWING_COMPANY_BY_DOSSIER $$
 DROP PROCEDURE IF EXISTS R_FETCH_ALLOTMENT_AGENCY_BY_ALLOTMENT $$
 DROP PROCEDURE IF EXISTS R_FETCH_VOUCHER_AWAITING_APPROVAL_FOR_EXPORT $$
+DROP PROCEDURE IF EXISTS R_FETCH_AWV_WEEKLY_EXPORT_VOUCHERS $$
 DROP PROCEDURE IF EXISTS R_FETCH_VOUCHERS_APPROVED_BY_AWV $$
 
 DROP PROCEDURE IF EXISTS R_FETCH_ALL_DOSSIERS_BY_FILTER $$
@@ -664,7 +680,7 @@ CREATE PROCEDURE R_FETCH_TOWING_VOUCHERS_BY_DOSSIER(IN p_dossier_id BIGINT, IN p
 BEGIN
 	DECLARE v_company_id, v_dossier_id BIGINT;
 	DECLARE v_user_id VARCHAR(36);
-
+    
 	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
 
 	IF v_user_id IS NULL OR v_company_id IS NULL THEN
@@ -678,11 +694,14 @@ BEGIN
 
 		IF v_dossier_id IS NULL THEN
 			CALL R_NOT_FOUND;
-		ELSE
+		ELSE			
 			SELECT	tv.`id`,
 					tv.`dossier_id`,
 					tv.`insurance_id`,
-					tv.`collector_id`, `collector_name`,
+					tv.`collector_id`,
+                    IFNULL((SELECT `name` FROM T_COLLECTORS WHERE id = tv.`collector_id`), tv.`collector_name`) as `collector_name`,
+                    (SELECT `type` FROM T_COLLECTORS WHERE id = tv.`collector_id`) as `collector_type`,
+                    (SELECT IF(vat IS NULL OR trim(vat) = '', FALSE, LEFT(UPPER(vat), 2) != 'BE') FROM T_COLLECTORS WHERE id = tv.`collector_id`) as `collector_foreign_vat`,
 					tv.`voucher_number`,
 					unix_timestamp(`police_signature_dt`) as police_signature_dt,
 					unix_timestamp(`recipient_signature_dt`) as recipient_signature_dt,
@@ -714,7 +733,6 @@ BEGIN
 					tv.`cd_by`,
 					tv.`ud`,
 					tv.`ud_by`,
-					(SELECT `name` FROM T_COLLECTORS WHERE id = tv.`collector_id`) as `collector_name`,
 					(SELECT `name` FROM T_INSURANCES WHERE id = tv.`insurance_id`) as `insurance_name`,
                     -- jaartal+maand+dag_TB+takelbonnummer_verkorte naam aannemer_PA of TA nummer_Perceel_nr autosnelweg	
 					-- e.g. 20150622_TB356482_France_PA09149798_P1_R1
@@ -1458,6 +1476,114 @@ BEGIN
 		END CASE;
 	END IF;
 END $$
+
+CREATE PROCEDURE R_FETCH_AWV_WEEKLY_EXPORT_VOUCHERS(IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id BIGINT;
+	DECLARE v_user_id VARCHAR(36);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+	IF 	v_user_id IS NULL 
+		OR v_company_id IS NULL 
+	THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		SELECT 		
+			@rownum := IFNULL(@rownum,0) + 1 AS 'Nr.',
+			tv.voucher_number 			AS 'Takelbon',
+			WEEK(d.call_date, 5) 		AS 'Week',
+			DATE(d.call_date)			AS 'Oproep datum',
+			TIME(d.call_date)			AS 'Oproep uur',
+			d.call_number 				AS 'Oproep nummer',
+			a.name 						AS'Perceel',
+			ad.name 					AS 'Richting',
+			adi.name 					AS 'KM Paal',
+			tv.vehicule					AS 'Voertuig',
+			tv.vehicule_type			AS 'Voertuig type', 
+			tv.vehicule_color			AS 'Voertuig kleur', 
+			tv.vehicule_keys_present	AS 'Sleutels aanwezig', 
+			tv.vehicule_licenceplate	AS 'Nummerplaat voertuig', 
+			tv.vehicule_country			AS 'Land voertuig',
+			tv.signa_arrival			AS 'Aankomst signa',
+			TIMEDIFF(tv.signa_arrival,d.call_date) AS 'Aanrijtijd',
+			tv.towing_called			AS 'Oproep takel', 
+			tv.towing_arrival			AS 'Aankomst takel', 
+			tv.towing_start				AS 'Start takel', 
+			tv.towing_completed			AS 'Stop takel', 
+			(SELECT CONCAT(first_name, ' ', last_name) FROM T_USERS WHERE id = tv.towing_id) AS 'Takelaar',
+			tv.additional_info			AS 'Extra informatie',
+			tv.cic						AS 'Afmelding CIC',
+			tic.first_name				AS 'Voornaam (HV)', 
+			tic.last_name				AS 'Achternaam (HV)', 
+			tic.company_name			AS 'Bedrijf (HV)', 
+			tic.company_vat				AS 'BTW-nummer (HV)', 
+			tic.street					AS 'Straat (HV)', 
+			tic.street_number			AS 'Nummer (HV)', 
+			tic.street_pobox			AS 'Bus (HV)', 
+			tic.zip 					AS 'Postcode (HV)', 
+			tic.city					AS 'Gemeente (HV)', 
+			tic.country					AS 'Land (HV)',
+			tf.name 					AS 'Tarief',
+			CONCAT(LEFT(i.invoice_number, 4), '/', SUBSTRING(i.invoice_number, 5)) AS 'Factuurnummer', 
+			i.invoice_date				AS 'Factuurdatum', 
+			invoice_total_excl_vat		AS 'Factuurtotaal (excl. BTW)', 
+			invoice_total_incl_vat		AS 'Factuurtotaal (incl. BTW)',
+			TV_PANNE.amount 			AS 'Type I (aantal)',
+			TV_PANNE.cal_fee_excl_vat 	AS 'Type I (excl. BTW)',
+			TV_PANNE.cal_fee_incl_vat 	AS 'Type I (incl. BTW)',    
+			TV_ACHTERGELATEN.amount 			AS 'Type II (aantal)',
+			TV_ACHTERGELATEN.cal_fee_excl_vat 	AS 'Type II (excl. BTW)',
+			TV_ACHTERGELATEN.cal_fee_incl_vat 	AS 'Type II (incl. BTW)',    
+			TV_ONGEVAL.amount 				AS 'Type III (aantal)',
+			TV_ONGEVAL.cal_fee_excl_vat 	AS 'Type III (excl. BTW)',
+			TV_ONGEVAL.cal_fee_incl_vat 	AS 'Type III (incl. BTW)',    
+			TV_SIGNALISATIE.amount 				AS 'Signalisatie (aantal)',
+			TV_SIGNALISATIE.cal_fee_excl_vat 	AS 'Signalisatie (excl. BTW)',
+			TV_SIGNALISATIE.cal_fee_incl_vat 	AS 'Signalisatie (incl. BTW)',    
+			TV_STALLING.amount 			 	AS 'Stalling (aantal)',
+			TV_STALLING.cal_fee_excl_vat 	AS 'Stalling (excl. BTW)',
+			TV_STALLING.cal_fee_incl_vat 	AS 'Stalling (incl. BTW)',
+			TV_EXTRA_ONGEVAL.amount 		  	AS 'Extra Type III (aantal)',
+			TV_EXTRA_ONGEVAL.cal_fee_excl_vat 	AS 'Extra Type III (excl. BTW)',
+			TV_EXTRA_ONGEVAL.cal_fee_incl_vat 	AS 'Extra Type III (incl. BTW)',
+			TV_EXTRA_SIGNA.amount 			AS 'Extra Signa (aantal)',
+			TV_EXTRA_SIGNA.cal_fee_excl_vat AS 'Extra Signa (excl. BTW)',
+			TV_EXTRA_SIGNA.cal_fee_incl_vat AS 'Extra Signa (incl. BTW)',
+			TV_VERLOREN.amount 			 	AS 'Verloren voorwerp (aantal)',
+			TV_VERLOREN.cal_fee_excl_vat 	AS 'Verloren voorwerp (excl. BTW)',
+			TV_VERLOREN.cal_fee_incl_vat 	AS 'Verloren voorwerp (incl. BTW)',
+			TV_LOZERIT.amount 			 	AS 'Loze rit (aantal)',
+			TV_LOZERIT.cal_fee_excl_vat 	AS 'Loze rit (excl. BTW)',
+			TV_LOZERIT.cal_fee_incl_vat 	AS 'Loze rit (incl. BTW)',
+			TV_BOTSER.amount 			 	AS 'Botsabsorbeerder (aantal)',
+			TV_BOTSER.cal_fee_excl_vat 		AS 'Botsabsorbeerder (excl. BTW)',
+			TV_BOTSER.cal_fee_incl_vat 		AS 'Botsabsorbeerder (incl. BTW)'
+		FROM (
+			SELECT @rownum := 0) r,
+			T_TOWING_VOUCHERS tv
+			LEFT JOIN T_INVOICES i ON tv.id = i.towing_voucher_id
+			LEFT JOIN T_DOSSIERS d ON d.id = tv.dossier_id AND d.company_id IN (SELECT v_company_id UNION SELECT delegate_company_id FROM T_COMPANY_MAP WHERE supervisor_company_id = v_company_id)
+			LEFT JOIN T_TOWING_INCIDENT_CAUSERS tic ON tv.id = tic.voucher_id
+			LEFT JOIN P_ALLOTMENT a ON d.allotment_id = a.id
+			LEFT JOIN P_ALLOTMENT_DIRECTION_INDICATORS adi ON d.allotment_direction_indicator_id = adi.id
+			LEFT JOIN P_ALLOTMENT_DIRECTIONS ad ON d.allotment_direction_id = ad.id
+			LEFT JOIN P_TIMEFRAMES tf ON d.timeframe_id = tf.id
+			LEFT JOIN V_TOWING_VOUCHER_ACTIVITIES AS TV_PANNE 			ON tv.id = TV_PANNE.towing_voucher_id AND TV_PANNE.code='PANNE'
+			LEFT JOIN V_TOWING_VOUCHER_ACTIVITIES AS TV_ACHTERGELATEN 	ON tv.id = TV_ACHTERGELATEN.towing_voucher_id AND TV_ACHTERGELATEN.code='ACHTERGELATEN_VOERTUIG'
+			LEFT JOIN V_TOWING_VOUCHER_ACTIVITIES AS TV_ONGEVAL 		ON tv.id = TV_ONGEVAL.towing_voucher_id AND TV_ONGEVAL.code='ONGEVAL'
+			LEFT JOIN V_TOWING_VOUCHER_ACTIVITIES AS TV_SIGNALISATIE 	ON tv.id = TV_SIGNALISATIE.towing_voucher_id AND TV_SIGNALISATIE.code='SIGNALISATIE'
+			LEFT JOIN V_TOWING_VOUCHER_ACTIVITIES AS TV_STALLING 		ON tv.id = TV_STALLING.towing_voucher_id AND TV_STALLING.code='STALLING'
+			LEFT JOIN V_TOWING_VOUCHER_ACTIVITIES AS TV_EXTRA_ONGEVAL	ON tv.id = TV_EXTRA_ONGEVAL.towing_voucher_id AND TV_EXTRA_ONGEVAL.code='EXTRA_ONGEVAL'
+			LEFT JOIN V_TOWING_VOUCHER_ACTIVITIES AS TV_EXTRA_SIGNA     ON tv.id = TV_EXTRA_SIGNA.towing_voucher_id AND TV_EXTRA_SIGNA.code='EXTRA_SIGNALISATIE'
+			LEFT JOIN V_TOWING_VOUCHER_ACTIVITIES AS TV_VERLOREN 		ON tv.id = TV_VERLOREN.towing_voucher_id AND TV_VERLOREN.code='VERLOREN_VOORWERP'
+			LEFT JOIN V_TOWING_VOUCHER_ACTIVITIES AS TV_LOZERIT 		ON tv.id = TV_LOZERIT.towing_voucher_id AND TV_LOZERIT.code='LOZE_RIT'
+			LEFT JOIN V_TOWING_VOUCHER_ACTIVITIES AS TV_BOTSER	 		ON tv.id = TV_BOTSER.towing_voucher_id AND TV_BOTSER.code='BOTSABSORBEERDER'
+		WHERE 
+			DATE(d.call_date) >= CURRENT_DATE() - INTERVAL 1 YEAR
+		ORDER BY d.call_date DESC;
+	END IF;
+END;
 
 CREATE PROCEDURE R_FETCH_VOUCHER_AWAITING_APPROVAL_FOR_EXPORT(IN p_token VARCHAR(255))
 BEGIN
