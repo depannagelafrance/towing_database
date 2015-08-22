@@ -699,7 +699,7 @@ BEGIN
 					tv.`dossier_id`,
 					tv.`insurance_id`,
 					tv.`collector_id`,
-                    IFNULL((SELECT `name` FROM T_COLLECTORS WHERE id = tv.`collector_id`), tv.`collector_name`) as `collector_name`,
+                    IFNULL(tv.`collector_name`, (SELECT `name` FROM T_COLLECTORS WHERE id = tv.`collector_id`)) as `collector_name`,
                     (SELECT `type` FROM T_COLLECTORS WHERE id = tv.`collector_id`) as `collector_type`,
                     (SELECT IF(vat IS NULL OR trim(vat) = '', FALSE, LEFT(UPPER(vat), 2) != 'BE') FROM T_COLLECTORS WHERE id = tv.`collector_id`) as `collector_foreign_vat`,
 					tv.`voucher_number`,
