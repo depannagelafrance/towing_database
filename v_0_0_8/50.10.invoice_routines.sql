@@ -90,7 +90,8 @@ BEGIN
     SELECT 	SUM(il.item_total_excl_vat), SUM(il.item_total_incl_vat)
     INTO	v_invoice_total_excl_vat, v_invoice_total_incl_vat
     FROM 	T_INVOICE_LINES il
-    WHERE 	il.invoice_id = p_invoice_id;
+    WHERE 	il.invoice_id = p_invoice_id
+			AND dd IS NULL;
     
 	UPDATE 	T_INVOICES i
 	SET 	i.invoice_total_excl_vat 	= v_invoice_total_excl_vat, 
@@ -235,7 +236,8 @@ END $$
 
 CREATE PROCEDURE R_INVOICE_CREATE_INVOICE_LINE(IN p_invoice_id BIGINT, 
 											   IN p_item VARCHAR(255),
-                                               IN p_amount DOUBLE(5,2), IN p_price_excl_vat DOUBLE(5,2), IN p_price_incl_vat DOUBLE(5,2))
+                                               IN p_amount DOUBLE(5,2), IN p_price_excl_vat DOUBLE(5,2), IN p_price_incl_vat DOUBLE(5,2),
+                                               IN p_token VARCHAR(255))
 BEGIN
 	DECLARE v_company_id, v_invoice_line_id BIGINT;
 	DECLARE v_user_id, v_batch_id VARCHAR(36);
@@ -274,7 +276,7 @@ BEGIN
     END IF;
 END $$
 
-CREATE PROCEDURE R_INVOICE_DELETE_INVOICE_LINE(IN p_id BIGINT, IN p_invoice_id BIGINT, IN p_token VARCHAR(255))
+CREATE PROCEDURE R_INVOICE_DELETE_INVOICE_LINE(IN p_invoice_id BIGINT, IN p_id BIGINT, IN p_token VARCHAR(255))
 BEGIN
 	DECLARE v_company_id, v_invoice_line_id BIGINT;
 	DECLARE v_user_id, v_batch_id VARCHAR(36);
@@ -286,19 +288,20 @@ BEGIN
 	ELSE
 		SELECT 	il.id INTO v_invoice_line_id
         FROM 	T_INVOICES i, T_INVOICE_LINES il
-        WHERE 	i.id = p_invoice_id AND i.company_id = v_company_id
+        WHERE 	i.id = p_invoice_id 
+				AND i.company_id = v_company_id
 				AND i.id = il.invoice_id
 				AND il.id = p_id
 		LIMIT 	0,1;
-        
+                
         IF v_invoice_line_id IS NOT NULL THEN
 			UPDATE 	T_INVOICE_LINES
             SET 	dd = now(), dd_by = F_RESOLVE_LOGIN(v_user_id, p_token)
-            WHERE 	id = p_id AND il.invoice_id = p_invoice_id
+            WHERE 	id = p_id AND invoice_id = p_invoice_id
             LIMIT 	1;
 		END IF;
-        
-        SELECT "OK" as result;
+                
+		SELECT 'OK' AS result;
     END IF;
 END $$
 
