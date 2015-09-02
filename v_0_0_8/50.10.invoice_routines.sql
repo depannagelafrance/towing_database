@@ -9,6 +9,7 @@ DROP PROCEDURE IF EXISTS R_INVOICE_CREATE_BATCH $$
 DROP PROCEDURE IF EXISTS R_CREATE_INVOICE_BATCH_FOR_VOUCHER $$
 DROP PROCEDURE IF EXISTS R_START_INVOICE_BATCH_FOR_VOUCHER $$
 DROP PROCEDURE IF EXISTS R_START_INVOICE_STORAGE_BATCH_FOR_VOUCHER $$
+DROP PROCEDURE IF EXISTS R_FETCH_INVOICE_BATCH_INFO $$
 
 DROP PROCEDURE IF EXISTS R_INVOICE_CREATE_FOR_VOUCHER $$
 DROP PROCEDURE IF EXISTS R_INVOICE_CREATE_PARTIAL_INSURANCE $$
@@ -17,6 +18,7 @@ DROP PROCEDURE IF EXISTS R_INVOICE_CREATE_PARTIAL_CUSTOMER $$
 
 DROP PROCEDURE IF EXISTS R_INVOICE_UPDATE_INVOICE $$
 DROP PROCEDURE IF EXISTS R_INVOICE_CREATE_INVOICE $$
+DROP PROCEDURE IF EXISTS R_INVOICE_CREDIT_INVOICE $$
 
 DROP PROCEDURE IF EXISTS R_INVOICE_UPDATE_INVOICE_LINE $$
 DROP PROCEDURE IF EXISTS R_INVOICE_CREATE_INVOICE_LINE $$
@@ -39,7 +41,9 @@ DROP PROCEDURE IF EXISTS R_INVOICE_CUSTOMER_FIND_OR_CREATE $$
 
 DROP PROCEDURE IF EXISTS R_RECALCULATE_INVOICE_TOTAL $$
 
+DROP FUNCTION IF EXISTS F_CREATE_INVOICE_UQ_SEQUENCE $$
 DROP FUNCTION IF EXISTS F_CREATE_INVOICE_NUMBER $$
+DROP FUNCTION IF EXISTS F_CREATE_CREDIT_NUMBER $$
 DROP FUNCTION IF EXISTS F_CREATE_STRUCTURED_REFERENCE $$
 DROP FUNCTION IF EXISTS F_CREATE_CUSTOMER_NUMBER_FOR_PRIVATE_PERSON $$
 DROP FUNCTION IF EXISTS F_CUSTOMER_NUMBER_FOR_COLLECTOR $$
@@ -195,11 +199,69 @@ BEGIN
             p_message,
             p_insurance_dossiernr,
             now(),
-            F_RESOLVE_LOGIN(v_user_id, p_token));
+			F_RESOLVE_LOGIN(v_user_id, p_token));
     
 		SET v_invoice_id = LAST_INSERT_ID();
         
         CALL R_INVOICE_FETCH_COMPANY_INVOICE(v_invoice_id, p_token);
+    END IF;
+END $$
+
+CREATE PROCEDURE R_INVOICE_CREDIT_INVOICE(IN p_id BIGINT, IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id, v_invoice_id, v_cn_id BIGINT;
+	DECLARE v_user_id, v_batch_id VARCHAR(36);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		SELECT	id INTO v_invoice_id
+        FROM 	T_INVOICES
+        WHERE	id = p_id AND company_id = v_company_id;
+        
+        IF v_invoice_id IS NOT NULL THEN
+			-- CREATE A CREDITED INVOICE
+			INSERT INTO T_INVOICES(company_id, invoice_customer_id, invoice_batch_run_id, towing_voucher_id, invoice_ref_id,
+								   document_id, invoice_type, invoice_date, invoice_number, 
+                                   vat_foreign_country, invoice_total_excl_vat, invoice_total_incl_vat, invoice_total_vat, invoice_vat_percentage, 
+                                   invoice_amount_paid, invoice_payment_type,
+                                   invoice_message, 
+                                   insurance_dossiernr, 
+                                   cd, cd_by)
+            SELECT 	company_id, invoice_customer_id, invoice_batch_run_id, towing_voucher_id, v_invoice_id,
+					null, 'CN', CURDATE(), F_CREATE_CREDIT_NUMBER(v_company_id), 
+                    vat_foreign_country, invoice_total_excl_vat, invoice_total_incl_vat, invoice_total_vat, invoice_vat_percentage, 
+                    invoice_amount_paid, invoice_payment_type, 
+                    invoice_message, 
+                    insurance_dossiernr, 
+                    now(), F_RESOLVE_LOGIN(v_user_id, p_token)
+            FROM 	T_INVOICES
+            WHERE 	id = v_invoice_id
+            LIMIT 	0,1;
+            
+            SET v_cn_id = LAST_INSERT_ID();
+            
+            -- SET REFERENCE TO THE CN	
+            UPDATE 	T_INVOICES 
+            SET 	invoice_ref_id = v_cn_id 
+            WHERE 	id = v_invoice_id 
+					AND company_id = v_company_id
+            LIMIT 	1;
+            
+            -- CREATE THE INVOICED LINES
+            INSERT INTO T_INVOICE_LINES(`invoice_id`, `item`, `item_amount`, `item_price_excl_vat`, `item_price_incl_vat`, `item_total_excl_vat`, `item_total_incl_vat`, `cd`, `cd_by`)
+            SELECT 	v_cn_id, `item`, `item_amount`, `item_price_excl_vat`, `item_price_incl_vat`, `item_total_excl_vat`, `item_total_incl_vat`, now(), F_RESOLVE_LOGIN(v_user_id, p_token)
+            FROM 	T_INVOICE_LINES
+            WHERE 	invoice_id = v_invoice_id
+					AND dd IS NULL;
+            
+            -- RETURN THE NEWLY CREATED CN
+            CALL R_INVOICE_FETCH_COMPANY_INVOICE(v_cn_id, p_token);
+		END IF;
+            
     END IF;
 END $$
 
@@ -489,6 +551,33 @@ BEGIN
 				AND tv.dossier_id = d.id
 		LIMIT 	0,1;
     END IF;
+END $$
+
+CREATE PROCEDURE R_FETCH_INVOICE_BATCH_INFO(IN p_invoice_id BIGINT, IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id BIGINT;
+	DECLARE v_user_id, v_batch_id VARCHAR(36);
+    DECLARE v_login VARCHAR(255);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		SELECT  i.invoice_batch_run_id,
+				UNIX_TIMESTAMP(call_date) AS call_date, call_number, 
+				vehicule, vehicule_type, vehicule_licenceplate,
+				UNIX_TIMESTAMP(DATE_ADD(current_date,INTERVAL 30 DAY)) as invoice_due_date,
+                (SELECT default_depot = 1 FROM T_TOWING_DEPOTS WHERE voucher_id = tv.id LIMIT 0,1) as default_depot,
+				vehicule_collected,
+                i.invoice_type
+		FROM	T_DOSSIERS d, T_TOWING_VOUCHERS tv, T_INVOICES i
+		WHERE	1 = 1
+				AND tv.dossier_id = d.id
+                AND i.towing_voucher_id = tv.id
+                AND i.id = p_invoice_id
+		LIMIT 	0,1;
+	END IF;
 END $$
 
 CREATE PROCEDURE R_START_INVOICE_STORAGE_BATCH_FOR_VOUCHER(IN p_voucher_id BIGINT, IN p_batch_id VARCHAR(36), IN p_token VARCHAR(255))
@@ -1277,8 +1366,9 @@ BEGIN
             i.insurance_dossiernr,
             -- jaartal+maand+dag_FVH+factuurnummer_verkorte naam aannemer_PA of TA nummer_Perceel_nr autosnelweg
             -- e.g. 20150622_FVH562879_Hamse_TA00000953_P5_E313
-            CONCAT(	YEAR(i.invoice_date), LPAD(MONTH(i.invoice_date), 2, '0'), LPAD(DAY(i.invoice_date), 2, '0'), '_'
-					'FVH', i.invoice_number, '_', 
+            CONCAT(	YEAR(i.invoice_date), LPAD(MONTH(i.invoice_date), 2, '0'), LPAD(DAY(i.invoice_date), 2, '0'), '_',
+					IF(i.invoice_type = 'CN', 'CN', 'FVH'), 
+                    i.invoice_number, '_', 
                     (SELECT code FROM T_COMPANIES WHERE id = d.company_id LIMIT 0,1), '_',
                     d.call_number, '_',
                     (SELECT code FROM P_ALLOTMENT WHERE id = d.allotment_id LIMIT 0,1), '_',
@@ -1304,7 +1394,7 @@ BEGIN
 	ELSE
 		SELECT 	i.id, i.company_id, i.invoice_customer_id, i.invoice_batch_run_id, i.towing_voucher_id,
 				UNIX_TIMESTAMP(i.invoice_date) as invoice_date,
-				i.invoice_number, concat(LEFT(i.invoice_number, 4), '/', SUBSTRING(i.invoice_number,5)) as invoice_number_display,
+				i.invoice_number, concat(IF(i.invoice_type='CN', 'CN', 'F'), LEFT(i.invoice_number, 4), '/', SUBSTRING(i.invoice_number,5)) as invoice_number_display,
 				i.invoice_structured_reference,
 				i.vat_foreign_country,
 				i.invoice_total_excl_vat, i.invoice_total_incl_vat,
@@ -1380,7 +1470,10 @@ BEGIN
 		SELECT 	i.id as invoice_id, 
 				UNIX_TIMESTAMP(invoice_date) AS invoice_date,
 				i.invoice_number,
+                concat(IF(i.invoice_type='CN', 'CN', 'F'), LEFT(i.invoice_number, 4), '/', SUBSTRING(i.invoice_number,5)) as invoice_number_display,
+                i.invoice_type,
                 i.document_id,
+                i.invoice_ref_id,
 				tv.voucher_number,
 				ic.company_name,
 				ic.company_vat,
@@ -1467,7 +1560,7 @@ BEGIN
     END IF;
 END $$
 
-CREATE FUNCTION F_CREATE_INVOICE_NUMBER(p_company_id BIGINT) RETURNS BIGINT
+CREATE FUNCTION F_CREATE_INVOICE_UQ_SEQUENCE(p_company_id BIGINT, p_type VARCHAR(45)) RETURNS BIGINT
 BEGIN
 	DECLARE v_seq_val BIGINT;
 
@@ -1475,28 +1568,40 @@ BEGIN
     INTO 	v_seq_val
     FROM 	T_SEQUENCES
     WHERE 	company_id = p_company_id
-			AND code='INVOICE'
+			AND code=p_type
 	LIMIT 	0,1;
 
     IF v_seq_val IS NOT NULL AND LEFT(v_seq_val, 4) = YEAR(CURDATE()) THEN
 		SET v_seq_val := v_seq_val + 1;
 
-        UPDATE T_SEQUENCES SET seq_val = v_seq_val WHERE code='INVOICE' AND company_id = p_company_id LIMIT 1;
+        UPDATE T_SEQUENCES SET seq_val = v_seq_val WHERE code=p_type AND company_id = p_company_id LIMIT 1;
 
         RETURN v_seq_val;
 	ELSE
 		SET @v_id := concat(YEAR(CURDATE()), LPAD(1,6,0));
 
         IF v_seq_val IS NULL THEN
-			INSERT INTO T_SEQUENCES(code, company_id, seq_val) VALUES('INVOICE', p_company_id, @v_id)
+			INSERT INTO T_SEQUENCES(code, company_id, seq_val) VALUES(p_type, p_company_id, @v_id)
 			ON DUPLICATE KEY UPDATE seq_val=@v_id:=seq_val+1;
 		ELSE
-			UPDATE T_SEQUENCES SET seq_val = @v_id WHERE code='INVOICE' AND company_id = p_company_id LIMIT 1;
+			UPDATE T_SEQUENCES SET seq_val = @v_id WHERE code=p_type AND company_id = p_company_id LIMIT 1;
 		END IF;
 
 		RETURN @v_id;
     END IF;
 END $$
+
+CREATE FUNCTION F_CREATE_INVOICE_NUMBER(p_company_id BIGINT) RETURNS BIGINT
+BEGIN
+	RETURN F_CREATE_INVOICE_UQ_SEQUENCE(p_company_id, 'INVOICE');
+END $$
+
+
+CREATE FUNCTION F_CREATE_CREDIT_NUMBER(p_company_id BIGINT) RETURNS BIGINT
+BEGIN
+	RETURN F_CREATE_INVOICE_UQ_SEQUENCE(p_company_id, 'CN');
+END $$
+
 
 CREATE FUNCTION F_CREATE_STRUCTURED_REFERENCE(v_invoice_number VARCHAR(10)) RETURNS VARCHAR(20)
 BEGIN
