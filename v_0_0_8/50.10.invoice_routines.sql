@@ -36,7 +36,7 @@ DROP PROCEDURE IF EXISTS R_INVOICE_FETCH_COMPANY_INVOICE $$
 DROP PROCEDURE IF EXISTS R_INVOICE_FETCH_COMPANY_INVOICE_LINES $$ 
 DROP PROCEDURE IF EXISTS R_INVOICE_FETCH_COMPANY_INVOICE_CUSTOMER $$
 
-DROP PROCEDURE IF EXISTS R_INVOICE_ATT_LINK_WITH_VOUCHER $$
+DROP PROCEDURE IF EXISTS R_INVOICE_ATT_LINK_WITH_DOCUMENT $$
 DROP PROCEDURE IF EXISTS R_INVOICE_CUSTOMER_FIND_OR_CREATE $$
 
 DROP PROCEDURE IF EXISTS R_RECALCULATE_INVOICE_TOTAL $$
@@ -51,9 +51,15 @@ DROP FUNCTION IF EXISTS F_CUSTOMER_NUMBER_FOR_INSURANCE $$
 DROP FUNCTION IF EXISTS F_CUSTOMER_NUMBER_FOR_COMPANY $$
 
 DROP TRIGGER IF EXISTS TRG_BI_INVOICE_LINE $$
-DROP TRIGGER IF EXISTS TRG_AI_INVOICE_LINE $$
 DROP TRIGGER IF EXISTS TRG_BU_INVOICE_LINE $$
+
+DROP TRIGGER IF EXISTS TRG_AI_INVOICE $$
+DROP TRIGGER IF EXISTS TRG_AI_INVOICE_CUSTOMER $$
+DROP TRIGGER IF EXISTS TRG_AI_INVOICE_LINE $$
+
+DROP TRIGGER IF EXISTS TRG_AU_INVOICE $$
 DROP TRIGGER IF EXISTS TRG_AU_INVOICE_LINE $$
+DROP TRIGGER IF EXISTS TRG_AU_INVOICE_CUSTOMER $$
 
 # ####################################################################################
 # TRIGGERS
@@ -68,6 +74,8 @@ END $$
 CREATE TRIGGER `TRG_AI_INVOICE_LINE` AFTER INSERT ON `T_INVOICE_LINES`
 FOR EACH ROW
 BEGIN
+    CALL R_ADD_INVOICE_LINE_AUDIT_LOG(NEW.id);
+    
     CALL R_RECALCULATE_INVOICE_TOTAL(NEW.invoice_id);
 END $$
 
@@ -81,8 +89,37 @@ END $$
 CREATE TRIGGER `TRG_AU_INVOICE_LINE` AFTER UPDATE ON `T_INVOICE_LINES`
 FOR EACH ROW
 BEGIN
+	CALL R_ADD_INVOICE_LINE_AUDIT_LOG(NEW.id);
+    
     CALL R_RECALCULATE_INVOICE_TOTAL(NEW.invoice_id);
 END $$
+
+CREATE TRIGGER `TRG_AU_INVOICE` AFTER UPDATE ON `T_INVOICES`
+FOR EACH ROW
+BEGIN
+	CALL R_ADD_INVOICE_AUDIT_LOG(NEW.id);
+END $$
+
+CREATE TRIGGER `TRG_AU_INVOICE_CUSTOMER` AFTER UPDATE ON `T_INVOICE_CUSTOMERS`
+FOR EACH ROW
+BEGIN
+	CALL R_ADD_INVOICE_CUSTOMER_AUDIT_LOG(NEW.id);
+END $$
+
+CREATE TRIGGER `TRG_AI_INVOICE` AFTER INSERT ON `T_INVOICES`
+FOR EACH ROW
+BEGIN
+    CALL R_ADD_INVOICE_AUDIT_LOG(NEW.id);
+END $$
+
+CREATE TRIGGER `TRG_AI_INVOICE_CUSTOMER` AFTER INSERT ON `T_INVOICE_CUSTOMERS`
+FOR EACH ROW
+BEGIN
+    CALL R_ADD_INVOICE_CUSTOMER_AUDIT_LOG(NEW.id);
+END $$
+
+
+
 
 # ####################################################################################
 # PROCEDURES
@@ -227,14 +264,14 @@ BEGIN
 			INSERT INTO T_INVOICES(company_id, invoice_customer_id, invoice_batch_run_id, towing_voucher_id, invoice_ref_id,
 								   document_id, invoice_type, invoice_date, invoice_number, 
                                    vat_foreign_country, invoice_total_excl_vat, invoice_total_incl_vat, invoice_total_vat, invoice_vat_percentage, 
-                                   invoice_amount_paid, invoice_payment_type,
+                                   -- invoice_amount_paid, invoice_payment_type,
                                    invoice_message, 
                                    insurance_dossiernr, 
                                    cd, cd_by)
             SELECT 	company_id, invoice_customer_id, invoice_batch_run_id, towing_voucher_id, v_invoice_id,
 					null, 'CN', CURDATE(), F_CREATE_CREDIT_NUMBER(v_company_id), 
                     vat_foreign_country, invoice_total_excl_vat, invoice_total_incl_vat, invoice_total_vat, invoice_vat_percentage, 
-                    invoice_amount_paid, invoice_payment_type, 
+                    -- invoice_amount_paid, invoice_payment_type, 
                     invoice_message, 
                     insurance_dossiernr, 
                     now(), F_RESOLVE_LOGIN(v_user_id, p_token)
@@ -253,7 +290,7 @@ BEGIN
             
             -- CREATE THE INVOICED LINES
             INSERT INTO T_INVOICE_LINES(`invoice_id`, `item`, `item_amount`, `item_price_excl_vat`, `item_price_incl_vat`, `item_total_excl_vat`, `item_total_incl_vat`, `cd`, `cd_by`)
-            SELECT 	v_cn_id, `item`, `item_amount`, `item_price_excl_vat`, `item_price_incl_vat`, `item_total_excl_vat`, `item_total_incl_vat`, now(), F_RESOLVE_LOGIN(v_user_id, p_token)
+            SELECT 	v_cn_id, `item`, -`item_amount`, `item_price_excl_vat`, `item_price_incl_vat`, `item_total_excl_vat`, `item_total_incl_vat`, now(), F_RESOLVE_LOGIN(v_user_id, p_token)
             FROM 	T_INVOICE_LINES
             WHERE 	invoice_id = v_invoice_id
 					AND dd IS NULL;
@@ -566,11 +603,24 @@ BEGIN
 	ELSE
 		SELECT  i.invoice_batch_run_id,
 				UNIX_TIMESTAMP(call_date) AS call_date, call_number, 
+                tv.dossier_id, i.towing_voucher_id,
 				vehicule, vehicule_type, vehicule_licenceplate,
-				UNIX_TIMESTAMP(DATE_ADD(current_date,INTERVAL 30 DAY)) as invoice_due_date,
+				-- UNIX_TIMESTAMP(DATE_ADD(current_date,INTERVAL 30 DAY)) as invoice_due_date,
                 (SELECT default_depot = 1 FROM T_TOWING_DEPOTS WHERE voucher_id = tv.id LIMIT 0,1) as default_depot,
 				vehicule_collected,
-                i.invoice_type
+                i.invoice_type,
+				IF(i.invoice_type = 'CN', 
+						(SELECT concat(LEFT(i2.invoice_number, 4), '/', SUBSTRING(i2.invoice_number,5)) FROM T_INVOICES i2 WHERE i2.id = i.invoice_ref_id) , 
+						null) as invoice_ref_invoice_number,
+				-- jaartal+maand+dag_FVH+factuurnummer_verkorte naam aannemer_PA of TA nummer_Perceel_nr autosnelweg
+				-- e.g. 20150622_FVH562879_Hamse_TA00000953_P5_E313
+				CONCAT(	YEAR(i.invoice_date), LPAD(MONTH(i.invoice_date), 2, '0'), LPAD(DAY(i.invoice_date), 2, '0'), '_',
+						IF(i.invoice_type = 'CN', 'CN', 'FVH'), 
+						i.invoice_number, '_', 
+						(SELECT code FROM T_COMPANIES WHERE id = d.company_id LIMIT 0,1), '_',
+						d.call_number, '_',
+						(SELECT code FROM P_ALLOTMENT WHERE id = d.allotment_id LIMIT 0,1), '_',
+						(SELECT REPLACE(REPLACE(name, '>', '_'), ' ', '') FROM P_ALLOTMENT_DIRECTIONS WHERE id = d.allotment_direction_id LIMIT 0,1), '.pdf') AS filename                
 		FROM	T_DOSSIERS d, T_TOWING_VOUCHERS tv, T_INVOICES i
 		WHERE	1 = 1
 				AND tv.dossier_id = d.id
@@ -1347,7 +1397,7 @@ END $$
 
 CREATE PROCEDURE R_INVOICE_FETCH_BATCH_INVOICES(IN p_batch_id VARCHAR(36))
 BEGIN
-	SELECT 	i.id, i.company_id, i.invoice_customer_id, i.invoice_batch_run_id, i.towing_voucher_id,
+	SELECT 	i.id, i.company_id, i.invoice_customer_id, i.invoice_batch_run_id, i.towing_voucher_id, tv.dossier_id, i.invoice_ref_id,
 			UNIX_TIMESTAMP(i.invoice_date) as invoice_date,
             i.invoice_number, concat(LEFT(i.invoice_number, 4), '/', SUBSTRING(i.invoice_number,5)) as invoice_number_display,
             i.invoice_structured_reference,
@@ -1364,6 +1414,9 @@ BEGIN
             i.invoice_type, 
             i.invoice_message,
             i.insurance_dossiernr,
+            IF(i.invoice_type = 'CN', 
+					(SELECT concat(LEFT(i2.invoice_number, 4), '/', SUBSTRING(i2.invoice_number,5)) FROM T_INVOICES i2 WHERE i2.id = i.invoice_ref_id) , 
+                    null) as invoice_ref_invoice_number,
             -- jaartal+maand+dag_FVH+factuurnummer_verkorte naam aannemer_PA of TA nummer_Perceel_nr autosnelweg
             -- e.g. 20150622_FVH562879_Hamse_TA00000953_P5_E313
             CONCAT(	YEAR(i.invoice_date), LPAD(MONTH(i.invoice_date), 2, '0'), LPAD(DAY(i.invoice_date), 2, '0'), '_',
@@ -1392,21 +1445,55 @@ BEGIN
 	IF v_user_id IS NULL OR v_company_id IS NULL THEN
 		CALL R_NOT_AUTHORIZED;
 	ELSE
-		SELECT 	i.id, i.company_id, i.invoice_customer_id, i.invoice_batch_run_id, i.towing_voucher_id,
+		SELECT 	i.id, i.company_id, 
+				i.invoice_customer_id, 
+                i.invoice_batch_run_id, 
+                i.towing_voucher_id,
+                i.invoice_ref_id,
 				UNIX_TIMESTAMP(i.invoice_date) as invoice_date,
-				i.invoice_number, concat(IF(i.invoice_type='CN', 'CN', 'F'), LEFT(i.invoice_number, 4), '/', SUBSTRING(i.invoice_number,5)) as invoice_number_display,
+				i.invoice_number, 
+                concat(IF(i.invoice_type='CN', 'CN', 'F'), LEFT(i.invoice_number, 4), '/', SUBSTRING(i.invoice_number,5)) as invoice_number_display,
 				i.invoice_structured_reference,
 				i.vat_foreign_country,
-				i.invoice_total_excl_vat, i.invoice_total_incl_vat,
-				i.invoice_total_vat, i.invoice_vat_percentage,
-				concat('B', tv.voucher_number) as voucher_number,
+				i.invoice_total_excl_vat, 
+                i.invoice_total_incl_vat,
+				i.invoice_total_vat, 
+                i.invoice_vat_percentage,
+                IF(vat_foreign_country, 
+					i.invoice_total_excl_vat - (SELECT SUM(item_total_excl_vat) FROM T_INVOICE_LINES WHERE invoice_id = i.id), 
+                    i.invoice_total_incl_vat - (SELECT SUM(item_total_incl_vat) FROM T_INVOICE_LINES WHERE invoice_id = i.id)
+				) AS cal_amount_unpaid,
+				IF(i.towing_voucher_id IS NOT NULL, 
+					concat('B', (SELECT voucher_number 
+								 FROM T_TOWING_VOUCHERS tv, T_INVOICES i 
+								 WHERE i.id = p_invoice_id
+										AND i.towing_voucher_id = tv.id 
+								 LIMIT 0,1)), 
+					null) as voucher_number,
                 i.invoice_message,
                 i.invoice_type, 
-                invoice_amount_paid, invoice_payment_type
-		FROM 	T_INVOICES i, T_TOWING_VOUCHERS tv
+                invoice_amount_paid, 
+                invoice_payment_type,
+                UNIX_TIMESTAMP(DATE_ADD(i.invoice_date,INTERVAL 30 DAY)) as invoice_due_date,
+				IF(i.invoice_type = 'CN', 
+						(SELECT concat(LEFT(i2.invoice_number, 4), '/', SUBSTRING(i2.invoice_number,5)) FROM T_INVOICES i2 WHERE i2.id = i.invoice_ref_id) , 
+						null) as invoice_ref_invoice_number,
+				-- jaartal+maand+dag_FVH+factuurnummer_verkorte naam aannemer_PA of TA nummer_Perceel_nr autosnelweg
+				-- e.g. 20150622_FVH562879_Hamse_TA00000953_P5_E313
+                IF(i.towing_voucher_id IS NOT NULL, 
+					(SELECT CONCAT(	YEAR(i.invoice_date), LPAD(MONTH(i.invoice_date), 2, '0'), LPAD(DAY(i.invoice_date), 2, '0'), '_',
+							IF(i.invoice_type = 'CN', 'CN', 'FVH'), 
+							i.invoice_number, '_', 
+							(SELECT code FROM T_COMPANIES WHERE id = d.company_id LIMIT 0,1), '_',
+							d.call_number, '_',
+							(SELECT code FROM P_ALLOTMENT WHERE id = d.allotment_id LIMIT 0,1), '_',
+							(SELECT REPLACE(REPLACE(name, '>', '_'), ' ', '') FROM P_ALLOTMENT_DIRECTIONS WHERE id = d.allotment_direction_id LIMIT 0,1), '.pdf')
+					 FROM T_DOSSIERS d, T_TOWING_VOUCHERS tv WHERE d.id = tv.dossier_id AND tv.id = i.towing_voucher_id
+                     LIMIT 0,1),
+					CONCAT(i.invoice_number, ".pdf")) AS filename                
+		FROM 	T_INVOICES i
 		WHERE 	i.id = p_invoice_id
 				AND i.company_id = v_company_id
-				AND tv.id = i.towing_voucher_id
 		LIMIT	0,1;    
     END IF;
 END $$
@@ -1541,7 +1628,7 @@ BEGIN
 	END IF;
 END $$
 
-CREATE PROCEDURE R_INVOICE_ATT_LINK_WITH_VOUCHER(IN p_invoice_id BIGINT, IN p_document_id BIGINT, IN p_token VARCHAR(255))
+CREATE PROCEDURE R_INVOICE_ATT_LINK_WITH_DOCUMENT(IN p_invoice_id BIGINT, IN p_document_id BIGINT, IN p_token VARCHAR(255))
 BEGIN
 	DECLARE v_company_id BIGINT;
 	DECLARE v_user_id, v_batch_id VARCHAR(36);
