@@ -1450,6 +1450,7 @@ BEGIN
                 i.invoice_batch_run_id, 
                 i.towing_voucher_id,
                 i.invoice_ref_id,
+                i.document_id,
 				UNIX_TIMESTAMP(i.invoice_date) as invoice_date,
 				i.invoice_number, 
                 concat(IF(i.invoice_type='CN', 'CN', 'F'), LEFT(i.invoice_number, 4), '/', SUBSTRING(i.invoice_number,5)) as invoice_number_display,
