@@ -60,7 +60,9 @@ DROP TRIGGER IF EXISTS TRG_AI_INVOICE_LINE $$
 
 DROP TRIGGER IF EXISTS TRG_AU_INVOICE $$
 DROP TRIGGER IF EXISTS TRG_AU_INVOICE_LINE $$
+
 DROP TRIGGER IF EXISTS TRG_AU_INVOICE_CUSTOMER $$
+DROP TRIGGER IF EXISTS TRG_BU_INVOICE_CUSTOMER $$
 
 # ####################################################################################
 # TRIGGERS
@@ -105,6 +107,16 @@ CREATE TRIGGER `TRG_AU_INVOICE_CUSTOMER` AFTER UPDATE ON `T_INVOICE_CUSTOMERS`
 FOR EACH ROW
 BEGIN
 	CALL R_ADD_INVOICE_CUSTOMER_AUDIT_LOG(NEW.id);
+END $$
+
+CREATE TRIGGER `TRG_BU_INVOICE_CUSTOMER` BEFORE UPDATE ON `T_INVOICE_CUSTOMERS`
+FOR EACH ROW
+BEGIN
+	IF NEW.customer_number IS NULL THEN
+		SET NEW.customer_number = IF(TRIM(IFNULL(NEW.company_name, "")) != "", 
+										F_CUSTOMER_NUMBER_FOR_COMPANY(null, NEW.company_id) , 
+										F_CREATE_CUSTOMER_NUMBER_FOR_PRIVATE_PERSON(NEW.last_name));    
+    END IF;
 END $$
 
 CREATE TRIGGER `TRG_AI_INVOICE` AFTER INSERT ON `T_INVOICES`
@@ -185,7 +197,7 @@ END $$
 
 CREATE PROCEDURE R_INVOICE_CREATE_EMPTY_INVOICE(IN p_token VARCHAR(255))
 BEGIN
-	DECLARE v_company_id, v_invoice_id BIGINT;
+	DECLARE v_company_id, v_invoice_id, v_cust_id BIGINT;
 	DECLARE v_user_id, v_batch_id VARCHAR(36);
 
 	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
@@ -194,6 +206,20 @@ BEGIN
 	IF v_user_id IS NULL OR v_company_id IS NULL THEN
 		CALL R_NOT_AUTHORIZED;
 	ELSE
+		SET v_batch_id = UUID(); 
+        
+		-- CREATE A NEW BATCH
+		INSERT INTO T_INVOICE_BATCH_RUNS(id, company_id, batch_started, cd, cd_by)
+        VALUES(v_batch_id, v_company_id, now(), now(), F_RESOLVE_LOGIN(v_user_id, p_token));
+        
+    
+		-- CREATE A NEW CUSTOMER
+		INSERT INTO T_INVOICE_CUSTOMERS(company_id, cd, cd_by)
+        VALUES(v_company_id, now(), F_RESOLVE_LOGIN(v_user_id, p_token));
+        
+        SET v_cust_id = LAST_INSERT_ID();
+        
+        -- CREATE A NEW INVOICE
 		INSERT INTO `T_INVOICES`(
 			`company_id`,
 			`invoice_customer_id`,
@@ -205,17 +231,18 @@ BEGIN
 			`cd_by`
         ) VALUES (
 			v_company_id,
-			null, -- `invoice_customer_id`,
-			null, -- `invoice_batch_run_id`,
+			v_cust_id, -- `invoice_customer_id`,
+			v_batch_id, -- `invoice_batch_run_id`,
 			'CUSTOMER', -- `invoice_type`,
 			curdate(), -- `invoice_date`,
-			null, -- `invoice_number`,
+			F_CREATE_INVOICE_UQ_SEQUENCE(v_company_id, 'CUSTOMER'), -- `invoice_number`,
 			now(), -- `cd`,
 			F_RESOLVE_LOGIN(v_user_id, p_token) -- `cd_by`            
 		);
     
 		SET v_invoice_id = LAST_INSERT_ID();
     
+		-- RETURN THE INVOICE
 		CALL R_INVOICE_FETCH_COMPANY_INVOICE(v_invoice_id, p_token);
     END IF;
 END $$
@@ -1612,11 +1639,11 @@ BEGIN
 				ic.zip,
 				ic.city,
 				ic.country
-		FROM 	T_INVOICES i, T_INVOICE_CUSTOMERS ic, T_TOWING_VOUCHERS tv, T_DOSSIERS d
-		WHERE 	i.towing_voucher_id = tv.id
-				AND i.invoice_customer_id = ic.id
-				AND tv.dossier_id = d.id
-				AND i.company_id = v_company_id
+		FROM 	T_INVOICES i
+				LEFT JOIN T_INVOICE_CUSTOMERS ic ON i.invoice_customer_id = ic.id
+				LEFT JOIN T_TOWING_VOUCHERS tv ON i.towing_voucher_id = tv.id
+                LEFT JOIN T_DOSSIERS d ON tv.dossier_id = d.id
+		WHERE 	i.company_id = v_company_id
 		ORDER 	BY invoice_number DESC
         LIMIT	0,1000;
 	END IF;
