@@ -113,9 +113,13 @@ CREATE TRIGGER `TRG_BU_INVOICE_CUSTOMER` BEFORE UPDATE ON `T_INVOICE_CUSTOMERS`
 FOR EACH ROW
 BEGIN
 	IF NEW.customer_number IS NULL THEN
-		SET NEW.customer_number = IF(TRIM(IFNULL(NEW.company_name, "")) != "", 
-										F_CUSTOMER_NUMBER_FOR_COMPANY(null, NEW.company_id) , 
-										F_CREATE_CUSTOMER_NUMBER_FOR_PRIVATE_PERSON(NEW.last_name));    
+		IF TRIM(IFNULL(NEW.company_name, "")) != "" THEN
+			SET NEW.customer_number = F_CUSTOMER_NUMBER_FOR_COMPANY(null, NEW.company_id);        
+        ELSE 
+			IF TRIM(IFNULL(NEW.last_name, "")) != "" THEN
+				SET NEW.customer_number = F_CREATE_CUSTOMER_NUMBER_FOR_PRIVATE_PERSON(NEW.last_name);    
+			END IF;
+        END IF;
     END IF;
 END $$
 
@@ -1465,15 +1469,20 @@ CREATE PROCEDURE R_INVOICE_FETCH_BATCH_INVOICES(IN p_batch_id VARCHAR(36))
 BEGIN
 	SELECT 	i.id, i.company_id, i.invoice_customer_id, i.invoice_batch_run_id, i.towing_voucher_id, tv.dossier_id, i.invoice_ref_id,
 			UNIX_TIMESTAMP(i.invoice_date) as invoice_date,
-            i.invoice_number, concat(LEFT(i.invoice_number, 4), '/', SUBSTRING(i.invoice_number,5)) as invoice_number_display,
+            i.invoice_number, 
+            concat(LEFT(i.invoice_number, 4), '/', SUBSTRING(i.invoice_number,5)) as invoice_number_display,
             i.invoice_structured_reference,
             i.vat_foreign_country,
-            i.invoice_total_excl_vat, i.invoice_total_incl_vat,
-            i.invoice_total_vat, i.invoice_vat_percentage,
+            i.invoice_total_excl_vat, 
+            i.invoice_total_incl_vat,
+            i.invoice_total_vat, 
+            i.invoice_vat_percentage,
             i.invoice_amount_paid,
             i.invoice_payment_type,
             concat('B', tv.voucher_number) as voucher_number,
-            UNIX_TIMESTAMP(d.call_date) as call_date, d.call_number, d.id AS dossier_id,
+            UNIX_TIMESTAMP(d.call_date) as call_date, 
+            d.call_number, 
+            d.id AS dossier_id,
             -- tvp.paid_in_cash, tvp.paid_by_bank_deposit, tvp.paid_by_debit_card, tvp.paid_by_credit_card, 
 			tvp.cal_amount_unpaid,
             tvp.amount_guaranteed_by_insurance,

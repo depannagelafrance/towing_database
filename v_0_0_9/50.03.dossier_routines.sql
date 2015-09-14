@@ -2882,7 +2882,7 @@ CREATE PROCEDURE R_RECALCULATE_VOUCHER_PAYMENTS(IN p_voucher_id BIGINT)
 BEGIN
 	DECLARE v_incl_vat, v_excl_vat, v_storage_incl_vat, v_storage_excl_vat, v_total DOUBLE;
     DECLARE v_incl_additional_cost, v_excl_additional_cost DOUBLE;
-	DECLARE v_foreign_vat, v_foreign_collector_vat BOOL;
+	DECLARE v_foreign_vat, v_foreign_collector_vat, v_foreign_customer_vat BOOL;
 
 	-- FETCH THE TOWING ACTIVITY BASED COST
 	SELECT 	sum(amount * fee_excl_vat), sum(amount * fee_incl_vat) INTO v_excl_vat, v_incl_vat
@@ -2911,6 +2911,12 @@ BEGIN
 	WHERE 	c.id = tv.collector_id
 			AND tv.id = p_voucher_id
 	LIMIT 	0,1;
+    
+    SELECT 	(company_vat IS NOT NULL AND TRIM(company_vat) != '' AND left(upper(company_vat), 2) != 'BE') 
+    INTO 	v_foreign_customer_vat 
+    FROM 	T_TOWING_CUSTOMERS
+    WHERE 	voucher_id = p_voucher_id
+    LIMIT 	0,1;
 
 
 	SET v_foreign_vat = F_IS_VOUCHER_VIABLE_FOR_FOREIGN_VAT(p_voucher_id);
