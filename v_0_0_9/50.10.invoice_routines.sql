@@ -834,6 +834,8 @@ BEGIN
         FROM 	T_TOWING_CUSTOMERS
         WHERE 	voucher_id = p_voucher_id
         LIMIT 	0,1;
+        
+		-- JUMP HERE
 
 		IF v_has_insurance AND NOT v_insurance_excluded
 		THEN

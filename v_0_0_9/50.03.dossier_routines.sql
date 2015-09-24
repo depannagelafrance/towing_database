@@ -47,6 +47,7 @@ DROP PROCEDURE IF EXISTS R_UPDATE_TOWING_VOUCHER_ACTIVITY $$
 DROP PROCEDURE IF EXISTS R_REMOVE_TOWING_VOUCHER_ACTIVITY $$
 
 DROP PROCEDURE IF EXISTS R_UPDATE_TOWING_VOUCHER_PAYMENTS $$
+DROP PROCEDURE IF EXISTS R_UPDATE_TOWING_VOUCHER_PAYMENT_DETAILS $$
 
 DROP PROCEDURE IF EXISTS R_UPDATE_TOWING_STORAGE_COST $$
 DROP PROCEDURE IF EXISTS R_UPDATE_TOWING_STORAGE_COST_FOR_VOUCHER $$
@@ -64,6 +65,7 @@ DROP PROCEDURE IF EXISTS R_FETCH_DOSSIER_BY_NUMBER $$
 DROP PROCEDURE IF EXISTS R_FETCH_TOWING_VOUCHERS_BY_DOSSIER $$
 DROP PROCEDURE IF EXISTS R_FETCH_TOWING_ACTIVITIES_BY_VOUCHER $$
 DROP PROCEDURE IF EXISTS R_FETCH_TOWING_PAYMENTS_BY_VOUCHER $$
+DROP PROCEDURE IF EXISTS R_FETCH_TOWING_PAYMENT_DETAILS_BY_VOUCHER $$
 DROP PROCEDURE IF EXISTS R_FETCH_TOWING_COMPANY_BY_DOSSIER $$
 DROP PROCEDURE IF EXISTS R_FETCH_ALLOTMENT_AGENCY_BY_ALLOTMENT $$
 DROP PROCEDURE IF EXISTS R_FETCH_VOUCHER_AWAITING_APPROVAL_FOR_EXPORT $$
@@ -146,6 +148,7 @@ DROP TRIGGER IF EXISTS TRG_AI_TOWING_PAYMENTS $$
 DROP TRIGGER IF EXISTS TRG_AU_TOWING_PAYMENTS $$
 DROP TRIGGER IF EXISTS TRG_AI_TOWING_ADDITIONAL_COSTS $$
 DROP TRIGGER IF EXISTS TRG_AU_TOWING_ADDITIONAL_COSTS $$
+DROP TRIGGER IF EXISTS TRG_BU_TOWING_VOUCHER_PAYMENT_DETAILS $$
 
 DROP EVENT IF EXISTS E_UPDATE_TOWING_STORAGE_COST $$
 DROP EVENT IF EXISTS E_UPDATE_SIGNA_EXTRA_TIME $$
@@ -860,6 +863,34 @@ BEGIN
 	END IF;
 END $$
 
+CREATE PROCEDURE R_FETCH_TOWING_PAYMENT_DETAILS_BY_VOUCHER(IN p_voucher_id BIGINT, IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id, v_dossier_id BIGINT;
+	DECLARE v_user_id VARCHAR(36);
+	DECLARE v_cal_fee_excl_vat, v_cal_fee_incl_vat DOUBLE(10,2);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		SELECT 	tvpd.id, towing_voucher_payment_id, 
+				category, 
+                IFNULL(foreign_vat, 0) as foreign_vat, 
+                ROUND(IFNULL(amount_excl_vat, 0.0), 2) as amount_excl_vat, 
+                ROUND(IFNULL(amount_incl_vat, 0.0), 2) as amount_incl_vat, 
+                ROUND(IFNULL(amount_paid_cash, 0.0), 2) as amount_paid_cash, 
+                ROUND(IFNULL(amount_paid_bankdeposit, 0.0), 2) as amount_paid_bankdeposit, 
+                ROUND(IFNULL(amount_paid_maestro, 0.0), 2) as amount_paid_maestro, 
+                ROUND(IFNULL(amount_paid_visa, 0.0), 2) as amount_paid_visa, 
+                ROUND(IFNULL(amount_unpaid_excl_vat, 0.0), 2) as amount_unpaid_excl_vat, 
+                ROUND(IFNULL(amount_unpaid_incl_vat, 0.0), 2) as amount_unpaid_incl_vat
+        FROM	T_TOWING_VOUCHER_PAYMENT_DETAILS tvpd, T_TOWING_VOUCHER_PAYMENTS tvp
+        WHERE	tvpd.towing_voucher_payment_id = tvp.id
+				AND tvp.towing_voucher_id = p_voucher_id;
+	END IF;
+END $$
+
 CREATE PROCEDURE R_FETCH_TOWING_DEPOT(IN p_voucher_id BIGINT, IN p_token VARCHAR(255))
 BEGIN
 	DECLARE v_company_id, v_dossier_id BIGINT;
@@ -1160,19 +1191,7 @@ BEGIN
 				AND activity_id = p_activity_id
 		LIMIT 1;
 
-		SELECT 	sum(cal_fee_excl_vat), sum(cal_fee_incl_vat) INTO v_cal_fee_excl_vat, v_cal_fee_incl_vat
-		FROM 	T_TOWING_ACTIVITIES
-		WHERE 	towing_voucher_id = p_voucher_id;
-
-		-- SET v_paid = IFNULL(p_in_cash, 0.0) + IFNULL(p_bank_deposit, 0.0) + IFNULL(p_debit_card, 0.0) + IFNULL(p_credit_card, 0.0);
-
-		UPDATE `T_TOWING_VOUCHER_PAYMENTS`
-		SET
-			`amount_customer` = IF(v_foreign_vat, v_cal_fee_excl_vat, v_cal_fee_incl_vat) - IFNULL(`amount_guaranteed_by_insurance`, 0.0),
-			`ud` = now(),
-			`ud_by` = F_RESOLVE_LOGIN(v_user_id, p_token)
-		WHERE `towing_voucher_id` = p_voucher_id;
-
+		CALL R_RECALCULATE_VOUCHER_PAYMENTS(p_voucher_id);
 
 		SELECT 'OK' as result;
 	END IF;
@@ -1296,6 +1315,42 @@ BEGIN
 
 		CALL R_FETCH_TOWING_PAYMENTS_BY_VOUCHER(p_dossier_id, p_voucher_id, p_token);
 	END IF;
+END $$
+
+CREATE PROCEDURE R_UPDATE_TOWING_VOUCHER_PAYMENT_DETAILS(IN p_id BIGINT, 
+														 IN p_tvp_id BIGINT,
+														 IN p_foreign_vat BOOL,
+														 IN p_amount_excl_vat DOUBLE(10,2), 
+                                                         IN p_amount_incl_vat DOUBLE(10,2),
+                                                         IN p_amount_paid_cash DOUBLE(10,2),
+                                                         IN p_amount_paid_bankdeposit DOUBLE(10,2),
+                                                         IN p_amount_paid_maestro DOUBLE(10,2),
+                                                         IN p_amount_paid_visa DOUBLE(10,2),
+                                                         IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id BIGINT;
+	DECLARE v_user_id VARCHAR(36);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		UPDATE `P_towing_be`.`T_TOWING_VOUCHER_PAYMENT_DETAILS`
+		SET
+			`foreign_vat` = IFNULL(p_foreign_vat, 0),
+			`amount_excl_vat` = p_amount_excl_vat,
+			`amount_incl_vat` = p_amount_incl_vat,
+			`amount_paid_cash` = p_amount_paid_cash,
+			`amount_paid_bankdeposit` = p_amount_paid_bankdeposit,
+			`amount_paid_maestro` = p_amount_paid_maestro,
+			`amount_paid_visa` = p_amount_paid_visa,
+			`amount_unpaid_excl_vat` = (p_amount_excl_vat - p_amount_paid_cash - p_amount_paid_bankdeposit - p_amount_paid_maestro - p_amount_paid_visa),
+			`amount_unpaid_incl_vat` = (p_amount_incl_vat - p_amount_paid_cash - p_amount_paid_bankdeposit - p_amount_paid_maestro - p_amount_paid_visa)
+		WHERE 	`id` = p_id
+				AND `towing_voucher_payment_id` = p_tvp_id
+		LIMIT 1;
+    END IF;
 END $$
 
 CREATE PROCEDURE R_FETCH_TOWING_COMPANY_BY_DOSSIER(IN p_dossier_id BIGINT, IN p_token VARCHAR(255))
@@ -2557,12 +2612,21 @@ END $$
 CREATE TRIGGER `TRG_AI_TOWING_VOUCHER` AFTER INSERT ON `T_TOWING_VOUCHERS`
 FOR EACH ROW
 BEGIN
+	DECLARE v_id BIGINT;
+    
 	CALL R_ADD_TOWING_VOUCHER_AUDIT_LOG(NEW.id);
 
 	-- automatically create a voucher payment record when creating a new towing voucher
 	INSERT INTO `T_TOWING_VOUCHER_PAYMENTS` (`towing_voucher_id`, `cd`, `cd_by`) VALUES
 				(NEW.id, now(), NEW.cd_by);
-
+                
+	SET v_id = LAST_INSERT_ID();
+	
+    -- automatically create the details
+	INSERT INTO `T_TOWING_VOUCHER_PAYMENT_DETAILS`(towing_voucher_payment_id, category) VALUES(v_id, 'INSURANCE');
+    INSERT INTO `T_TOWING_VOUCHER_PAYMENT_DETAILS`(towing_voucher_payment_id, category) VALUES(v_id, 'CUSTOMER');
+    INSERT INTO `T_TOWING_VOUCHER_PAYMENT_DETAILS`(towing_voucher_payment_id, category) VALUES(v_id, 'COLLECTOR');
+    
 	-- automatically insert a towing depot
 	INSERT INTO `T_TOWING_DEPOTS`(`voucher_id`, `name`, `street`, `street_number`, `street_pobox`, `zip`, `city`, `cd`, `cd_by`)
 	VALUES(NEW.id, null, null, null, null, null, null, now(), NEW.cd_by);
@@ -2881,6 +2945,8 @@ END $$
 CREATE PROCEDURE R_RECALCULATE_VOUCHER_PAYMENTS(IN p_voucher_id BIGINT)
 BEGIN
 	DECLARE v_incl_vat, v_excl_vat, v_storage_incl_vat, v_storage_excl_vat, v_total DOUBLE;
+    DECLARE v_insurance_excl_vat, v_insurance_incl_vat DOUBLE;
+    DECLARE v_t_insurance_excl_vat, v_t_insurance_incl_vat DOUBLE;
     DECLARE v_incl_additional_cost, v_excl_additional_cost DOUBLE;
 	DECLARE v_foreign_vat, v_foreign_collector_vat, v_foreign_customer_vat BOOL;
 
@@ -2905,6 +2971,14 @@ BEGIN
     FROM 	T_TOWING_ADDITIONAL_COSTS
     WHERE 	towing_voucher_id = p_voucher_id
 			AND dd IS NULL;
+            
+	-- FETCH THE PART GUARANTEED BY THE INSURANCE
+	SELECT 	amount_excl_vat, amount_incl_vat
+    INTO 	v_insurance_excl_vat, v_insurance_incl_vat
+    FROM 	T_TOWING_VOUCHER_PAYMENT_DETAILS tvpd, T_TOWING_VOUCHER_PAYMENTS tvp
+    WHERE	tvpd.towing_voucher_payment_id = tvp.id
+			AND tvp.towing_voucher_id = p_voucher_id
+            AND tvpd.category='INSURANCE';
 
 	SELECT 	(vat IS NOT NULL AND TRIM(vat) != '' AND left(upper(vat), 2) != 'BE') INTO v_foreign_collector_vat
 	FROM 	T_COLLECTORS c, T_TOWING_VOUCHERS tv
@@ -2917,6 +2991,116 @@ BEGIN
     FROM 	T_TOWING_CUSTOMERS
     WHERE 	voucher_id = p_voucher_id
     LIMIT 	0,1;
+
+	SET v_insurance_excl_vat = IFNULL(v_insurance_excl_vat, 0.0);
+    SET v_insurance_incl_vat = IFNULL(v_insurance_incl_vat, 0.0);
+	SET v_t_insurance_excl_vat = v_insurance_excl_vat;
+    SET v_t_insurance_incl_vat = v_insurance_incl_vat;
+    
+	SET v_storage_excl_vat = IFNULL(v_storage_excl_vat, 0.0);
+    SET v_storage_incl_vat = IFNULL(v_storage_incl_vat, 0.0);
+    SET v_excl_additional_cost = IFNULL(v_excl_additional_cost, 0.0);
+    SET v_incl_additional_cost = IFNULL(v_incl_additional_cost, 0.0);
+	SET v_excl_vat = IFNULL(v_excl_vat, 0.0);
+    SET v_incl_vat = IFNULL(v_incl_vat, 0.0);
+    
+    IF v_insurance_excl_vat >= (v_storage_excl_vat + v_excl_additional_cost + v_excl_vat) 
+    THEN
+		SET v_storage_excl_vat = 0.0;
+		SET v_storage_incl_vat = 0.0;
+		SET v_excl_additional_cost = 0.0;
+		SET v_incl_additional_cost = 0.0;
+		SET v_excl_vat = 0.0;
+		SET v_incl_vat = 0.0;
+    ELSE
+		IF v_excl_vat < v_t_insurance_excl_vat THEN
+			SET v_t_insurance_excl_vat = v_t_insurance_excl_vat - v_excl_vat;
+            SET v_t_insurance_incl_vat = v_t_insurance_incl_vat - v_incl_vat;
+            
+			SET v_excl_vat = 0.0;
+            SET v_incl_vat = 0.0;
+		ELSE
+			SET v_excl_vat = v_excl_vat - v_insurance_excl_vat;
+            SET v_incl_vat = v_incl_vat - v_insurance_incl_vat;
+            
+			SET v_t_insurance_excl_vat = 0.0;
+            SET v_t_insurance_incl_vat = 0.0;
+        END IF;
+        
+        IF v_t_insurance_excl_vat > 0 
+        THEN
+			IF v_storage_excl_vat < v_t_insurance_excl_vat THEN
+				SET v_t_insurance_excl_vat = v_t_insurance_excl_vat - v_storage_excl_vat;
+				SET v_t_insurance_incl_vat = v_t_insurance_incl_vat - v_storage_incl_vat;
+				
+				SET v_storage_excl_vat = 0.0;
+				SET v_storage_incl_vat = 0.0;
+			ELSE
+				SET v_storage_excl_vat = v_storage_excl_vat - v_t_insurance_excl_vat;
+				SET v_storage_incl_vat = v_storage_incl_vat - v_t_insurance_incl_vat;
+				
+				SET v_t_insurance_excl_vat = 0.0;
+				SET v_t_insurance_incl_vat = 0.0;
+			END IF;			
+        END IF;
+        
+        IF v_t_insurance_excl_vat > 0 
+        THEN
+			IF v_excl_additional_cost < v_t_insurance_excl_vat THEN
+				SET v_t_insurance_excl_vat = v_t_insurance_excl_vat - v_excl_additional_cost;
+				SET v_t_insurance_incl_vat = v_t_insurance_incl_vat - v_incl_additional_cost;
+				
+				SET v_excl_additional_cost = 0.0;
+				SET v_incl_additional_cost = 0.0;
+			ELSE
+				SET v_excl_additional_cost = v_excl_additional_cost - v_t_insurance_excl_vat;
+				SET v_incl_additional_cost = v_incl_additional_cost - v_t_insurance_incl_vat;
+				
+				SET v_t_insurance_excl_vat = 0.0;
+				SET v_t_insurance_incl_vat = 0.0;
+			END IF;			
+        END IF;        
+        
+    END IF;
+
+	-- RECALCULATE DETAILS FOR INSURANCE
+	IF (SELECT insurance_id FROM T_TOWING_VOUCHERS WHERE id = p_voucher_id) IS NOT NULL 
+    THEN
+		UPDATE 	T_TOWING_VOUCHER_PAYMENT_DETAILS tvpd, T_TOWING_VOUCHER_PAYMENTS tvp
+        SET 	tvpd.amount_excl_vat = v_insurance_excl_vat,
+				tvpd.amount_incl_vat = v_insurance_incl_vat,
+                tvpd.foreign_vat = v_foreign_collector_vat
+		WHERE
+				tvp.towing_voucher_id = p_voucher_id
+                AND tvp.id = tvpd.towing_voucher_payment_id
+                AND tvpd.category = 'INSURANCE';
+    END IF;
+
+	-- RECALCULATE DETAILS FOR COLLECTOR
+	IF (SELECT collector_id FROM T_TOWING_VOUCHERS WHERE id = p_voucher_id) IS NOT NULL 
+    THEN
+		UPDATE 	T_TOWING_VOUCHER_PAYMENT_DETAILS tvpd, T_TOWING_VOUCHER_PAYMENTS tvp
+        SET 	tvpd.amount_excl_vat = (v_storage_excl_vat + v_excl_additional_cost),
+				tvpd.amount_incl_vat = (v_storage_incl_vat + v_incl_additional_cost),
+                tvpd.foreign_vat = v_foreign_collector_vat
+		WHERE
+				tvp.towing_voucher_id = p_voucher_id
+                AND tvp.id = tvpd.towing_voucher_payment_id
+                AND tvpd.category = 'COLLECTOR';
+    ELSE
+		SET v_excl_vat = v_excl_vat + (v_storage_excl_vat + v_excl_additional_cost);
+        SET v_incl_vat = v_incl_vat + (v_storage_incl_vat + v_incl_additional_cost);
+    END IF;
+    
+    -- RECALCULATE DETAILS FOR CUSTOMER
+	UPDATE 	T_TOWING_VOUCHER_PAYMENT_DETAILS tvpd, T_TOWING_VOUCHER_PAYMENTS tvp
+	SET 	tvpd.amount_excl_vat = v_excl_vat,
+			tvpd.amount_incl_vat = v_incl_vat,
+            tvpd.foreign_vat = v_foreign_customer_vat
+	WHERE
+			tvp.towing_voucher_id = p_voucher_id
+			AND tvp.id = tvpd.towing_voucher_payment_id
+			AND tvpd.category = 'CUSTOMER';    
 
 
 	SET v_foreign_vat = F_IS_VOUCHER_VIABLE_FOR_FOREIGN_VAT(p_voucher_id);
@@ -2947,22 +3131,24 @@ END $$
 CREATE TRIGGER `TRG_AI_TOWING_ACTIVITY` AFTER INSERT ON `T_TOWING_ACTIVITIES`
 FOR EACH ROW
 BEGIN
-	DECLARE v_incl_vat, v_excl_vat DOUBLE;
-	DECLARE v_foreign_vat BOOL;
-
-	SELECT 	sum(amount * fee_excl_vat), sum(amount * fee_incl_vat) INTO v_excl_vat, v_incl_vat
-	FROM 	T_TOWING_ACTIVITIES ta, P_TIMEFRAME_ACTIVITY_FEE taf
-	WHERE 	ta.activity_id = taf.id AND ta.towing_voucher_id = NEW.towing_voucher_id;
-
-	SET v_foreign_vat = F_IS_VOUCHER_VIABLE_FOR_FOREIGN_VAT(NEW.towing_voucher_id);
-
-	UPDATE `T_TOWING_VOUCHER_PAYMENTS`
-	SET 	`amount_customer` = IF(v_foreign_vat, v_excl_vat, v_incl_vat),
-			`cal_amount_paid` = 0,
-			`cal_amount_unpaid` = IF(v_foreign_vat, v_excl_vat, v_incl_vat),
-			`ud` = now(), `ud_by` = (SELECT ud_by FROM T_TOWING_ACTIVITIES WHERE id = NEW.towing_voucher_id LIMIT 0,1)
-	WHERE 	towing_voucher_id = NEW.towing_voucher_id
-	LIMIT	1;
+-- 	DECLARE v_incl_vat, v_excl_vat DOUBLE;
+-- 	DECLARE v_foreign_vat BOOL;
+-- 
+-- 	SELECT 	sum(amount * fee_excl_vat), sum(amount * fee_incl_vat) INTO v_excl_vat, v_incl_vat
+-- 	FROM 	T_TOWING_ACTIVITIES ta, P_TIMEFRAME_ACTIVITY_FEE taf
+-- 	WHERE 	ta.activity_id = taf.id AND ta.towing_voucher_id = NEW.towing_voucher_id;
+-- 
+-- 	SET v_foreign_vat = F_IS_VOUCHER_VIABLE_FOR_FOREIGN_VAT(NEW.towing_voucher_id);
+-- 
+-- 	UPDATE `T_TOWING_VOUCHER_PAYMENTS`
+-- 	SET 	`amount_customer` = IF(v_foreign_vat, v_excl_vat, v_incl_vat),
+-- 			`cal_amount_paid` = 0,
+-- 			`cal_amount_unpaid` = IF(v_foreign_vat, v_excl_vat, v_incl_vat),
+-- 			`ud` = now(), `ud_by` = (SELECT ud_by FROM T_TOWING_ACTIVITIES WHERE id = NEW.towing_voucher_id LIMIT 0,1)
+-- 	WHERE 	towing_voucher_id = NEW.towing_voucher_id
+-- 	LIMIT	1;
+    
+    CALL R_RECALCULATE_VOUCHER_PAYMENTS(NEW.towing_voucher_id);
 END $$
 
 CREATE TRIGGER `TRG_AI_TOWING_CUSTOMER` AFTER INSERT ON `T_TOWING_CUSTOMERS`
@@ -2980,6 +3166,13 @@ BEGIN
 	IF (OLD.company_vat IS NULL AND NEW.company_vat IS NOT NULL)
 		OR (OLD.company_vat != NEW.company_vat)
 	THEN
+		UPDATE 	T_TOWING_VOUCHER_PAYMENT_DETAILS tvpd, T_TOWING_VOUCHER_PAYMENTS tvp
+		SET 	foreign_vat = LEFT(UPPER(NEW.company_vat), 2) != 'BE'
+		WHERE 	tvpd.towing_voucher_payment_id = tvp.id
+				AND tvpd.category='CUSTOMER'
+				AND tvp.towing_voucher_id = NEW.voucher_id
+		LIMIT 1;
+    
 		CALL R_RECALCULATE_VOUCHER_PAYMENTS(NEW.voucher_id);
 	END IF;
 END $$
@@ -3031,6 +3224,26 @@ FOR EACH ROW
 BEGIN
 	CALL R_ADD_TOWING_ADDITIONAL_COSTS_AUDIT_LOG(NEW.id);
 END $$
+
+CREATE TRIGGER `TRG_BU_TOWING_VOUCHER_PAYMENT_DETAILS` BEFORE UPDATE ON `T_TOWING_VOUCHER_PAYMENT_DETAILS`
+FOR EACH ROW
+BEGIN
+	DECLARE v_vat_percentage, v_paid DOUBLE;
+    
+	SET v_paid = IFNULL(NEW.amount_paid_cash, 0.0)
+                + IFNULL(NEW.amount_paid_bankdeposit, 0.0)
+                + IFNULL(NEW.amount_paid_maestro, 0.0)
+                + IFNULL(NEW.amount_paid_visa, 0.0);
+                
+	IF NEW.foreign_vat THEN
+		SET NEW.amount_unpaid_excl_vat = IFNULL(NEW.amount_excl_vat, 0.0) - v_paid;
+        SET NEW.amount_unpaid_incl_vat = NEW.amount_unpaid_excl_vat;
+    ELSE
+		SET NEW.amount_unpaid_incl_vat = IFNULL(NEW.amount_incl_vat, 0.0) - v_paid;
+        SET NEW.amount_unpaid_excl_vat = (NEW.amount_unpaid_incl_vat/1.21);
+    END IF;
+END $$
+
 -- ----------------------------------------------------------------
 -- EVENTS
 -- ----------------------------------------------------------------
