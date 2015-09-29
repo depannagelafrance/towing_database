@@ -42,6 +42,31 @@ CREATE TABLE `P_towing_be`.`T_TOWING_VOUCHER_PAYMENT_DETAILS` (
     ON UPDATE NO ACTION);
     
 
+ALTER TABLE `P_towing_be`.`T_TOWING_VOUCHER_PAYMENTS` 
+DROP COLUMN `cal_amount_unpaid`,
+DROP COLUMN `cal_amount_paid`,
+DROP COLUMN `paid_by_credit_card`,
+DROP COLUMN `paid_by_debit_card`,
+DROP COLUMN `paid_by_bank_deposit`,
+DROP COLUMN `paid_in_cash`,
+DROP COLUMN `amount_customer`,
+DROP COLUMN `amount_guaranteed_by_insurance`;
+
+ALTER TABLE `P_towing_be`.`T_INVOICE_LINES` 
+CHANGE COLUMN `item_amount` `item_amount` DOUBLE NOT NULL ,
+CHANGE COLUMN `item_price_excl_vat` `item_price_excl_vat` DOUBLE NOT NULL ,
+CHANGE COLUMN `item_price_incl_vat` `item_price_incl_vat` DOUBLE NOT NULL ,
+CHANGE COLUMN `item_total_excl_vat` `item_total_excl_vat` DOUBLE NOT NULL ,
+CHANGE COLUMN `item_total_incl_vat` `item_total_incl_vat` DOUBLE NOT NULL ;
+
+ALTER TABLE `P_towing_be`.`T_INVOICES` 
+CHANGE COLUMN `invoice_total_excl_vat` `invoice_total_excl_vat` DOUBLE NULL DEFAULT NULL ,
+CHANGE COLUMN `invoice_total_incl_vat` `invoice_total_incl_vat` DOUBLE NULL DEFAULT NULL ,
+CHANGE COLUMN `invoice_total_vat` `invoice_total_vat` DOUBLE NULL DEFAULT NULL ,
+CHANGE COLUMN `invoice_vat_percentage` `invoice_vat_percentage` DOUBLE NULL DEFAULT NULL ,
+CHANGE COLUMN `invoice_amount_paid` `invoice_amount_paid` DOUBLE NULL DEFAULT NULL ;
+
+
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;

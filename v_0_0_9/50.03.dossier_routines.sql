@@ -852,13 +852,18 @@ BEGIN
 		IF v_dossier_id IS NULL THEN
 			CALL R_NOT_FOUND;
 		ELSE
-			SELECT 	sum(cal_fee_excl_vat), sum(cal_fee_incl_vat) INTO v_cal_fee_excl_vat, v_cal_fee_incl_vat
-			FROM 	T_TOWING_ACTIVITIES
-			WHERE 	towing_voucher_id = p_voucher_id;
+			-- SELECT 	sum(cal_fee_excl_vat), sum(cal_fee_incl_vat) INTO v_cal_fee_excl_vat, v_cal_fee_incl_vat
+-- 			FROM 	T_TOWING_ACTIVITIES
+-- 			WHERE 	towing_voucher_id = p_voucher_id;
+-- 
+-- 			SELECT	*, v_cal_fee_excl_vat as total_excl_vat, v_cal_fee_incl_vat as total_incl_vat
+-- 			FROM 	T_TOWING_VOUCHER_PAYMENTS
+-- 			WHERE	`towing_voucher_id` = p_voucher_id;
 
-			SELECT	*, v_cal_fee_excl_vat as total_excl_vat, v_cal_fee_incl_vat as total_incl_vat
-			FROM 	T_TOWING_VOUCHER_PAYMENTS
-			WHERE	`towing_voucher_id` = p_voucher_id;
+			SELECT 	* 
+            FROM 	T_TOWING_VOUCHER_PAYMENTS tvp, T_TOWING_VOUCHER_PAYMENT_DETAILS tvpd
+            WHERE	tvpd.towing_voucher_payment_id = tvp.id
+					AND towing_voucher_id = p_voucher_id;
 		END IF;
 	END IF;
 END $$
@@ -1271,44 +1276,44 @@ BEGIN
 END $$
 
 CREATE PROCEDURE R_UPDATE_TOWING_VOUCHER_PAYMENTS(IN p_dossier_id BIGINT, IN p_voucher_id BIGINT,
-												  IN p_guarantee_insurance DOUBLE(10,2),
-												  IN p_in_cash DOUBLE(10,2), IN p_bank_deposit DOUBLE(10,2), IN p_debit_card DOUBLE(10,2), IN p_credit_card DOUBLE(10,2),
+												  -- IN p_guarantee_insurance DOUBLE(10,2),
+												  -- IN p_in_cash DOUBLE(10,2), IN p_bank_deposit DOUBLE(10,2), IN p_debit_card DOUBLE(10,2), IN p_credit_card DOUBLE(10,2),
 												  IN p_token VARCHAR(255))
 BEGIN
 	DECLARE v_company_id BIGINT;
 	DECLARE v_user_id VARCHAR(36);
-	DECLARE v_cal_fee_excl_vat, v_cal_fee_incl_vat, v_paid, v_unpaid DOUBLE(10,2);
-	DECLARE v_foreign_vat BOOL;
-
+-- 	DECLARE v_cal_fee_excl_vat, v_cal_fee_incl_vat, v_paid, v_unpaid DOUBLE(10,2);
+-- 	DECLARE v_foreign_vat BOOL;
+-- 
 	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
 
 	IF v_user_id IS NULL OR v_company_id IS NULL THEN
 		CALL R_NOT_AUTHORIZED;
 	ELSE
-		SET v_foreign_vat = F_IS_VOUCHER_VIABLE_FOR_FOREIGN_VAT(p_voucher_id);
-
-		SELECT 	sum(cal_fee_excl_vat), sum(cal_fee_incl_vat) INTO v_cal_fee_excl_vat, v_cal_fee_incl_vat
-		FROM 	T_TOWING_ACTIVITIES
-		WHERE 	towing_voucher_id = p_voucher_id;
-
-		SET v_paid = IFNULL(p_in_cash, 0.0) + IFNULL(p_bank_deposit, 0.0) + IFNULL(p_debit_card, 0.0) + IFNULL(p_credit_card, 0.0);
-
-		SET v_unpaid = IF(v_foreign_vat, v_cal_fee_excl_vat, v_cal_fee_incl_vat) - IFNULL(p_guarantee_insurance, 0.0) - v_paid;
-
-		IF v_unpaid < 0 THEN
-			SET v_unpaid = 0.0;
-		END IF;
-
+-- 		SET v_foreign_vat = F_IS_VOUCHER_VIABLE_FOR_FOREIGN_VAT(p_voucher_id);
+-- 
+-- 		SELECT 	sum(cal_fee_excl_vat), sum(cal_fee_incl_vat) INTO v_cal_fee_excl_vat, v_cal_fee_incl_vat
+-- 		FROM 	T_TOWING_ACTIVITIES
+-- 		WHERE 	towing_voucher_id = p_voucher_id;
+-- 
+-- 		SET v_paid = IFNULL(p_in_cash, 0.0) + IFNULL(p_bank_deposit, 0.0) + IFNULL(p_debit_card, 0.0) + IFNULL(p_credit_card, 0.0);
+-- 
+-- 		SET v_unpaid = IF(v_foreign_vat, v_cal_fee_excl_vat, v_cal_fee_incl_vat) - IFNULL(p_guarantee_insurance, 0.0) - v_paid;
+-- 
+-- 		IF v_unpaid < 0 THEN
+-- 			SET v_unpaid = 0.0;
+-- 		END IF;
+-- 
 		UPDATE `T_TOWING_VOUCHER_PAYMENTS`
 		SET
-			`amount_guaranteed_by_insurance` = p_guarantee_insurance,
-			`amount_customer` = IF(v_foreign_vat, v_cal_fee_excl_vat, v_cal_fee_incl_vat) - IFNULL(p_guarantee_insurance, 0.0),
-			`paid_in_cash` = p_in_cash,
-			`paid_by_bank_deposit` = p_bank_deposit,
-			`paid_by_debit_card` = p_debit_card,
-			`paid_by_credit_card` = p_credit_card,
-			`cal_amount_paid` = v_paid,
-			`cal_amount_unpaid` = v_unpaid,
+			-- `amount_guaranteed_by_insurance` = p_guarantee_insurance,
+-- 			`amount_customer` = IF(v_foreign_vat, v_cal_fee_excl_vat, v_cal_fee_incl_vat) - IFNULL(p_guarantee_insurance, 0.0),
+-- 			`paid_in_cash` = p_in_cash,
+-- 			`paid_by_bank_deposit` = p_bank_deposit,
+-- 			`paid_by_debit_card` = p_debit_card,
+-- 			`paid_by_credit_card` = p_credit_card,
+-- 			`cal_amount_paid` = v_paid,
+-- 			`cal_amount_unpaid` = v_unpaid,
 			`ud` = now(),
 			`ud_by` = F_RESOLVE_LOGIN(v_user_id, p_token)
 		WHERE `towing_voucher_id` = p_voucher_id;
@@ -1336,7 +1341,7 @@ BEGIN
 	IF v_user_id IS NULL OR v_company_id IS NULL THEN
 		CALL R_NOT_AUTHORIZED;
 	ELSE
-		UPDATE `P_towing_be`.`T_TOWING_VOUCHER_PAYMENT_DETAILS`
+		UPDATE `T_TOWING_VOUCHER_PAYMENT_DETAILS`
 		SET
 			`foreign_vat` = IFNULL(p_foreign_vat, 0),
 			`amount_excl_vat` = p_amount_excl_vat,
@@ -3120,10 +3125,10 @@ BEGIN
 
 
 	UPDATE `T_TOWING_VOUCHER_PAYMENTS`
-	SET 	`amount_customer` = v_total - IFNULL(amount_guaranteed_by_insurance, 0.0),
-			`amount_guaranteed_by_insurance` = IFNULL(amount_guaranteed_by_insurance, 0.0),
-			`cal_amount_unpaid` = (v_total - IFNULL(amount_guaranteed_by_insurance, 0.0)) - IFNULL(cal_amount_paid, 0.0),
-			`ud` = now(), `ud_by` = (SELECT ud_by FROM T_TOWING_ACTIVITIES WHERE id = p_voucher_id LIMIT 0,1)
+	SET 	-- `amount_customer` = v_total - IFNULL(amount_guaranteed_by_insurance, 0.0),
+-- 			`amount_guaranteed_by_insurance` = IFNULL(amount_guaranteed_by_insurance, 0.0),
+-- 			`cal_amount_unpaid` = (v_total - IFNULL(amount_guaranteed_by_insurance, 0.0)) - IFNULL(cal_amount_paid, 0.0),
+ 			`ud` = now(), `ud_by` = (SELECT ud_by FROM T_TOWING_ACTIVITIES WHERE id = p_voucher_id LIMIT 0,1)
 	WHERE 	towing_voucher_id = p_voucher_id
 	LIMIT	1;
 END $$

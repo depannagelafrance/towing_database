@@ -143,7 +143,7 @@ END $$
 # ####################################################################################
 CREATE PROCEDURE R_RECALCULATE_INVOICE_TOTAL(IN p_invoice_id BIGINT)
 BEGIN
-	DECLARE v_invoice_total_excl_vat, v_invoice_total_incl_vat DOUBLE(5,2);
+	DECLARE v_invoice_total_excl_vat, v_invoice_total_incl_vat DOUBLE;
     
     SELECT 	SUM(il.item_total_excl_vat), SUM(il.item_total_incl_vat)
     INTO	v_invoice_total_excl_vat, v_invoice_total_incl_vat
@@ -161,9 +161,9 @@ END $$
 CREATE PROCEDURE R_INVOICE_UPDATE_INVOICE(IN p_id BIGINT, 
 										  IN p_ref VARCHAR(20),
                                           IN p_insurance_dossiernr VARCHAR(45),
-										  -- IN p_invoice_total_excl_vat DOUBLE(5,2), IN p_invoice_total_incl_vat DOUBLE(5,2),
-                                          -- IN p_vat_total DOUBLE(5,2), IN p_vat DOUBLE(5,2),
-                                          IN p_paid DOUBLE(5,2), IN p_ptype ENUM('OTHER','CASH','BANKDEPOSIT','MAESTRO','VISA','CREDITCARD'),
+										  -- IN p_invoice_total_excl_vat DOUBLE, IN p_invoice_total_incl_vat DOUBLE,
+                                          -- IN p_vat_total DOUBLE, IN p_vat DOUBLE,
+                                          IN p_paid DOUBLE, IN p_ptype ENUM('OTHER','CASH','BANKDEPOSIT','MAESTRO','VISA','CREDITCARD'),
                                           IN p_message TEXT,
 										  IN p_token VARCHAR(255))
 BEGIN
@@ -255,9 +255,9 @@ END $$
 CREATE PROCEDURE R_INVOICE_CREATE_INVOICE(IN p_invoice_customer_id BIGINT,
 										  IN p_ref VARCHAR(20),
                                           IN p_insurance_dossiernr VARCHAR(45),
-										  IN p_invoice_total_excl_vat DOUBLE(5,2), IN p_invoice_total_incl_vat DOUBLE(5,2),
-                                          IN p_vat_total DOUBLE(5,2), IN p_vat DOUBLE(5,2),
-                                          IN p_paid DOUBLE(5,2), IN p_ptype ENUM('OTHER','CASH','BANKDEPOSIT','MAESTRO','VISA','CREDITCARD'),
+										  IN p_invoice_total_excl_vat DOUBLE, IN p_invoice_total_incl_vat DOUBLE,
+                                          IN p_vat_total DOUBLE, IN p_vat DOUBLE,
+                                          IN p_paid DOUBLE, IN p_ptype ENUM('OTHER','CASH','BANKDEPOSIT','MAESTRO','VISA','CREDITCARD'),
                                           IN p_message TEXT,                                          
 										  IN p_token VARCHAR(255))
 BEGIN
@@ -374,7 +374,7 @@ END $$
 
 CREATE PROCEDURE R_INVOICE_UPDATE_INVOICE_LINE(IN p_id BIGINT, IN p_invoice_id BIGINT, 
 											   IN p_item VARCHAR(255),
-                                               IN p_amount DOUBLE(5,2), IN p_price_excl_vat DOUBLE(5,2), IN p_price_incl_vat DOUBLE(5,2),
+                                               IN p_amount DOUBLE, IN p_price_excl_vat DOUBLE, IN p_price_incl_vat DOUBLE,
                                                IN p_token VARCHAR(255))
 BEGIN
 	DECLARE v_company_id BIGINT;
@@ -405,7 +405,7 @@ END $$
 
 CREATE PROCEDURE R_INVOICE_CREATE_INVOICE_LINE(IN p_invoice_id BIGINT, 
 											   IN p_item VARCHAR(255),
-                                               IN p_amount DOUBLE(5,2), IN p_price_excl_vat DOUBLE(5,2), IN p_price_incl_vat DOUBLE(5,2),
+                                               IN p_amount DOUBLE, IN p_price_excl_vat DOUBLE, IN p_price_incl_vat DOUBLE,
                                                IN p_token VARCHAR(255))
 BEGIN
 	DECLARE v_company_id, v_invoice_line_id BIGINT;
@@ -633,16 +633,16 @@ END $$
 
 
 CREATE PROCEDURE R_START_INVOICE_BATCH_FOR_VOUCHER(	IN p_voucher_id BIGINT, IN p_batch_id VARCHAR(36), 
-													IN p_customer_amount DOUBLE(9,2), IN p_customer_ptype VARCHAR(25),
-													IN p_collector_amount DOUBLE(9,2), IN p_collector_ptype VARCHAR(25),
-                                                    IN p_assurance_amount DOUBLE(9,2), IN p_assurance_ptype VARCHAR(25),
-													IN p_message TEXT, 
+-- 													IN p_customer_amount DOUBLE(9,2), IN p_customer_ptype VARCHAR(25),
+-- 													IN p_collector_amount DOUBLE(9,2), IN p_collector_ptype VARCHAR(25),
+--                                                     IN p_assurance_amount DOUBLE(9,2), IN p_assurance_ptype VARCHAR(25),
+ 													IN p_message TEXT, 
                                                     IN p_token VARCHAR(255))
 BEGIN
 	CALL R_INVOICE_CREATE_FOR_VOUCHER(p_voucher_id, p_batch_id, 
-									  p_customer_amount, p_customer_ptype,
-									  p_collector_amount, p_collector_ptype,
-                                      p_assurance_amount, p_assurance_ptype,
+-- 									  p_customer_amount, p_customer_ptype,
+-- 									  p_collector_amount, p_collector_ptype,
+--                                       p_assurance_amount, p_assurance_ptype,
 									  p_message);
     
     IF (SELECT count(*) FROM T_TOWING_VOUCHER_VALIDATION_MESSAGES WHERE towing_voucher_id = p_voucher_id) > 0 THEN
@@ -742,9 +742,9 @@ END $$
 -- CREATE THE INVOICE FOR A VOUCHER
 -- ------------------------------------------------------------------------------------------
 CREATE PROCEDURE R_INVOICE_CREATE_FOR_VOUCHER(IN p_voucher_id BIGINT, IN p_batch_id VARCHAR(36), 
-											  IN p_customer_amount DOUBLE(9,2), IN p_customer_ptype VARCHAR(25),
-											  IN p_collector_amount DOUBLE(9,2), IN p_collector_ptype VARCHAR(25),
-											  IN p_assurance_amount DOUBLE(9,2), IN p_assurance_ptype VARCHAR(25),
+-- 											  IN p_customer_amount DOUBLE(9,2), IN p_customer_ptype VARCHAR(25),
+-- 											  IN p_collector_amount DOUBLE(9,2), IN p_collector_ptype VARCHAR(25),
+-- 											  IN p_assurance_amount DOUBLE(9,2), IN p_assurance_ptype VARCHAR(25),
 											  IN p_message TEXT)
 BEGIN
 	DECLARE v_has_insurance, v_has_collector, v_insurance_excluded, v_foreign_vat_insurance, v_has_validation_messages, v_default_depot BOOL;
@@ -816,18 +816,33 @@ BEGIN
     -- START THE INVOICING IF THERE ARE NO VALIDATION ERRORS
     -- ------------------------------------------------------------------
     IF NOT v_has_validation_messages THEN
-		SELECT 	amount_guaranteed_by_insurance, amount_customer
-		INTO	v_assurance_warranty, v_amount_customer
-		FROM 	T_TOWING_VOUCHER_PAYMENTS
-		WHERE 	towing_voucher_id = p_voucher_id;
-
-		SELECT 	SUM(tac.cal_fee_excl_vat), SUM(tac.cal_fee_incl_vat)
-		INTO 	v_amount_customer_excl_vat, v_amount_customer_incl_vat
-		FROM 	P_TIMEFRAME_ACTIVITIES ta, P_TIMEFRAME_ACTIVITY_FEE taf, T_TOWING_ACTIVITIES tac
-		WHERE 	1=1
-				AND taf.timeframe_activity_id = ta.id
-				AND tac.activity_id = taf.id
-				AND tac.towing_voucher_id=p_voucher_id; 
+		-- SELECT 	amount_guaranteed_by_insurance, amount_customer
+		-- INTO	v_assurance_warranty, v_amount_customer
+		-- FROM 	T_TOWING_VOUCHER_PAYMENTS
+		-- WHERE 	towing_voucher_id = p_voucher_id;
+        
+        SELECT 	IF(foreign_vat, amount_excl_vat, amount_incl_vat) 
+        INTO	v_assurance_warranty
+        FROM 	T_TOWING_VOUCHER_PAYMENT_DETAILS tvpd, T_TOWING_VOUCHER_PAYMENTS tvp
+        WHERE	tvp.id = tvpd.towing_voucher_payment_id
+				AND tvp.voucher_id = p_voucher_id
+                AND category='INSURANCE';
+        
+        SELECT 	IF(foreign_vat, amount_excl_vat, amount_incl_vat), amount_excl_vat, amount_incl_vat
+        INTO	v_amount_customer, v_amount_customer_excl_vat, v_amount_customer_incl_vat
+        FROM 	T_TOWING_VOUCHER_PAYMENT_DETAILS tvpd, T_TOWING_VOUCHER_PAYMENTS tvp
+        WHERE	tvp.id = tvpd.towing_voucher_payment_id
+				AND tvp.voucher_id = p_voucher_id
+                AND category='CUSTOMER';
+                
+-- 
+-- 		SELECT 	SUM(tac.cal_fee_excl_vat), SUM(tac.cal_fee_incl_vat)
+-- 		INTO 	v_amount_customer_excl_vat, v_amount_customer_incl_vat
+-- 		FROM 	P_TIMEFRAME_ACTIVITIES ta, P_TIMEFRAME_ACTIVITY_FEE taf, T_TOWING_ACTIVITIES tac
+-- 		WHERE 	1=1
+-- 				AND taf.timeframe_activity_id = ta.id
+-- 				AND tac.activity_id = taf.id
+-- 				AND tac.towing_voucher_id=p_voucher_id; 
                 
 		SELECT 	IFNULL(company_vat, '')
         INTO 	v_customer_vat
@@ -835,11 +850,10 @@ BEGIN
         WHERE 	voucher_id = p_voucher_id
         LIMIT 	0,1;
         
-		-- JUMP HERE
 
 		IF v_has_insurance AND NOT v_insurance_excluded
 		THEN
-			CALL R_INVOICE_CREATE_PARTIAL_INSURANCE(p_voucher_id, v_insurance_id, p_batch_id, p_message, p_assurance_amount, p_assurance_ptype);
+			CALL R_INVOICE_CREATE_PARTIAL_INSURANCE(p_voucher_id, v_insurance_id, p_batch_id, p_message /*, p_assurance_amount, p_assurance_ptype */);
 		END IF;
 
 		IF v_has_collector THEN
@@ -858,7 +872,7 @@ BEGIN
 							AND tac.towing_voucher_id=p_voucher_id) > 0
 				THEN
 					IF v_vehicule_collected IS NOT NULL THEN
-						CALL R_INVOICE_CREATE_PARTIAL_COLLECTOR(p_voucher_id, v_collector_id, p_batch_id, p_message, p_collector_amount, p_collector_ptype);
+						CALL R_INVOICE_CREATE_PARTIAL_COLLECTOR(p_voucher_id, v_collector_id, p_batch_id, p_message/*, p_collector_amount, p_collector_ptype*/);
 					ELSE
 						-- vehicule not collected
                         IF DATEDIFF(now(), v_call_date) > 30 THEN
@@ -904,7 +918,7 @@ BEGIN
                 AND v_amount_customer > 0
 				AND v_amount_customer != IFNULL(v_storage_costs, 0)) 
 		THEN
-			CALL R_INVOICE_CREATE_PARTIAL_CUSTOMER(p_voucher_id, p_batch_id, p_message, p_customer_amount, p_customer_ptype);
+			CALL R_INVOICE_CREATE_PARTIAL_CUSTOMER(p_voucher_id, p_batch_id, p_message/*, p_customer_amount, p_customer_ptype*/);
 		END IF;
 		
 		-- CHANGE THE STATUS
@@ -916,15 +930,17 @@ END $$
 -- ------------------------------------------------------------------------------------------
 -- CREATE THE INVOICE FOR AN INSURANCE COMPANY
 -- ------------------------------------------------------------------------------------------
-CREATE PROCEDURE R_INVOICE_CREATE_PARTIAL_INSURANCE(IN p_voucher_id BIGINT, IN p_insurance_id BIGINT, IN p_batch_id VARCHAR(36), IN p_message TEXT, IN p_paid DOUBLE(9,2), IN p_payment_type VARCHAR(25))
+CREATE PROCEDURE R_INVOICE_CREATE_PARTIAL_INSURANCE(IN p_voucher_id BIGINT, IN p_insurance_id BIGINT, IN p_batch_id VARCHAR(36), IN p_message TEXT /*, IN p_paid DOUBLE(9,2), IN p_payment_type VARCHAR(25)*/)
 BEGIN
 	DECLARE v_foreign_vat  BOOL;
 	DECLARE v_customer_number, v_collector_custnum, v_company_vat, v_street_number, v_street_pobox, v_zip, v_insurance_dossier_nr  VARCHAR(45);
-	DECLARE v_company_name, v_street, v_city, v_country VARCHAR(255);
+	DECLARE v_company_name, v_street, v_city, v_country, v_payment_type VARCHAR(255);
 	DECLARE	v_company_id, v_invoice_customer_id, v_invoice_id, v_voucher_number, v_invoice_number, v_collector_id BIGINT;
-	DECLARE v_amount, v_amount_excl_vat, v_amount_incl_vat, v_vat DOUBLE(5,2);
-    DECLARE v_invoice_total_excl_vat, v_invoice_total_incl_vat DOUBLE(5,2);
-    DECLARE v_amount_customer DOUBLE(5,2);
+	DECLARE v_amount, v_amount_excl_vat, v_amount_incl_vat, v_vat DOUBLE;
+    DECLARE v_invoice_total_excl_vat, v_invoice_total_incl_vat DOUBLE;
+    DECLARE v_amount_paid_incl_vat, v_amount_paid_excl_vat DOUBLE;
+    DECLARE v_amount_unpaid_incl_vat, v_amount_unpaid_excl_vat DOUBLE;
+    DECLARE v_amount_customer DOUBLE;
 
 	SET v_vat = 0.21;
 
@@ -932,13 +948,11 @@ BEGIN
 	SET v_customer_number = F_CUSTOMER_NUMBER_FOR_INSURANCE(p_insurance_id);
 
 	SELECT 	i.name, i.vat, i.street, i.street_number, i.street_pobox, i.zip, i.city, 
-			IF(i.vat IS NULL, 0,  UPPER(LEFT(i.vat, 2)) != 'BE'),
 			d.company_id,
 			tv.voucher_number,
             tv.insurance_dossiernr,
             tv.collector_id
 	INTO 	v_company_name, v_company_vat, v_street, v_street_number, v_street_pobox, v_zip, v_city, 
-			v_foreign_vat, 
             v_company_id,
             v_voucher_number,
             v_insurance_dossier_nr,
@@ -950,10 +964,20 @@ BEGIN
 			AND i.id = p_insurance_id;
 
 	-- SELECT THE PAYMENT INFORMATION FOR THE INSURANCE PART
-    SELECT 	amount_guaranteed_by_insurance, amount_customer
-    INTO	v_amount, v_amount_customer
-    FROM 	T_TOWING_VOUCHER_PAYMENTS
+    SELECT 	amount_excl_vat, amount_incl_vat, foreign_vat, amount_unpaid_excl_vat, amount_unpaid_incl_vat,
+			IF(amount_paid_cash > 0, 'CASH',
+				IF(amount_paid_bankdeposit > 0, 'BANKDEPOSIT', 
+					IF(amount_paid_maestro > 0, 'MAESTRO', 
+						IF(amount_paid_visa > 0, 'VISA', null)
+					)
+				)
+			) as payment_type
+    INTO	v_amount_excl_vat, v_amount_incl_vat, v_foreign_vat, v_amount_unpaid_excl_vat, v_amount_unpaid_incl_vat,
+			v_payment_type
+    FROM 	T_TOWING_VOUCHER_PAYMENTS tvp, T_TOWING_VOUCHER_PAYMENT_DETAILS tvpd
     WHERE 	towing_voucher_id = p_voucher_id
+			AND tvp.id = tvpd.towing_voucher_payment_id
+			AND category = 'INSURANCE'
     LIMIT 	0,1;
     
     SELECT 	customer_number
@@ -962,13 +986,6 @@ BEGIN
     WHERE 	id = v_collector_id
     LIMIT	0,1;
 
-    IF v_foreign_vat THEN
-		SET v_amount_excl_vat = v_amount;
-        SET v_amount_incl_vat = v_amount;
-	ELSE
-		SET v_amount_excl_vat = v_amount / (1 + v_vat);
-        SET v_amount_incl_vat = v_amount;
-    END IF;
 
     -- CREATE A NEW INVOICE CUSTOMER
     CALL R_INVOICE_CUSTOMER_FIND_OR_CREATE(
@@ -1006,14 +1023,14 @@ BEGIN
     VALUES(v_company_id, p_voucher_id, p_batch_id,
 		   v_invoice_customer_id, CURDATE(), v_invoice_number, F_CREATE_STRUCTURED_REFERENCE(v_invoice_number),
            v_foreign_vat,
-           0.0, 0.0,
-           0.0,
+           v_amount_excl_vat, v_amount_incl_vat,
+           v_amount_incl_vat-v_amount_excl_vat,
            IF(v_foreign_vat, 0.0, v_vat),
            p_message,
            'INSURANCE',
            v_insurance_dossier_nr,
-           p_paid,
-           p_payment_type);
+           IF(v_foreign_vat, v_amount_excl_vat - v_amount_unpaid_excl_vat, v_amount_incl_vat - v_amount_unpaid_incl_vat),
+           v_payment_type); -- TODO: set the payment type correct!
 
 	SET v_invoice_id = LAST_INSERT_ID();
 
@@ -1021,7 +1038,6 @@ BEGIN
     IF v_collector_id IS NULL -- IF NO COLLECTOR IS SET, OR
 		OR v_collector_custnum = v_customer_number -- IF THE COLLECTOR IS THE INSURANCE COMPANY
 	THEN
-		
 		-- INSERT ALL ACTIVITIES FROM THE VOUCHER AS INVOICE_LINES
 		INSERT INTO T_INVOICE_LINES(invoice_id,
 									item,
@@ -1069,7 +1085,11 @@ BEGIN
     END IF;
             
 	-- INSERT THE INVOICE LINE FOR THE CUSTOMERS PART
-    IF v_amount != v_amount_customer AND v_amount_customer > 0 /* AND NOT v_collector_id IS NULL */ 
+    IF (SELECT 	amount_excl_vat 
+		FROM 	T_TOWING_VOUCHER_PAYMENT_DETAILS tvpd, T_TOWING_VOUCHER_PAYMENTS tvp 
+        WHERE 	tvp.id = towing_voucher_payment_id AND towing_voucher_id=p_voucher_id
+				AND category='CUSTOMER') > 0 
+		-- v_amount != v_amount_customer AND v_amount_customer > 0 /* AND NOT v_collector_id IS NULL */ 
     THEN
 		INSERT INTO T_INVOICE_LINES(invoice_id,
 									item,
@@ -1078,12 +1098,13 @@ BEGIN
 		SELECT 	v_invoice_id,
 				CONCAT('Ten laste van klant, referentie takelbon B', v_voucher_number, ' - dossier: ', IFNULL(v_insurance_dossier_nr, 'N/A')),
 				1, 
-                (v_amount - SUM(item_total_excl_vat)), -- -(v_amount_customer / (1+v_vat)), -v_amount_customer,
-				(v_amount - SUM(item_total_incl_vat)), -- -(v_amount_customer / (1+v_vat)), -v_amount_customer;
-                (v_amount - SUM(item_total_excl_vat)), -- -(v_amount_customer / (1+v_vat)), -v_amount_customer,
-				(v_amount - SUM(item_total_incl_vat))  -- -(v_amount_customer / (1+v_vat)), -v_amount_customer;
-		FROM	T_INVOICE_LINES
-        WHERE 	invoice_id = v_invoice_id;
+                -amount_excl_vat, -- -(v_amount_customer / (1+v_vat)), -v_amount_customer,
+				-amount_incl_vat, -- -(v_amount_customer / (1+v_vat)), -v_amount_customer;
+                -amount_excl_vat, -- -(v_amount_customer / (1+v_vat)), -v_amount_customer,
+				-amount_incl_vat  -- -(v_amount_customer / (1+v_vat)), -v_amount_customer;
+		FROM	T_TOWING_VOUCHER_PAYMENT_DETAILS tvpd, T_TOWING_VOUCHER_PAYMENTS tvp 
+        WHERE 	tvp.id = towing_voucher_payment_id AND towing_voucher_id=p_voucher_id
+				AND category='CUSTOMER';
 			
 	END IF;
             
@@ -1095,35 +1116,49 @@ END $$
 -- ------------------------------------------------------------------------------------------
 -- CREATE THE INVOICE FOR A COLLECTOR
 -- ------------------------------------------------------------------------------------------
-CREATE PROCEDURE R_INVOICE_CREATE_PARTIAL_COLLECTOR(IN p_voucher_id BIGINT, IN p_collector_id BIGINT, IN p_batch_id VARCHAR(36), IN p_message TEXT, IN p_paid DOUBLE(9,2), IN p_payment_type VARCHAR(25))
+CREATE PROCEDURE R_INVOICE_CREATE_PARTIAL_COLLECTOR(IN p_voucher_id BIGINT, IN p_collector_id BIGINT, IN p_batch_id VARCHAR(36), IN p_message TEXT /*, IN p_paid DOUBLE(9,2), IN p_payment_type VARCHAR(25) */)
 BEGIN
 	DECLARE v_foreign_vat  BOOL;
 	DECLARE v_customer_number, v_company_vat, v_street_number, v_street_pobox, v_zip  VARCHAR(45);
-    DECLARE v_company_name, v_street, v_city, v_country, v_collector_type, v_first_name, v_last_name VARCHAR(255);
+    DECLARE v_company_name, v_street, v_city, v_country, v_collector_type, v_first_name, v_last_name, v_payment_type VARCHAR(255);
     DECLARE	v_company_id, v_invoice_customer_id, v_invoice_id, v_voucher_number, v_invoice_number, v_collector_id BIGINT;
-    DECLARE v_amount, v_amount_excl_vat, v_amount_incl_vat, v_vat, v_item_excl_vat, v_item_incl_vat DOUBLE(5,2);
+    DECLARE v_amount, v_amount_excl_vat, v_amount_incl_vat, v_vat, v_item_excl_vat, v_item_incl_vat DOUBLE;
+    DECLARE v_amount_unpaid_excl_vat, v_amount_unpaid_incl_vat DOUBLE;
 
     SET v_vat = 0.21;
 
-    SELECT 	tac.amount, tac.cal_fee_excl_vat, tac.cal_fee_incl_vat, taf.fee_excl_vat, taf.fee_incl_vat
-    INTO 	v_amount, v_amount_excl_vat, v_amount_incl_vat, v_item_excl_vat, v_item_incl_vat
+    SELECT 	taf.fee_excl_vat, taf.fee_incl_vat, tac.amount
+    INTO 	v_item_excl_vat, v_item_incl_vat, v_amount
 		FROM 	P_TIMEFRAME_ACTIVITIES ta, P_TIMEFRAME_ACTIVITY_FEE taf, T_TOWING_ACTIVITIES tac
 		WHERE 	ta.code='STALLING'
 				AND taf.timeframe_activity_id = ta.id
 				AND tac.activity_id = taf.id
 				AND tac.towing_voucher_id=p_voucher_id;
 
+	SELECT 	foreign_vat, amount_excl_vat, amount_incl_vat, amount_unpaid_excl_vat, amount_unpaid_incl_vat,
+			IF(amount_paid_cash > 0, 'CASH',
+				IF(amount_paid_bankdeposit > 0, 'BANKDEPOSIT', 
+					IF(amount_paid_maestro > 0, 'MAESTRO', 
+						IF(amount_paid_visa > 0, 'VISA', null)
+					)
+				)
+			) as payment_type
+    INTO	v_foreign_vat, v_amount_excl_vat, v_amount_incl_vat, v_amount_unpaid_excl_vat, v_amount_unpaid_incl_vat,
+			v_payment_type
+    FROM 	T_TOWING_VOUCHER_PAYMENT_DETAILS tvpd, T_TOWING_VOUCHER_PAYMENTS tvp
+    WHERE	tvpd.towing_voucher_payment_id = tvp.id
+			AND tvp.towing_voucher_id = p_voucher_id
+			AND category='COLLECTOR';
+
     -- ONLY IF STALLING COST WAS APPLIED
-    IF v_amount IS NOT NULL AND v_amount > 0 AND v_amount_excl_vat IS NOT NULL AND v_amount_incl_vat IS NOT NULL
+    IF IFNULL(v_amount_excl_vat, 0.0) > 0
     THEN
 		-- FETCH THE COLLECTOR COMPANY INFORMATION FOR THE VOUCHER
 		SELECT c.name, c.vat, c.street, c.street_number, c.street_pobox, c.zip, c.city, c.country,
-			   IF(c.vat IS NULL, 0,  UPPER(LEFT(c.vat, 2)) != 'BE'),
 			   d.company_id,
 			   tv.voucher_number,
                c.type
 		INTO   v_company_name, v_company_vat, v_street, v_street_number, v_street_pobox, v_zip, v_city, v_country,
-			   v_foreign_vat,
 			   v_company_id,
 			   v_voucher_number,
                v_collector_type
@@ -1137,13 +1172,11 @@ BEGIN
 			-- FETCH THE CUSTOMER INFORMATION FOR THE VOUCHER
 			SELECT 	
 					c.first_name, c.last_name, c.company_name, c.company_vat, c.street, c.street_number, c.street_pobox, c.zip, c.city, c.country,
-					IF(c.company_vat IS NULL OR TRIM(c.company_vat) = '', 0,  UPPER(LEFT(c.company_vat, 2)) != 'BE'),
 					d.company_id,
 					tv.voucher_number,
 					tv.collector_id
 			INTO 	
 					v_first_name, v_last_name, v_company_name, v_company_vat, v_street, v_street_number, v_street_pobox, v_zip, v_city, v_country,
-					v_foreign_vat,
 					v_company_id,
 					v_voucher_number,
 					v_collector_id
@@ -1211,13 +1244,13 @@ BEGIN
 			   p_batch_id,
 			   v_invoice_customer_id, CURDATE(), v_invoice_number, F_CREATE_STRUCTURED_REFERENCE(v_invoice_number),
 			   v_foreign_vat,
-			   v_amount_excl_vat, IF(v_foreign_vat, v_amount_excl_vat, v_amount_incl_vat),
-			   IF(v_foreign_vat, v_amount_excl_vat, v_amount_incl_vat) - v_amount_excl_vat,
+			   v_amount_excl_vat,v_amount_incl_vat,
+			   v_amount_incl_vat - v_amount_excl_vat,
 			   IF(v_foreign_vat, 0.0, v_vat),
                p_message,
                'COLLECTOR',
-			   p_paid,
-			   p_payment_type);
+			   IF(v_foreign_vat, v_amount_excl_vat - v_amount_unpaid_excl_vat, v_amount_incl_vat - v_amount_unpaid_incl_vat),
+			   v_payment_type);
 
 		SET v_invoice_id = LAST_INSERT_ID();
 
@@ -1230,8 +1263,8 @@ BEGIN
 			   CONCAT('Stallingskost takelbon B', v_voucher_number),
                v_amount, v_item_excl_vat, IF(v_foreign_vat, v_item_excl_vat, v_item_incl_vat),
 			   v_amount_excl_vat, IF(v_foreign_vat, v_amount_excl_vat, v_amount_incl_vat));
-		ELSE
-			SELECT concat("No storage costs found for voucher: ", p_voucher_id);
+	ELSE
+		SELECT concat("No storage costs found for voucher: ", p_voucher_id);
     END IF;
 END $$
 
@@ -1306,21 +1339,21 @@ END $$
 -- ------------------------------------------------------------------------------------------
 -- CREATE THE INVOICE FOR A CUSTOMER
 -- ------------------------------------------------------------------------------------------
-CREATE PROCEDURE R_INVOICE_CREATE_PARTIAL_CUSTOMER(IN p_voucher_id BIGINT, IN p_batch_id VARCHAR(36), IN p_message TEXT, IN p_paid DOUBLE(9,2), IN p_payment_type VARCHAR(25))
+CREATE PROCEDURE R_INVOICE_CREATE_PARTIAL_CUSTOMER(IN p_voucher_id BIGINT, IN p_batch_id VARCHAR(36), IN p_message TEXT /*, IN p_paid DOUBLE(9,2), IN p_payment_type VARCHAR(25)*/)
 BEGIN
 	DECLARE v_foreign_vat  BOOL;
 	DECLARE v_customer_number, v_company_vat, v_street_number, v_street_pobox, v_zip, v_insurance_dossier_nr  VARCHAR(45);
-	DECLARE v_company_name, v_street, v_city, v_country, v_first_name, v_last_name VARCHAR(255);
+	DECLARE v_company_name, v_street, v_city, v_country, v_first_name, v_last_name, v_payment_type VARCHAR(255);
 	DECLARE	v_company_id, v_invoice_customer_id, v_invoice_id, v_collector_id, v_insurance_id, v_voucher_number, v_invoice_number BIGINT;
-	DECLARE v_amount, v_amount_excl_vat, v_amount_incl_vat, v_vat, v_item_excl_vat, v_item_incl_vat DOUBLE(5,2);
-    DECLARE	v_invoice_total_excl_vat, v_invoice_total_incl_vat DOUBLE(5,2);
+	DECLARE v_amount, v_amount_excl_vat, v_amount_incl_vat, v_vat, v_item_excl_vat, v_item_incl_vat DOUBLE;
+    DECLARE v_amount_unpaid_excl_vat, v_amount_unpaid_incl_vat DOUBLE;
+    DECLARE	v_invoice_total_excl_vat, v_invoice_total_incl_vat DOUBLE;
 
 	SET v_vat = 0.21;
 
 	-- FETCH THE INSURANCE COMPANY INFORMATION FOR THE VOUCHER
 	SELECT 	
 			c.first_name, c.last_name, c.company_name, c.company_vat, c.street, c.street_number, c.street_pobox, c.zip, c.city, c.country,
-			IF(c.company_vat IS NULL OR TRIM(c.company_vat) = '', 0,  UPPER(LEFT(c.company_vat, 2)) != 'BE'),
 			d.company_id,
 			tv.voucher_number,
             tv.collector_id,
@@ -1328,7 +1361,6 @@ BEGIN
             tv.insurance_dossiernr
 	INTO 	
 			v_first_name, v_last_name, v_company_name, v_company_vat, v_street, v_street_number, v_street_pobox, v_zip, v_city, v_country,
-			v_foreign_vat,
 			v_company_id,
 			v_voucher_number,
             v_collector_id,
@@ -1338,6 +1370,22 @@ BEGIN
 	WHERE 	tv.id = p_voucher_id
 			AND tv.dossier_id = d.id
 			AND tv.id = c.voucher_id;
+            
+	SELECT 	foreign_vat, amount_excl_vat, amount_incl_vat, IFNULL(amount_unpaid_excl_vat, 0), IFNULL(amount_unpaid_incl_vat,0),
+			IF(amount_paid_cash > 0, 'CASH',
+				IF(amount_paid_bankdeposit > 0, 'BANKDEPOSIT', 
+					IF(amount_paid_maestro > 0, 'MAESTRO', 
+						IF(amount_paid_visa > 0, 'VISA', null)
+					)
+				)
+			) as payment_type
+    INTO	v_foreign_vat, v_amount_excl_vat, v_amount_incl_vat, v_amount_unpaid_excl_vat, v_amount_unpaid_incl_vat,
+			v_payment_type
+    FROM 	T_TOWING_VOUCHER_PAYMENT_DETAILS tvpd, T_TOWING_VOUCHER_PAYMENTS tvp
+    WHERE	tvpd.towing_voucher_payment_id = tvp.id
+			AND tvp.towing_voucher_id = p_voucher_id
+            AND tvpd.category='CUSTOMER'
+	LIMIT 	0,1;
 
 	-- CREATE A NEW INVOICE CUSTOMER    
     CALL R_INVOICE_CUSTOMER_FIND_OR_CREATE(
@@ -1376,13 +1424,13 @@ BEGIN
 		   p_batch_id,
 		   v_invoice_customer_id, CURDATE(), v_invoice_number, F_CREATE_STRUCTURED_REFERENCE(v_invoice_number),
 		   v_foreign_vat,
-		   0.0, 0.0,
-		   0.0,
+		   v_amount_excl_vat, v_amount_incl_vat,
+		   v_amount_incl_vat - v_amount_excl_vat,
 		   IF(v_foreign_vat, 0, v_vat),
            p_message,
            'CUSTOMER',
-           p_paid,
-           p_payment_type);
+           IF(v_foreign_vat, v_amount_excl_vat - v_amount_unpaid_excl_vat,  v_amount_incl_vat - v_amount_unpaid_incl_vat),
+           v_payment_type);
 
 	SET v_invoice_id = LAST_INSERT_ID();
 
@@ -1439,20 +1487,18 @@ BEGIN
     END IF;
     
     IF v_insurance_id IS NOT NULL THEN
-        SELECT 	amount_guaranteed_by_insurance
-		INTO	v_amount
-		FROM 	T_TOWING_VOUCHER_PAYMENTS
-		WHERE 	towing_voucher_id = p_voucher_id
-		LIMIT 	0,1;
-
+		SELECT 	amount_excl_vat, amount_incl_vat
+		INTO	v_amount_excl_vat, v_amount_incl_vat
+		FROM 	T_TOWING_VOUCHER_PAYMENT_DETAILS tvpd, T_TOWING_VOUCHER_PAYMENTS tvp
+		WHERE	tvpd.towing_voucher_payment_id = tvp.id
+				AND tvp.towing_voucher_id = p_voucher_id
+				AND tvpd.category='INSURANCE'
+		LIMIT 	0,1;    
+    
 		IF v_foreign_vat THEN
-			SET v_amount_excl_vat = v_amount;
-			SET v_amount_incl_vat = v_amount;
-		ELSE
-			SET v_amount_excl_vat = v_amount / (1 + v_vat);
-			SET v_amount_incl_vat = v_amount;
-		END IF;
-        
+			SET v_amount_incl_vat = v_amount_excl_vat;
+        END IF;
+    
         -- CREATE THE INVOICE LINES FOR THE CREATE INVOICE
 		INSERT INTO T_INVOICE_LINES(invoice_id,
 									item, item_amount, item_price_excl_vat, item_price_incl_vat,
@@ -1486,8 +1532,8 @@ BEGIN
             d.call_number, 
             d.id AS dossier_id,
             -- tvp.paid_in_cash, tvp.paid_by_bank_deposit, tvp.paid_by_debit_card, tvp.paid_by_credit_card, 
-			tvp.cal_amount_unpaid,
-            tvp.amount_guaranteed_by_insurance,
+			-- tvp.cal_amount_unpaid,
+            -- tvp.amount_guaranteed_by_insurance,
             i.invoice_type, 
             i.invoice_message,
             i.insurance_dossiernr,
