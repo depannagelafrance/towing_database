@@ -881,6 +881,9 @@ BEGIN
 	ELSE
 		SELECT 	tvpd.id, towing_voucher_payment_id, 
 				category, 
+                IF(category = 'CUSTOMER',
+					'Klant', IF(category = 'COLLECTOR',
+								'Afhaler', 'Verzekering')) as category_display_name,
                 IFNULL(foreign_vat, 0) as foreign_vat, 
                 ROUND(IFNULL(amount_excl_vat, 0.0), 2) as amount_excl_vat, 
                 ROUND(IFNULL(amount_incl_vat, 0.0), 2) as amount_incl_vat, 
@@ -1070,9 +1073,8 @@ BEGIN
 			`invoice_ref` = p_invoice_ref,
 			`ud` = now(),
 			`ud_by` = F_RESOLVE_LOGIN(v_user_id, p_token)
-		WHERE `id` = p_id AND `voucher_id`= p_voucher_id
-		LIMIT 1;
-
+		WHERE `id` = p_id AND `voucher_id`= p_voucher_id;
+        
 		SELECT p_id as id;
 	END IF;
 END $$
