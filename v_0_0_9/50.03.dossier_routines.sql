@@ -284,9 +284,8 @@ BEGIN
 			company_id 				= p_company_id,
 			ud						= now(),
 			ud_by					= F_RESOLVE_LOGIN(v_user_id, p_token)
-		WHERE id = p_dossier_id
-		LIMIT 1;
-
+		WHERE id = p_dossier_id;
+        
 		CALL R_FETCH_DOSSIER_BY_ID(p_dossier_id, p_token);
 
 	END IF;
@@ -437,7 +436,7 @@ BEGIN
 		CALL R_UPDATE_TOWING_CUSTOMER_TO_AGENCY(p_voucher_id, p_token);
 
 		-- UPDATE THE START AND STOP TOWING TIMING
-		UPDATE T_TOWING_VOUCHERS SET towing_start = NOW(), towing_completed=NOW() WHERE id = p_voucher_id LIMIT 1;
+		UPDATE T_TOWING_VOUCHERS SET towing_start = NOW(), towing_completed=NOW() WHERE id = p_voucher_id;
 	END IF;
 END $$
 
@@ -456,8 +455,7 @@ BEGIN
 	ELSE
 		UPDATE 	T_TOWING_VOUCHERS tv
         SET 	tv.status='CLOSED'
-        WHERE 	tv.id = p_voucher_id
-        LIMIT 	1;
+        WHERE 	tv.id = p_voucher_id;
     END IF;
 END $$
 
@@ -476,8 +474,7 @@ BEGIN
 	ELSE
 		UPDATE 	T_TOWING_VOUCHERS
         SET 	awv_approved = now(), ud=now(), ud_by=F_RESOLVE_LOGIN(v_user_id, p_token)
-        WHERE 	id = p_voucher_id
-        LIMIT 	1;
+        WHERE 	id = p_voucher_id;
         
         SELECT 'OK' as result;
     END IF;
@@ -536,7 +533,7 @@ CREATE PROCEDURE  R_UPDATE_TOWING_VOUCHER(IN p_dossier_id BIGINT, IN p_voucher_i
 										  IN p_towing_id VARCHAR(36), IN p_towed_by VARCHAR(255), IN p_towing_vehicle_id BIGINT, IN p_towed_by_vehicule VARCHAR(15),
 										  IN p_towing_called TIMESTAMP, IN p_towing_arrival TIMESTAMP, IN p_towing_start TIMESTAMP, IN p_towing_end TIMESTAMP,
 										  IN p_police_signature TIMESTAMP, IN p_recipient_signature TIMESTAMP, IN p_vehicule_collected TIMESTAMP,
-										  IN p_causer_not_present BOOL,
+										  IN p_causer_not_present BOOL, IN p_police_not_present BOOL,
 										  IN p_cic TIMESTAMP,
 										  IN p_additional_info TEXT,
 										  IN p_token VARCHAR(255))
@@ -574,13 +571,13 @@ BEGIN
 			signa_id				= IF(TRIM(p_signa_id) = '', null, p_signa_id),
 			signa_arrival 			= p_signa_arrival,
             causer_not_present		= p_causer_not_present,
+            police_not_present		= p_police_not_present,
 			cic 					= p_cic,
 			additional_info 		= p_additional_info,
 			ud						= now(),
 			ud_by					= F_RESOLVE_LOGIN(v_user_id, p_token)
 		WHERE 	id = p_voucher_id
-				AND dossier_id = p_dossier_id
-		LIMIT 	1;
+				AND dossier_id = p_dossier_id;
 
 		SELECT p_voucher_id AS id;
 	END IF;
@@ -748,6 +745,7 @@ BEGIN
 					unix_timestamp(`signa_arrival`) as signa_arrival,
 					unix_timestamp(`cic`) as cic,
                     `causer_not_present`,
+                    `police_not_present`,
 					`status`,
 					`additional_info`,
 					tv.`cd`,
@@ -1195,8 +1193,7 @@ BEGIN
 		DELETE
 		FROM 	T_TOWING_ACTIVITIES
 		WHERE 	towing_voucher_id = p_voucher_id
-				AND activity_id = p_activity_id
-		LIMIT 1;
+				AND activity_id = p_activity_id;
 
 		CALL R_RECALCULATE_VOUCHER_PAYMENTS(p_voucher_id);
 
@@ -1248,8 +1245,7 @@ BEGIN
                     ud = now(),
                     ud_by = F_RESOLVE_LOGIN(v_user_id, p_token)
 			WHERE	id = p_id 
-					AND towing_voucher_id = p_voucher_id
-			LIMIT 1;
+					AND towing_voucher_id = p_voucher_id;
 				
 			SELECT * FROM T_TOWING_ADDITIONAL_COSTS WHERE id = p_id AND towing_voucher_id = p_voucher_id;
 		END IF;
@@ -1272,8 +1268,7 @@ BEGIN
 			SET dd = now(),
 				dd_by = F_RESOLVE_LOGIN(v_user_id, p_token)
 		WHERE	id = p_id 
-				AND towing_voucher_id = p_voucher_id
-		LIMIT 1;    
+				AND towing_voucher_id = p_voucher_id;
     END IF;
 END $$
 
@@ -1355,8 +1350,7 @@ BEGIN
 			`amount_unpaid_excl_vat` = (p_amount_excl_vat - p_amount_paid_cash - p_amount_paid_bankdeposit - p_amount_paid_maestro - p_amount_paid_visa),
 			`amount_unpaid_incl_vat` = (p_amount_incl_vat - p_amount_paid_cash - p_amount_paid_bankdeposit - p_amount_paid_maestro - p_amount_paid_visa)
 		WHERE 	`id` = p_id
-				AND `towing_voucher_payment_id` = p_tvp_id
-		LIMIT 1;
+				AND `towing_voucher_payment_id` = p_tvp_id;
     END IF;
 END $$
 
@@ -2133,8 +2127,7 @@ BEGIN
 		SET 	collector_name = p_name,
 				ud = now(),
 				ud_by = F_RESOLVE_LOGIN(v_user_id, p_token)
-		WHERE 	id = p_voucher_id
-		LIMIT 	1;
+		WHERE 	id = p_voucher_id;
     END IF;
 END $$
 
@@ -2155,8 +2148,7 @@ BEGIN
 
 	UPDATE 	`T_TOWING_VOUCHERS`
 	SET 	`police_signature_dt` = now()
-	WHERE 	id = p_voucher_id
-	LIMIT 	1;
+	WHERE 	id = p_voucher_id;
 
 	SELECT 	dossier_id, timeframe_id INTO v_dossier_id, v_timeframe_id
 	FROM 	`T_TOWING_VOUCHERS` tv, `T_DOSSIERS` d
@@ -2816,7 +2808,7 @@ BEGIN
 			LIMIT 0,1;
 
 			-- IF code IS SET and if team was at the site
-			IF v_code IS NOT NULL AND v_code != 'GNPLG' THEN
+			IF v_code IS NOT NULL AND v_code != 'GNPLG' AND IFNULL(NEW.police_not_present, 0) != 1 THEN -- police was not present
 				-- team on site
 				SELECT 	count(*) INTO v_count
 				FROM 	T_TOWING_VOUCHER_ATTS
@@ -3182,8 +3174,7 @@ BEGIN
 		SET 	foreign_vat = LEFT(UPPER(NEW.company_vat), 2) != 'BE'
 		WHERE 	tvpd.towing_voucher_payment_id = tvp.id
 				AND tvpd.category='CUSTOMER'
-				AND tvp.towing_voucher_id = NEW.voucher_id
-		LIMIT 1;
+				AND tvp.towing_voucher_id = NEW.voucher_id;
     
 		CALL R_RECALCULATE_VOUCHER_PAYMENTS(NEW.voucher_id);
 	END IF;

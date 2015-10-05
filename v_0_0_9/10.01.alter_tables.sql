@@ -70,6 +70,9 @@ ALTER TABLE `P_towing_be`.`T_SEQUENCES`
 ADD COLUMN `valid_from` DATE NULL AFTER `seq_val`,
 ADD COLUMN `valid_until` DATE NULL AFTER `valid_from`;
 
+ALTER TABLE `P_towing_be`.`T_TOWING_VOUCHERS` 
+ADD COLUMN `police_not_present` TINYINT(4) NULL AFTER `police_signature_dt`;
+
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;

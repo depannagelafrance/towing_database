@@ -59,6 +59,8 @@ CHANGE COLUMN `invoice_total_vat` `invoice_total_vat` DOUBLE NULL DEFAULT NULL ,
 CHANGE COLUMN `invoice_vat_percentage` `invoice_vat_percentage` DOUBLE NULL DEFAULT NULL ,
 CHANGE COLUMN `invoice_amount_paid` `invoice_amount_paid` DOUBLE NULL DEFAULT NULL ;
 
+ALTER TABLE `AUDIT_P_towing_be`.`T_TOWING_VOUCHERS` 
+ADD COLUMN `police_not_present` TINYINT(4) NULL AFTER `police_signature_dt`;
 
 
 SET SQL_MODE=@OLD_SQL_MODE;
