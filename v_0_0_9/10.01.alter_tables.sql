@@ -66,6 +66,9 @@ CHANGE COLUMN `invoice_total_vat` `invoice_total_vat` DOUBLE NULL DEFAULT NULL ,
 CHANGE COLUMN `invoice_vat_percentage` `invoice_vat_percentage` DOUBLE NULL DEFAULT NULL ,
 CHANGE COLUMN `invoice_amount_paid` `invoice_amount_paid` DOUBLE NULL DEFAULT NULL ;
 
+ALTER TABLE `P_towing_be`.`T_SEQUENCES` 
+ADD COLUMN `valid_from` DATE NULL AFTER `seq_val`,
+ADD COLUMN `valid_until` DATE NULL AFTER `valid_from`;
 
 
 SET SQL_MODE=@OLD_SQL_MODE;

@@ -2640,7 +2640,7 @@ BEGIN
 	INSERT INTO `T_TOWING_CUSTOMERS` (`voucher_id`, `type`, `cd`, `cd_by`) VALUES (NEW.id, 'DEFAULT', now(), NEW.cd_by);
 
 	-- prefill the causer
-	INSERT INTO `T_TOWING_INCIDENT_CAUSERS` (`voucher_id`, `cd`, `cd_by`) VALUES (NEW.id, now(), NEW.cd_by);
+	INSERT INTO `T_TOWING_INCIDENT_CAUSERS` (`voucher_id`, `cd`, `cd_by`) VALUES (NEW.id, now(), NEW.cd_by);    
 END $$
 
 CREATE TRIGGER `TRG_BU_TOWING_VOUCHER` BEFORE UPDATE ON `T_TOWING_VOUCHERS`
@@ -2892,8 +2892,6 @@ BEGIN
 
 	SET v_recalulate_fired = FALSE;
 
-	CALL R_ADD_TOWING_VOUCHER_AUDIT_LOG(NEW.id);
-
 	SELECT 	timeframe_id INTO v_timeframe_id
 	FROM 	T_DOSSIERS
 	WHERE 	id = NEW.dossier_id
@@ -2924,6 +2922,13 @@ BEGIN
 			SET v_recalulate_fired = TRUE;
 		END IF;
 	END IF;
+    
+    IF NOT v_recalulate_fired THEN
+        -- RECALCULATE
+		CALL R_RECALCULATE_VOUCHER_PAYMENTS(NEW.id);
+    END IF;
+    
+    CALL R_ADD_TOWING_VOUCHER_AUDIT_LOG(NEW.id);
 END $$
 
 CREATE TRIGGER `TRG_BU_TOWING_ACTIVITY` BEFORE UPDATE ON `T_TOWING_ACTIVITIES`
@@ -2956,7 +2961,7 @@ BEGIN
 	DECLARE v_foreign_vat, v_foreign_collector_vat, v_foreign_customer_vat BOOL;
 
 	-- FETCH THE TOWING ACTIVITY BASED COST
-	SELECT 	sum(amount * fee_excl_vat), sum(amount * fee_incl_vat) INTO v_excl_vat, v_incl_vat
+	SELECT 	IFNULL(sum(amount * fee_excl_vat),0), IFNULL(sum(amount * fee_incl_vat),0) INTO v_excl_vat, v_incl_vat
 	FROM 	T_TOWING_ACTIVITIES ta, P_TIMEFRAME_ACTIVITY_FEE taf, P_TIMEFRAME_ACTIVITIES pta
 	WHERE 	ta.activity_id = taf.id 
 				AND ta.towing_voucher_id = p_voucher_id
@@ -2964,7 +2969,7 @@ BEGIN
 				AND pta.code != 'STALLING';
 
 	-- FETCH THE STORAGE COST
-	SELECT 	sum(amount * fee_excl_vat), sum(amount * fee_incl_vat) INTO v_storage_excl_vat, v_storage_incl_vat
+	SELECT 	IFNULL(sum(amount * fee_excl_vat),0), IFNULL(sum(amount * fee_incl_vat),0) INTO v_storage_excl_vat, v_storage_incl_vat
 	FROM 	T_TOWING_ACTIVITIES ta, P_TIMEFRAME_ACTIVITY_FEE taf, P_TIMEFRAME_ACTIVITIES pta
 	WHERE 	ta.activity_id = taf.id 
 				AND ta.towing_voucher_id = p_voucher_id
@@ -2972,7 +2977,7 @@ BEGIN
 				AND pta.code = 'STALLING';
 	
     -- FETCH THE TOWING ADDITONAL COSTS (e.g. fuel)
-	SELECT 	sum(fee_excl_vat), sum(fee_incl_vat) INTO v_excl_additional_cost, v_incl_additional_cost
+	SELECT 	IFNULL(sum(fee_excl_vat),0), IFNULL(sum(fee_incl_vat),0) INTO v_excl_additional_cost, v_incl_additional_cost
     FROM 	T_TOWING_ADDITIONAL_COSTS
     WHERE 	towing_voucher_id = p_voucher_id
 			AND dd IS NULL;

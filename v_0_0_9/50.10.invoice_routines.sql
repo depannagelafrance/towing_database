@@ -39,6 +39,7 @@ DROP PROCEDURE IF EXISTS R_INVOICE_FETCH_COMPANY_INVOICE_CUSTOMER $$
 
 DROP PROCEDURE IF EXISTS R_INVOICE_ATT_LINK_WITH_DOCUMENT $$
 DROP PROCEDURE IF EXISTS R_INVOICE_CUSTOMER_FIND_OR_CREATE $$
+DROP PROCEDURE IF EXISTS R_INVOICE_ADD_DOCUMENT $$
 
 DROP PROCEDURE IF EXISTS R_RECALCULATE_INVOICE_TOTAL $$
 
@@ -58,6 +59,7 @@ DROP TRIGGER IF EXISTS TRG_AI_INVOICE $$
 DROP TRIGGER IF EXISTS TRG_AI_INVOICE_CUSTOMER $$
 DROP TRIGGER IF EXISTS TRG_AI_INVOICE_LINE $$
 
+DROP TRIGGER IF EXISTS TRG_BU_INVOICE $$
 DROP TRIGGER IF EXISTS TRG_AU_INVOICE $$
 DROP TRIGGER IF EXISTS TRG_AU_INVOICE_LINE $$
 
@@ -95,6 +97,14 @@ BEGIN
 	CALL R_ADD_INVOICE_LINE_AUDIT_LOG(NEW.id);
     
     CALL R_RECALCULATE_INVOICE_TOTAL(NEW.invoice_id);
+END $$
+
+CREATE TRIGGER `TRG_BU_INVOICE` BEFORE UPDATE ON `T_INVOICES`
+FOR EACH ROW
+BEGIN
+	IF NEW.invoice_vat_percentage IS NULL THEN
+		SET NEW.invoice_vat_percentage = ROUND((NEW.invoice_total_incl_vat/NEW.invoice_total_excl_vat) - 1, 2);
+    END IF;
 END $$
 
 CREATE TRIGGER `TRG_AU_INVOICE` AFTER UPDATE ON `T_INVOICES`
@@ -239,7 +249,7 @@ BEGIN
 			v_batch_id, -- `invoice_batch_run_id`,
 			'CUSTOMER', -- `invoice_type`,
 			curdate(), -- `invoice_date`,
-			F_CREATE_INVOICE_UQ_SEQUENCE(v_company_id, 'CUSTOMER'), -- `invoice_number`,
+			F_CREATE_INVOICE_UQ_SEQUENCE(v_company_id, 'INVOICE'), -- `invoice_number`,
 			now(), -- `cd`,
 			F_RESOLVE_LOGIN(v_user_id, p_token) -- `cd_by`            
 		);
@@ -1771,24 +1781,70 @@ BEGIN
     END IF;
 END $$
 
+CREATE PROCEDURE R_INVOICE_ADD_DOCUMENT(IN p_invoice_id BIGINT,
+										IN p_name VARCHAR(255), IN p_content_type VARCHAR(255), IN p_file_size INT,
+									    IN p_content LONGTEXT,
+									    IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id, v_blob_id, v_doc_id BIGINT;
+	DECLARE v_user_id, v_batch_id VARCHAR(36);
+    DECLARE v_login VARCHAR(255);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		INSERT INTO `T_DOCUMENT_BLOB`(`content`) VALUES(p_content);
+
+		SET v_blob_id = LAST_INSERT_ID();
+
+		INSERT INTO `T_DOCUMENTS` (`document_blob_id`, `name`, `content_type`, `file_size`, `cd`, `cd_by`)
+		VALUES (v_blob_id, p_name, p_content_type, p_file_size, now(), F_RESOLVE_LOGIN(v_user_id, p_token));
+
+		SET v_doc_id = LAST_INSERT_ID();
+        
+        UPDATE T_INVOICES SET document_id = v_doc_id WHERE id = p_invoice_id LIMIT 1;
+        
+        SELECT * FROM T_DOCUMENTS WHERE id = v_doc_id;
+    END IF;
+END $$
+
 CREATE FUNCTION F_CREATE_INVOICE_UQ_SEQUENCE(p_company_id BIGINT, p_type VARCHAR(45)) RETURNS BIGINT
 BEGIN
 	DECLARE v_seq_val BIGINT;
+    DECLARE v_valid_period BOOL;
+    DECLARE v_valid_from, v_valid_until DATE;
 
-    SELECT 	seq_val
-    INTO 	v_seq_val
+    SELECT 	seq_val, CURDATE() BETWEEN valid_from and valid_until, valid_from, valid_until
+    INTO 	v_seq_val, v_valid_period, v_valid_from, v_valid_until
     FROM 	T_SEQUENCES
     WHERE 	company_id = p_company_id
-			AND code=p_type
+			AND `code`=p_type
 	LIMIT 	0,1;
+    
+    -- DATA SHOULD BE PREFILLED WITH A NEW COMPANY
+    IF NOT v_valid_period THEN
+		SET v_seq_val = concat(YEAR(v_valid_until)+1, LPAD(0,6,0));
+        
+		UPDATE 	T_SEQUENCES 
+		SET    	valid_from 	= DATE_ADD(v_valid_until, INTERVAL 1 DAY),
+				valid_until = DATE_ADD(v_valid_until, INTERVAL 1 YEAR),
+                seq_val		= v_seq_val
+        WHERE  	code=p_type 
+				AND company_id = p_company_id 
+		LIMIT 1;
+    END IF;
 
-    IF v_seq_val IS NOT NULL AND LEFT(v_seq_val, 4) = YEAR(CURDATE()) THEN
+    IF v_seq_val IS NOT NULL THEN
 		SET v_seq_val := v_seq_val + 1;
 
         UPDATE T_SEQUENCES SET seq_val = v_seq_val WHERE code=p_type AND company_id = p_company_id LIMIT 1;
 
         RETURN v_seq_val;
 	ELSE
+		-- FAILOVER
 		SET @v_id := concat(YEAR(CURDATE()), LPAD(1,6,0));
 
         IF v_seq_val IS NULL THEN
@@ -1797,8 +1853,12 @@ BEGIN
 		ELSE
 			UPDATE T_SEQUENCES SET seq_val = @v_id WHERE code=p_type AND company_id = p_company_id LIMIT 1;
 		END IF;
+		
+        SET v_seq_val = @v_id;
 
-		RETURN @v_id;
+		SET @v_id = null;
+
+		RETURN v_seq_val;
     END IF;
 END $$
 

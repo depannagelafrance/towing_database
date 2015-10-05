@@ -60,6 +60,7 @@ CHANGE COLUMN `invoice_vat_percentage` `invoice_vat_percentage` DOUBLE NULL DEFA
 CHANGE COLUMN `invoice_amount_paid` `invoice_amount_paid` DOUBLE NULL DEFAULT NULL ;
 
 
+
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
