@@ -2974,7 +2974,7 @@ BEGIN
     DECLARE v_insurance_excl_vat, v_insurance_incl_vat DOUBLE;
     DECLARE v_t_insurance_excl_vat, v_t_insurance_incl_vat DOUBLE;
     DECLARE v_incl_additional_cost, v_excl_additional_cost DOUBLE;
-	DECLARE v_foreign_vat, v_foreign_collector_vat, v_foreign_customer_vat BOOL;
+	DECLARE v_foreign_vat, v_foreign_collector_vat, v_foreign_customer_vat, v_foreign_insurance_vat BOOL;
 
 	-- FETCH THE TOWING ACTIVITY BASED COST
 	SELECT 	IFNULL(sum(amount * fee_excl_vat),0), IFNULL(sum(amount * fee_incl_vat),0) INTO v_excl_vat, v_incl_vat
@@ -3017,6 +3017,14 @@ BEGIN
     FROM 	T_TOWING_CUSTOMERS
     WHERE 	voucher_id = p_voucher_id
     LIMIT 	0,1;
+    
+    
+    SELECT 	(vat IS NOT NULL AND TRIM(vat) != '' AND left(upper(vat), 2) != 'BE') 
+    INTO 	v_foreign_insurance_vat
+    FROM 	T_INSURANCES i, T_TOWING_VOUCHERS  tv
+    WHERE 	tv.id = p_voucher_id
+			AND i.id = tv.insurance_id
+    LIMIT 	0,1;    
 
 	SET v_insurance_excl_vat = IFNULL(v_insurance_excl_vat, 0.0);
     SET v_insurance_incl_vat = IFNULL(v_insurance_incl_vat, 0.0);
@@ -3095,7 +3103,7 @@ BEGIN
 		UPDATE 	T_TOWING_VOUCHER_PAYMENT_DETAILS tvpd, T_TOWING_VOUCHER_PAYMENTS tvp
         SET 	tvpd.amount_excl_vat = v_insurance_excl_vat,
 				tvpd.amount_incl_vat = v_insurance_incl_vat,
-                tvpd.foreign_vat = v_foreign_collector_vat
+                tvpd.foreign_vat = v_foreign_insurance_vat
 		WHERE
 				tvp.towing_voucher_id = p_voucher_id
                 AND tvp.id = tvpd.towing_voucher_payment_id
@@ -3129,21 +3137,21 @@ BEGIN
 			AND tvpd.category = 'CUSTOMER';    
 
 
-	SET v_foreign_vat = F_IS_VOUCHER_VIABLE_FOR_FOREIGN_VAT(p_voucher_id);
-    
-
-	SET v_total = v_incl_vat + IFNULL(v_incl_additional_cost, 0.0);
-
-	IF v_foreign_vat THEN
-		SET v_total = v_excl_vat + IFNULL(v_excl_additional_cost, 0.0);
-	END IF;
-
-	IF v_foreign_collector_vat THEN
-		SET v_total = v_total + IFNULL(v_storage_excl_vat, 0.0);
-	ELSE
-		SET v_total = v_total + IFNULL(v_storage_incl_vat, 0.0);
-	END IF;
-
+-- 	SET v_foreign_vat = F_IS_VOUCHER_VIABLE_FOR_FOREIGN_VAT(p_voucher_id);
+--     
+-- 
+-- 	SET v_total = v_incl_vat + IFNULL(v_incl_additional_cost, 0.0);
+-- 
+-- 	IF v_foreign_vat THEN
+-- 		SET v_total = v_excl_vat + IFNULL(v_excl_additional_cost, 0.0);
+-- 	END IF;
+-- 
+-- 	IF v_foreign_collector_vat THEN
+-- 		SET v_total = v_total + IFNULL(v_storage_excl_vat, 0.0);
+-- 	ELSE
+-- 		SET v_total = v_total + IFNULL(v_storage_incl_vat, 0.0);
+-- 	END IF;
+-- 
 
 	UPDATE `T_TOWING_VOUCHER_PAYMENTS`
 	SET 	-- `amount_customer` = v_total - IFNULL(amount_guaranteed_by_insurance, 0.0),
