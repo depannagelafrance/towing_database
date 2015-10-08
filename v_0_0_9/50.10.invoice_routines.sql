@@ -842,7 +842,7 @@ BEGIN
         INTO	v_amount_customer, v_amount_customer_excl_vat, v_amount_customer_incl_vat
         FROM 	T_TOWING_VOUCHER_PAYMENT_DETAILS tvpd, T_TOWING_VOUCHER_PAYMENTS tvp
         WHERE	tvp.id = tvpd.towing_voucher_payment_id
-				AND tvp.voucher_id = p_voucher_id
+				AND tvp.towing_voucher_id = p_voucher_id
                 AND category='CUSTOMER';
                 
 -- 
