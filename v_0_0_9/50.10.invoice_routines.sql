@@ -835,7 +835,7 @@ BEGIN
         INTO	v_assurance_warranty
         FROM 	T_TOWING_VOUCHER_PAYMENT_DETAILS tvpd, T_TOWING_VOUCHER_PAYMENTS tvp
         WHERE	tvp.id = tvpd.towing_voucher_payment_id
-				AND tvp.voucher_id = p_voucher_id
+				AND tvp.towing_voucher_id = p_voucher_id
                 AND category='INSURANCE';
         
         SELECT 	IF(foreign_vat, amount_excl_vat, amount_incl_vat), amount_excl_vat, amount_incl_vat

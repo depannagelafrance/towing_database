@@ -15,6 +15,7 @@ CHANGE COLUMN `invoice_structured_reference` `invoice_structured_reference` VARC
 CHANGE COLUMN `invoice_total_excl_vat` `invoice_total_excl_vat` DOUBLE(10,2) NULL ,
 CHANGE COLUMN `invoice_total_incl_vat` `invoice_total_incl_vat` DOUBLE(10,2) NULL ,
 CHANGE COLUMN `invoice_total_vat` `invoice_total_vat` DOUBLE(10,2) NULL ,
+CHANGE COLUMN `cd` `cd` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
 CHANGE COLUMN `invoice_vat_percentage` `invoice_vat_percentage` DOUBLE(2,2) NULL ;
 
 ALTER TABLE `P_towing_be`.`T_INVOICE_CUSTOMERS` 
