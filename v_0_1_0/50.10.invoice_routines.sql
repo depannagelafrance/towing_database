@@ -777,7 +777,7 @@ BEGIN
     LIMIT 	0,1;
     
     
-    SELECT 	customer_number, IFNULL(invoice_excluded, FALSE), IFNULL(LEFT(vat, 2) != 'BE', FALSE)
+    SELECT 	customer_number, IFNULL(invoice_excluded, FALSE), IFNULL(LEFT(company_vat, 2) != 'BE', FALSE)
     INTO	v_insurance_custnum, v_insurance_excluded, v_foreign_vat_insurance 
     FROM 	T_CUSTOMERS
     WHERE 	id = v_insurance_id
