@@ -89,26 +89,53 @@ BEGIN
 	IF v_user_id IS NULL OR v_company_id IS NULL THEN
 		CALL R_NOT_AUTHORIZED;
 	ELSE
-		-- SELECT 'INSURANCE_ALREADY_EXISTS' as error, 409 as statusCode;
-		INSERT INTO `P_towing_be`.`T_CUSTOMERS`(`type`,
-												`customer_number`,
-												`company_name`, `company_vat`,
-                                                `first_name`, `last_name`,
-												`street`, `street_number`, `street_pobox`, `zip`, `city`, `country`,
-												`invoice_excluded`, `is_insurance`, `is_collector`,
-                                                `company_id`,
-												`cd`, `cd_by`)
-		VALUES (
-			p_type, 
-            p_customer_number,
-            p_name, p_vat,
-            p_first_name, p_last_name,
-            p_street, p_street_number, p_street_pobox, p_zip, p_city, p_country,
-            p_invoice_excluded, p_is_insurance, p_is_collector,
-            v_company_id,
-            now(), F_RESOLVE_LOGIN(v_user_id, p_token));
+		SELECT 	id INTO v_id
+        FROM 	T_CUSTOMERS
+        WHERE 	customer_number = p_customer_number
+				AND company_id = v_company_id
+		LIMIT 0,1;
+        
+        IF v_id IS NULL THEN
+			-- SELECT 'INSURANCE_ALREADY_EXISTS' as error, 409 as statusCode;
+			INSERT INTO `P_towing_be`.`T_CUSTOMERS`(`type`,
+													`customer_number`,
+													`company_name`, `company_vat`,
+													`first_name`, `last_name`,
+													`street`, `street_number`, `street_pobox`, `zip`, `city`, `country`,
+													`invoice_excluded`, `is_insurance`, `is_collector`,
+													`company_id`,
+													`cd`, `cd_by`)
+			VALUES (
+				p_type, 
+				p_customer_number,
+				p_name, p_vat,
+				p_first_name, p_last_name,
+				p_street, p_street_number, p_street_pobox, p_zip, p_city, p_country,
+				p_invoice_excluded, p_is_insurance, p_is_collector,
+				v_company_id,
+				now(), F_RESOLVE_LOGIN(v_user_id, p_token));
 
-		CALL R_FETCH_CUSTOMER_BY_ID(LAST_INSERT_ID(), p_token);
+			SET v_id = LAST_INSERT_ID();
+		ELSE
+			UPDATE 	T_CUSTOMERS
+            SET 	company_name = p_name, 
+					company_vat = p_vat,
+					first_name = IFNULL(p_first_name, first_name), 
+                    last_name = IFNULL(p_last_name, last_name),
+                    street = p_street, 
+                    street_number = p_street_number, 
+                    street_pobox = p_street_pobox, 
+                    zip = p_zip, 
+                    city = p_city, 
+                    country = p_country,
+                    ud=now(), 
+                    ud_by=F_RESOLVE_LOGIN(v_user_id, p_token)
+			WHERE 	id = v_id
+					AND company_id = v_company_id;
+        END IF;
+        
+        
+        CALL R_FETCH_CUSTOMER_BY_ID(v_id, p_token);
     END IF;
 END $$
                                 
