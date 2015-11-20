@@ -36,6 +36,7 @@ DROP PROCEDURE IF EXISTS R_INVOICE_FETCH_COMPANY_INVOICES $$
 DROP PROCEDURE IF EXISTS R_INVOICE_FETCH_COMPANY_INVOICE $$
 DROP PROCEDURE IF EXISTS R_INVOICE_FETCH_COMPANY_INVOICE_LINES $$ 
 DROP PROCEDURE IF EXISTS R_INVOICE_FETCH_COMPANY_INVOICE_CUSTOMER $$
+DROP PROCEDURE IF EXISTS R_INVOICE_FETCH_FOR_EXPORT $$
 
 DROP PROCEDURE IF EXISTS R_INVOICE_ATT_LINK_WITH_DOCUMENT $$
 DROP PROCEDURE IF EXISTS R_INVOICE_CUSTOMER_FIND_OR_CREATE $$
@@ -1705,7 +1706,8 @@ BEGIN
 				ic.street_pobox,
 				ic.zip,
 				ic.city,
-				ic.country
+				ic.country,
+                i.exported_to_expertm
 		FROM 	T_INVOICES i
 				LEFT JOIN T_INVOICE_CUSTOMERS ic ON i.invoice_customer_id = ic.id
 				LEFT JOIN T_TOWING_VOUCHERS tv ON i.towing_voucher_id = tv.id
@@ -1811,6 +1813,36 @@ BEGIN
     END IF;
 END $$
 
+
+CREATE PROCEDURE R_INVOICE_FETCH_FOR_EXPORT(IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id BIGINT;
+	DECLARE v_user_id VARCHAR(36);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		SELECT 	id
+        FROM 	T_INVOICES
+        WHERE	company_id = v_company_id
+				AND IFNULL(exported_to_expertm, 0) = 0
+                AND document_id IS NOT NULL
+		ORDER BY invoice_date ASC;
+        
+        UPDATE T_INVOICES 
+        SET exported_to_expertm = 1,
+			ud = now(), 
+            ud_by = F_RESOLVE_LOGIN(v_user_id, p_token)
+		WHERE
+			company_id = v_company_id
+            AND document_id IS NOT NULL
+			AND IFNULL(exported_to_expertm, 0) = 0;
+    END IF;
+END $$
+
 CREATE FUNCTION F_CREATE_INVOICE_UQ_SEQUENCE(p_company_id BIGINT, p_type VARCHAR(45)) RETURNS BIGINT
 BEGIN
 	DECLARE v_seq_val BIGINT;
@@ -1826,7 +1858,7 @@ BEGIN
     
     -- DATA SHOULD BE PREFILLED WITH A NEW COMPANY
     IF NOT v_valid_period THEN
-		SET v_seq_val = concat(YEAR(v_valid_until)+1, LPAD(0,6,0));
+		SET v_seq_val = concat(YEAR(v_valid_until)+1, LPAD(0,5,0));
         
 		UPDATE 	T_SEQUENCES 
 		SET    	valid_from 	= DATE_ADD(v_valid_until, INTERVAL 1 DAY),
@@ -1845,7 +1877,7 @@ BEGIN
         RETURN v_seq_val;
 	ELSE
 		-- FAILOVER
-		SET @v_id := concat(YEAR(CURDATE()), LPAD(1,6,0));
+		SET @v_id := concat(YEAR(CURDATE()), LPAD(1,5,0));
 
         IF v_seq_val IS NULL THEN
 			INSERT INTO T_SEQUENCES(code, company_id, seq_val) VALUES(p_type, p_company_id, @v_id)
