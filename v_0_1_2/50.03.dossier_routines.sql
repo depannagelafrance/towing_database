@@ -127,6 +127,7 @@ DROP PROCEDURE IF EXISTS R_CREATE_VOUCHER_VALIDATION_MESSAGE $$
 DROP PROCEDURE IF EXISTS R_FETCH_ALL_VOUCHER_VALIDATION_MESSAGES $$
 
 DROP PROCEDURE IF EXISTS R_CREATE_TOWING_LOCATION_TRACKING $$
+DROP PROCEDURE IF EXISTS R_FETCH_ALL_TOWING_VOUCHER_LOC_TRACKINGS $$
 
 DROP FUNCTION IF EXISTS F_NEXT_DOSSIER_NUMBER $$
 DROP FUNCTION IF EXISTS F_NEXT_TOWING_VOUCHER_NUMBER $$
@@ -535,7 +536,8 @@ CREATE PROCEDURE  R_UPDATE_TOWING_VOUCHER(IN p_dossier_id BIGINT, IN p_voucher_i
 										  IN p_signa_id VARCHAR(36), IN p_signa_by VARCHAR(255), IN p_signa_by_vehicule VARCHAR(15), IN p_signa_arrival TIMESTAMP,
 										  IN p_towing_id VARCHAR(36), IN p_towed_by VARCHAR(255), IN p_towing_vehicle_id BIGINT, IN p_towed_by_vehicule VARCHAR(15),
 										  IN p_towing_called TIMESTAMP, IN p_towing_arrival TIMESTAMP, IN p_towing_start TIMESTAMP, IN p_towing_end TIMESTAMP,
-										  IN p_police_signature TIMESTAMP, IN p_recipient_signature TIMESTAMP, IN p_vehicule_collected TIMESTAMP,
+										  IN p_police_name VARCHAR(255), IN p_police_signature TIMESTAMP, 
+                                          IN p_recipient_signature TIMESTAMP, IN p_vehicule_collected TIMESTAMP,
 										  IN p_causer_not_present BOOL, IN p_police_not_present BOOL,
 										  IN p_cic TIMESTAMP,
 										  IN p_additional_info TEXT,
@@ -575,6 +577,7 @@ BEGIN
 			signa_arrival 			= p_signa_arrival,
             causer_not_present		= p_causer_not_present,
             police_not_present		= p_police_not_present,
+            police_name				= p_police_name,
 			cic 					= p_cic,
 			additional_info 		= p_additional_info,
 			ud						= now(),
@@ -749,6 +752,7 @@ BEGIN
 					unix_timestamp(`cic`) as cic,
                     `causer_not_present`,
                     `police_not_present`,
+                    `police_name`,
 					`status`,
 					`additional_info`,
 					tv.`cd`,
@@ -2646,6 +2650,36 @@ BEGIN
 
 		SELECT * FROM T_TOWING_VOUCHER_LOCATION_TRACKINGS WHERE id = LAST_INSERT_ID() AND towing_voucher_id=p_voucher_id;
 	END IF;
+END $$
+
+CREATE PROCEDURE R_FETCH_ALL_TOWING_VOUCHER_LOC_TRACKINGS(IN p_voucher_id BIGINT, IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id BIGINT;
+	DECLARE v_user_id VARCHAR(36);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		-- 51.2338944,4.4421955
+		SELECT 'home' as category, 
+			IFNULL(`lat`, 51.234164) as `lat`, 
+			IFNULL(`long`, 4.448134) as `long`, 
+			null as tracking_ts 
+		FROM 
+			T_TOWING_VOUCHERS t,
+			T_DOSSIERS d,
+			P_ALLOTMENT_DIRECTION_INDICATORS adi
+		WHERE t.id = p_voucher_id
+			AND t.dossier_id = d.id
+			AND d.allotment_direction_indicator_id = adi.id
+		UNION
+		SELECT `category`, `lat`, `long`, UNIX_TIMESTAMP(`tracking_ts`)
+		FROM T_TOWING_VOUCHER_LOCATION_TRACKINGS
+		WHERE towing_voucher_id = p_voucher_id
+		ORDER BY tracking_ts ASC;
+    END IF;
 END $$
 -- ---------------------------------------------------------------
 -- TRIGGERS

@@ -19,6 +19,10 @@ CREATE TABLE `AUDIT_P_towing_be`.`T_TOWING_VOUCHER_LOCATION_TRACKINGS` (
   `cd` DATETIME NOT NULL,
   `cd_by` VARCHAR(255) NOT NULL,
   INDEX `fk_voucher_location_tracking_voucher_idx` (`towing_voucher_id` ASC));
+  
+ALTER TABLE `AUDIT_P_towing_be`.`T_TOWING_VOUCHERS` 
+ADD COLUMN `police_name` VARCHAR(255) NULL AFTER `police_not_present`;
+
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;

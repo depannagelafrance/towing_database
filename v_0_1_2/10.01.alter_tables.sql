@@ -1,10 +1,3 @@
--- MySQL Workbench Synchronization
--- Generated: 2015-05-13 08:09
--- Model: New Model
--- Version: 1.0
--- Project: Name of the project
--- Author: Kris Vandermast
-
 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL,ALLOW_INVALID_DATES';
@@ -25,6 +18,14 @@ CREATE TABLE `P_towing_be`.`T_TOWING_VOUCHER_LOCATION_TRACKINGS` (
     REFERENCES `P_towing_be`.`T_TOWING_VOUCHERS` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION);
+    
+ALTER TABLE `P_towing_be`.`T_TOWING_VOUCHER_LOCATION_TRACKINGS` 
+ADD UNIQUE INDEX `uq_voucher_location_tracking` (`towing_voucher_id` ASC, `category` ASC);
+
+ALTER TABLE `P_towing_be`.`T_TOWING_VOUCHERS` 
+ADD COLUMN `police_name` VARCHAR(255) NULL AFTER `police_not_present`;
+
+    
 
 
 
