@@ -6,16 +6,20 @@ DROP PROCEDURE IF EXISTS R_ADD_DICTIONARY $$
 DROP PROCEDURE IF EXISTS R_ADD_INSURANCE $$
 DROP PROCEDURE IF EXISTS R_ADD_COLLECTOR $$
 DROP PROCEDURE IF EXISTS R_ADD_CUSTOMER $$
+DROP PROCEDURE IF EXISTS R_ADD_DIRECTION_INDICATOR $$
+DROP PROCEDURE IF EXISTS R_ADD_DIRECTION $$
 
 DROP PROCEDURE IF EXISTS R_UPDATE_DICTIONARY $$
 DROP PROCEDURE IF EXISTS R_UPDATE_INSURANCE $$
 DROP PROCEDURE IF EXISTS R_UPDATE_COLLECTOR $$ 
 DROP PROCEDURE IF EXISTS R_UPDATE_CUSTOMER $$
+DROP PROCEDURE IF EXISTS R_UPDATE_DIRECTION_INDICATOR $$
 
 DROP PROCEDURE IF EXISTS R_DELETE_DICTIONARY $$
 DROP PROCEDURE IF EXISTS R_DELETE_INSURANCE $$
 DROP PROCEDURE IF EXISTS R_DELETE_COLLECTOR $$
 DROP PROCEDURE IF EXISTS R_DELETE_CUSTOMER $$
+DROP PROCEDURE IF EXISTS R_DELETE_DIRECTION_INDICATOR $$
 
 DROP PROCEDURE IF EXISTS R_FETCH_ALL_INCIDENT_TYPES $$
 DROP PROCEDURE IF EXISTS R_FETCH_ALL_INSURANCES $$
@@ -25,6 +29,9 @@ DROP PROCEDURE IF EXISTS R_FETCH_ALL_CUSTOMERS_BY_TYPE $$
 DROP PROCEDURE IF EXISTS R_FETCH_ALL_TRAFFIC_LANES $$
 DROP PROCEDURE IF EXISTS R_FETCH_ALL_LICENCE_PLATE_COUNTRIES $$
 DROP PROCEDURE IF EXISTS R_FETCH_ALL_DIRECTIONS $$
+DROP PROCEDURE IF EXISTS R_FETCH_DIRECTION_BY_ID $$
+DROP PROCEDURE IF EXISTS R_FETCH_DIRECTION_INDICATOR_BY_ID $$
+
 
 DROP PROCEDURE IF EXISTS R_FETCH_INDICATORS_BY_DIRECTION $$
 DROP PROCEDURE IF EXISTS R_FETCH_COMPANIES_BY_DIRECTION_AND_INDICATOR $$
@@ -345,6 +352,23 @@ BEGIN
 	END IF;
 END $$
 
+CREATE PROCEDURE R_FETCH_DIRECTION_BY_ID(IN p_id BIGINT, IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id BIGINT;
+	DECLARE v_user_id, v_guid VARCHAR(36);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+	
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		SELECT 	`id`, `name`
+		FROM 	P_ALLOTMENT_DIRECTIONS
+		WHERE 	id = p_id
+        LIMIT	0,1;
+	END IF;
+END $$
+
 CREATE PROCEDURE R_FETCH_ALL_INCIDENT_TYPES(IN p_token VARCHAR(255))
 BEGIN
 	DECLARE v_company_id BIGINT;
@@ -372,11 +396,171 @@ BEGIN
 	IF v_user_id IS NULL OR v_company_id IS NULL THEN
 		CALL R_NOT_AUTHORIZED;
 	ELSE
-		SELECT 	`id`, `name`, `sequence`
+		SELECT 	`id`, `name`, `sequence`, `zip`, `city`, `lat`, `long`
 		FROM 	P_ALLOTMENT_DIRECTION_INDICATORS
 		WHERE	allotment_directions_id = p_direction_id
+				AND dd IS NULL
 		ORDER BY `sequence`, `name`;
 	END IF;
+END $$
+
+CREATE PROCEDURE R_FETCH_DIRECTION_INDICATOR_BY_ID(IN p_indicator_id INT, IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id BIGINT;
+	DECLARE v_user_id, v_guid VARCHAR(36);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+	
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		SELECT 	id, allotment_directions_id, `name`,lat, `long`, zip, city, sequence
+        FROM 	P_ALLOTMENT_DIRECTION_INDICATORS
+        WHERE 	id = p_indicator_id
+        LIMIT 	0,1;
+    END IF;
+END $$
+
+CREATE PROCEDURE R_ADD_DIRECTION(IN p_name VARCHAR(45), IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id BIGINT;
+	DECLARE v_user_id, v_guid VARCHAR(36);
+	DECLAre v_id BIGINT;
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+	
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		INSERT INTO P_ALLOTMENT_DIRECTIONS(`name`, `cd`, `cd_by`)
+        VALUES(p_name, now(), F_RESOLVE_LOGIN(v_user_id, p_token));
+        
+        CALL R_FETCH_DIRECTION_BY_ID(LAST_INSERT_ID(), p_token);
+    END IF;
+END $$
+
+
+CREATE PROCEDURE R_UPDATE_DIRECTION(IN p_id BIGINT, IN p_name VARCHAR(45), IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id BIGINT;
+	DECLARE v_user_id, v_guid VARCHAR(36);
+	DECLAre v_id BIGINT;
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+	
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		UPDATE 	P_ALLOTMENT_DIRECTIONS
+        SET 	`name` = p_name, 
+				ud=now(), 
+				ud_by=F_RESOLVE_LOGIN(v_user_id, p_token)
+        WHERE 
+				id = p_id;
+        
+        CALL R_FETCH_DIRECTION_BY_ID(LAST_INSERT_ID(), p_token);
+    END IF;
+END $$
+
+
+CREATE PROCEDURE R_DELETE_DIRECTION(IN p_id BIGINT, IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id BIGINT;
+	DECLARE v_user_id, v_guid VARCHAR(36);
+	DECLAre v_id BIGINT;
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+	
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		UPDATE 	P_ALLOTMENT_DIRECTIONS
+        SET 	dd=now(), 
+				dd_by=F_RESOLVE_LOGIN(v_user_id, p_token)
+        WHERE 	id = p_id;
+        
+        SELECT "OK" as result;
+    END IF;
+END $$
+
+CREATE PROCEDURE R_ADD_DIRECTION_INDICATOR( IN p_direction_id INT, 
+											IN p_name VARCHAR(255),
+                                            IN p_zip VARCHAR(4),
+                                            IN p_city VARCHAR(255),
+                                            IN p_lat double,
+                                            IN p_long double,
+                                            IN p_sequence INT,
+											IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id, v_id BIGINT;
+	DECLARE v_user_id, v_guid VARCHAR(36);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+	
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		INSERT INTO `P_ALLOTMENT_DIRECTION_INDICATORS`(`allotment_directions_id`, `name`, `lat`, `long`, `zip`, `city`, `sequence`, `cd`, `cd_by`)
+		VALUES (p_direction_id, p_name, p_lat, p_long, p_zip, p_city, p_sequence, now(), F_RESOLVE_LOGIN(v_user_id, p_token));
+        
+        SET v_id = LAST_INSERT_ID();
+        
+        -- CREATE A MAP BETWEEN YOUR COMPANY'S ALLOTMENT AND THE ADDED INDICATOR
+        INSERT INTO P_ALLOTMENT_MAP(allotment_id, direction_id, indicator_id)
+        SELECT 	allotment_id, p_direction_id, v_id
+        FROM 	T_COMPANY_ALLOTMENTS 
+        WHERE 	company_id = v_company_id;
+
+		-- RETURN THEN INDICATOR
+		CALL R_FETCH_DIRECTION_INDICATOR_BY_ID(v_id, p_token);
+    END IF;
+END $$
+
+CREATE PROCEDURE R_UPDATE_DIRECTION_INDICATOR( 	IN p_id INT,
+												IN p_direction_id INT, 
+												IN p_name VARCHAR(255),
+												IN p_zip VARCHAR(4),
+												IN p_city VARCHAR(255),
+												IN p_lat double,
+												IN p_long double,
+												IN p_sequence INT,
+												IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id BIGINT;
+	DECLARE v_user_id, v_guid VARCHAR(36);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+	
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+		UPDATE 	P_ALLOTMENT_DIRECTION_INDICATORS
+        SET 	name = p_name, lat = p_lat, `long`=p_long, zip = p_zip, city = p_city, sequence = p_sequence,
+				ud = now(), ud_by = F_RESOLVE_LOGIN(v_user_id, p_token)
+        WHERE 	id = p_id 
+				AND allotment_directions_id = p_direction_id;
+        
+        CALL R_FETCH_DIRECTION_INDICATOR_BY_ID(p_id, p_token);
+    END IF;
+END $$
+
+CREATE PROCEDURE R_DELETE_DIRECTION_INDICATOR(IN p_id INT, IN p_direction_id BIGINT, IN p_token VARCHAR(255))
+BEGIN
+	DECLARE v_company_id BIGINT;
+	DECLARE v_user_id, v_guid VARCHAR(36);
+
+	CALL R_RESOLVE_ACCOUNT_INFO(p_token, v_user_id, v_company_id);
+	
+	IF v_user_id IS NULL OR v_company_id IS NULL THEN
+		CALL R_NOT_AUTHORIZED;
+	ELSE
+   		UPDATE 	P_ALLOTMENT_DIRECTION_INDICATORS
+        SET 	dd = now(), dd_by = F_RESOLVE_LOGIN(v_user_id, p_token)
+        WHERE 	id = p_id 
+				AND allotment_directions_id = p_direction_id;
+                
+		SELECT "OK" as result;
+    END IF;
 END $$
 
 CREATE PROCEDURE R_FETCH_COMPANIES_BY_DIRECTION_AND_INDICATOR(IN p_direction_id INT, IN p_indicator_id INT, IN p_token VARCHAR(255))
