@@ -171,6 +171,7 @@ END $$
 
 CREATE PROCEDURE R_INVOICE_UPDATE_INVOICE(IN p_id BIGINT, 
 										  IN p_ref VARCHAR(20),
+                                          IN p_doc_ref VARCHAR(45),
                                           IN p_insurance_dossiernr VARCHAR(45),
 										  -- IN p_invoice_total_excl_vat DOUBLE, IN p_invoice_total_incl_vat DOUBLE,
                                           -- IN p_vat_total DOUBLE, IN p_vat DOUBLE,
@@ -190,6 +191,7 @@ BEGIN
 		UPDATE 	`T_INVOICES`
 		SET
 				`invoice_structured_reference` = p_ref,
+                `invoice_doc_ref` = p_doc_ref,
 				-- `vat_foreign_country` = <{vat_foreign_country: }>,
 				-- `invoice_total_excl_vat` 	= p_invoice_total_excl_vat,
 				-- `invoice_total_incl_vat` 	= p_invoice_total_incl_vat,
@@ -1021,7 +1023,7 @@ BEGIN
     
     -- CREATE A NEW INVOICE
     INSERT INTO T_INVOICES(company_id, towing_voucher_id, invoice_batch_run_id,
-						   invoice_customer_id, invoice_date, invoice_number, invoice_structured_reference,
+						   invoice_customer_id, invoice_date, invoice_number, invoice_structured_reference, invoice_doc_ref,
 						   vat_foreign_country,
 						   invoice_total_excl_vat, invoice_total_incl_vat,
 						   invoice_total_vat,
@@ -1032,7 +1034,7 @@ BEGIN
                            invoice_amount_paid,
                            invoice_payment_type)
     VALUES(v_company_id, p_voucher_id, p_batch_id,
-		   v_invoice_customer_id, CURDATE(), v_invoice_number, F_CREATE_STRUCTURED_REFERENCE(v_invoice_number),
+		   v_invoice_customer_id, CURDATE(), v_invoice_number, F_CREATE_STRUCTURED_REFERENCE(v_invoice_number), v_voucher_number,
            v_foreign_vat,
            v_amount_excl_vat, v_amount_incl_vat,
            v_amount_incl_vat-v_amount_excl_vat,
@@ -1242,7 +1244,7 @@ BEGIN
 		-- CREATE A NEW INVOICE
 		INSERT INTO T_INVOICES(company_id, towing_voucher_id,
 							   invoice_batch_run_id,
-							   invoice_customer_id, invoice_date, invoice_number, invoice_structured_reference,
+							   invoice_customer_id, invoice_date, invoice_number, invoice_structured_reference, invoice_doc_ref,
 							   vat_foreign_country,
 							   invoice_total_excl_vat, invoice_total_incl_vat,
 							   invoice_total_vat,
@@ -1253,7 +1255,7 @@ BEGIN
                                invoice_payment_type)
 		VALUES(v_company_id, p_voucher_id,
 			   p_batch_id,
-			   v_invoice_customer_id, CURDATE(), v_invoice_number, F_CREATE_STRUCTURED_REFERENCE(v_invoice_number),
+			   v_invoice_customer_id, CURDATE(), v_invoice_number, F_CREATE_STRUCTURED_REFERENCE(v_invoice_number), v_voucher_number,
 			   v_foreign_vat,
 			   v_amount_excl_vat,v_amount_incl_vat,
 			   v_amount_incl_vat - v_amount_excl_vat,
@@ -1422,7 +1424,7 @@ BEGIN
 	-- CREATE A NEW INVOICE
 	INSERT INTO T_INVOICES(company_id, towing_voucher_id,
 						   invoice_batch_run_id,
-						   invoice_customer_id, invoice_date, invoice_number, invoice_structured_reference,
+						   invoice_customer_id, invoice_date, invoice_number, invoice_structured_reference, invoice_doc_ref,
 						   vat_foreign_country,
 						   invoice_total_excl_vat, invoice_total_incl_vat,
 						   invoice_total_vat,
@@ -1433,7 +1435,7 @@ BEGIN
                            invoice_payment_type)
 	VALUES(v_company_id, p_voucher_id,
 		   p_batch_id,
-		   v_invoice_customer_id, CURDATE(), v_invoice_number, F_CREATE_STRUCTURED_REFERENCE(v_invoice_number),
+		   v_invoice_customer_id, CURDATE(), v_invoice_number, F_CREATE_STRUCTURED_REFERENCE(v_invoice_number), v_voucher_number,
 		   v_foreign_vat,
 		   v_amount_excl_vat, v_amount_incl_vat,
 		   v_amount_incl_vat - v_amount_excl_vat,
@@ -1589,6 +1591,7 @@ BEGIN
 				i.invoice_number, 
                 concat(IF(i.invoice_type='CN', 'CN', 'F'), LEFT(i.invoice_number, 4), '/', SUBSTRING(i.invoice_number,5)) as invoice_number_display,
 				i.invoice_structured_reference,
+                i.invoice_doc_ref,
 				i.vat_foreign_country,
 				i.invoice_total_excl_vat, 
                 i.invoice_total_incl_vat,

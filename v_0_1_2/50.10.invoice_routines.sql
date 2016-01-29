@@ -958,7 +958,7 @@ BEGIN
     -- FETCH THE INSURANCE COMPANY INFORMATION FOR THE VOUCHER
 	SET v_customer_number = F_CUSTOMER_NUMBER_FOR_INSURANCE(p_insurance_id);
 
-	SELECT 	i.name, i.vat, i.street, i.street_number, i.street_pobox, i.zip, i.city, 
+	SELECT 	i.company_name, i.company_vat, i.street, i.street_number, i.street_pobox, i.zip, i.city, 
 			d.company_id,
 			tv.voucher_number,
             tv.insurance_dossiernr,
