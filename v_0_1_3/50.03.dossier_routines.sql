@@ -762,10 +762,10 @@ BEGIN
 					(SELECT `company_name` FROM T_CUSTOMERS WHERE id = tv.`insurance_id`) as `insurance_name`,
                     -- jaartal+maand+dag_TB+takelbonnummer_verkorte naam aannemer_PA of TA nummer_Perceel_nr autosnelweg	
 					-- e.g. 20150622_TB356482_France_PA09149798_P1_R1
-					CONCAT(	YEAR(d.call_date), LPAD(MONTH(d.call_date), 2, '0'), LPAD(DAY(d.call_date), 2, '0'), '_'
+					CONCAT(	YEAR(d.call_date), LPAD(MONTH(d.call_date), 2, '0'), LPAD(DAY(d.call_date), 2, '0'), '_',
+							d.call_number, '_',
 							'TB', voucher_number, '_',
 							(SELECT code FROM T_COMPANIES WHERE id = d.company_id LIMIT 0,1), '_',
-							d.call_number, '_',
 							(SELECT code FROM P_ALLOTMENT WHERE id = d.allotment_id LIMIT 0,1), '_',
 							(SELECT REPLACE(REPLACE(name, '>', '_'), ' ', '') FROM P_ALLOTMENT_DIRECTIONS WHERE id = d.allotment_direction_id LIMIT 0,1), '.pdf') as towing_voucher_filename
 			FROM 	T_TOWING_VOUCHERS tv, T_DOSSIERS d

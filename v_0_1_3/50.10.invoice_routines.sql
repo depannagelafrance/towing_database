@@ -698,10 +698,10 @@ BEGIN
 				-- jaartal+maand+dag_FVH+factuurnummer_verkorte naam aannemer_PA of TA nummer_Perceel_nr autosnelweg
 				-- e.g. 20150622_FVH562879_Hamse_TA00000953_P5_E313
 				CONCAT(	YEAR(i.invoice_date), LPAD(MONTH(i.invoice_date), 2, '0'), LPAD(DAY(i.invoice_date), 2, '0'), '_',
-						IF(i.invoice_type = 'CN', 'CN', 'FVH'), 
-						i.invoice_number, '_', 
-						(SELECT code FROM T_COMPANIES WHERE id = d.company_id LIMIT 0,1), '_',
 						d.call_number, '_',
+						IF(i.invoice_type = 'CN', 'CN', 'FVH'), i.invoice_number, '_', 
+                        IF(i.towing_voucher_id IS NULL, '', CONCAT(' bij TB', tv.voucher_number)), '_',
+						(SELECT code FROM T_COMPANIES WHERE id = d.company_id LIMIT 0,1), '_',
 						(SELECT code FROM P_ALLOTMENT WHERE id = d.allotment_id LIMIT 0,1), '_',
 						(SELECT REPLACE(REPLACE(name, '>', '_'), ' ', '') FROM P_ALLOTMENT_DIRECTIONS WHERE id = d.allotment_direction_id LIMIT 0,1), '.pdf') AS filename                
 		FROM	T_DOSSIERS d, T_TOWING_VOUCHERS tv, T_INVOICES i
