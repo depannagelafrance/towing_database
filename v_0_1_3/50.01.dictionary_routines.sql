@@ -246,7 +246,7 @@ BEGIN
 					dd IS NULL
 					AND company_id = v_company_id
 			ORDER 	BY `company_name`;        
-		ELSE 
+		ELSEIF p_type = 'INSURANCE' THEN
 			SELECT 	id, 
 					type, 
 					customer_number, 
@@ -258,9 +258,22 @@ BEGIN
 			WHERE 
 					dd IS NULL
 					AND company_id = v_company_id
-                    AND `is_insurance`=(p_type = 'INSURANCE')
-                    AND `is_collector`=(p_type = 'COLLECTOR' OR p_type='CUSTOMER')
-			ORDER 	BY`company_name`;	
+                    AND `is_insurance`= 1
+			ORDER 	BY `company_name`;	
+		ELSE
+			SELECT 	id, 
+					type, 
+					customer_number, 
+					company_name, company_vat,
+					first_name, last_name,
+					street, street_number, street_pobox, zip, city, country,
+					invoice_excluded, is_insurance, is_collector
+			FROM 	T_CUSTOMERS
+			WHERE 
+					dd IS NULL
+					AND company_id = v_company_id
+                    AND `is_collector` = 1
+			ORDER 	BY `company_name`;        
 		END IF;
     END IF;
 END $$
