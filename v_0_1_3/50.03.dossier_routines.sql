@@ -1577,7 +1577,14 @@ BEGIN
 			DATE(d.call_date)			AS 'Oproep datum',
 			TIME(d.call_date)			AS 'Oproep uur',
 			d.call_number 				AS 'Oproep nummer',
-			a.name 						AS'Perceel',
+            (SELECT it.name 
+				FROM `AUDIT_P_towing_be`.T_DOSSIERS d, P_INCIDENT_TYPES it
+				WHERE 	d.id = tv.dossier_id
+						AND d.incident_type_id=it.id
+						AND d.incident_type_id IS NOT NULL
+				ORDER BY d.ud ASC
+                LIMIT 0,1) AS 'Oorspronkelijk type incident' ,
+			a.name 						AS 'Perceel',
 			ad.name 					AS 'Richting',
 			adi.name 					AS 'KM Paal',
 			tv.vehicule					AS 'Voertuig',
@@ -1592,6 +1599,7 @@ BEGIN
 			tv.towing_arrival			AS 'Aankomst takel', 
 			tv.towing_start				AS 'Start takel', 
 			tv.towing_completed			AS 'Stop takel', 
+            tv.vehicule_collected		AS 'Afhaling voertuig',
 			(SELECT CONCAT(first_name, ' ', last_name) FROM T_USERS WHERE id = tv.towing_id) AS 'Takelaar',
 			tv.additional_info			AS 'Extra informatie',
 			tv.cic						AS 'Afmelding CIC',
