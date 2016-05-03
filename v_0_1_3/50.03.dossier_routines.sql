@@ -1574,7 +1574,8 @@ BEGIN
 			@rownum := IFNULL(@rownum,0) + 1 AS 'Nr.',
 			tv.voucher_number 			AS 'Takelbon',
 			WEEK(d.call_date, 5) 		AS 'Week',
-			DATE(d.call_date)			AS 'Oproep datum',
+			-- d.call_date					AS 'Oproep datum',
+            date_format(d.call_date, '%Y-%m-%d') AS 'Oproep datum',
 			TIME(d.call_date)			AS 'Oproep uur',
 			d.call_number 				AS 'Oproep nummer',
             (SELECT it.name 
